@@ -6,9 +6,16 @@ class IDX11GraphicInstance {
 public:
 	virtual ~IDX11GraphicInstance() = default;
 
-	virtual void EnterContext(const std::source_location &location = std::source_location::current()) = 0;
-	virtual void LeaveContext(const std::source_location &location = std::source_location::current()) = 0;
-
 	virtual void RunTask1() = 0;
 	virtual void RunTask2() = 0;
+};
+
+class __declspec(dllexport) AutoGraphicContext {
+public:
+	AutoGraphicContext(IDX11GraphicInstance *graphic, const std::source_location &location);
+	virtual ~AutoGraphicContext();
+
+private:
+	class impl;
+	impl *self;
 };

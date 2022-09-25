@@ -2,6 +2,32 @@
 
 static thread_local std::stack<DX11GraphicInstanceImpl *> g_stackContexts;
 
+class AutoGraphicContext::impl {
+public:
+	impl(IDX11GraphicInstance *graphic, const std::source_location &location) : m_Location(location)
+	{
+		m_pGraphic = dynamic_cast<DX11GraphicInstanceImpl *>(graphic);
+		m_pGraphic->EnterContext(m_Location);
+	}
+
+	virtual ~impl() { m_pGraphic->LeaveContext(m_Location); }
+
+private:
+	std::source_location m_Location;
+	DX11GraphicInstanceImpl *m_pGraphic = nullptr;
+};
+
+AutoGraphicContext::AutoGraphicContext(IDX11GraphicInstance *graphic, const std::source_location &location)
+{
+	self = new impl(graphic, location);
+}
+
+AutoGraphicContext::~AutoGraphicContext()
+{
+	delete self;
+}
+
+//------------------------------------------------------------------------------------
 void DX11GraphicInstanceImpl::EnterContext(const std::source_location &location)
 {
 	if (!g_stackContexts.empty() && g_stackContexts.top() != this) {
@@ -9,7 +35,7 @@ void DX11GraphicInstanceImpl::EnterContext(const std::source_location &location)
 		return;
 	}
 
-	m_lockOperation.lock();
+	EnterCriticalSection(&m_lockOperation);
 	g_stackContexts.push(this);
 }
 
@@ -26,7 +52,7 @@ void DX11GraphicInstanceImpl::LeaveContext(const std::source_location &location)
 	}
 
 	g_stackContexts.pop();
-	m_lockOperation.unlock();
+	LeaveCriticalSection(&m_lockOperation);
 }
 
 bool DX11GraphicInstanceImpl::CheckContext()

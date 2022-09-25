@@ -10,18 +10,20 @@
 // 同一个线程中，不同的DX11GraphicInstanceImpl实例  必须保证上一个实例leave了 下一个实例才可以enter
 // 同一个DX11GraphicInstanceImpl实例，在不同线程中可以多线程访问（entercontext时有锁）
 class DX11GraphicInstanceImpl : public IDX11GraphicInstance {
-public:
-	DX11GraphicInstanceImpl() = default;
+	friend class AutoGraphicContext;
 
-	virtual void EnterContext(const std::source_location &location = std::source_location::current());
-	virtual void LeaveContext(const std::source_location &location = std::source_location::current());
+public:
+	DX11GraphicInstanceImpl();
+	virtual ~DX11GraphicInstanceImpl();
 
 	virtual void RunTask1();
 	virtual void RunTask2();
 
 protected:
+	void EnterContext(const std::source_location &location);
+	void LeaveContext(const std::source_location &location);
 	bool CheckContext();
 
 private:
-	std::recursive_mutex m_lockOperation;
+	CRITICAL_SECTION m_lockOperation;
 };

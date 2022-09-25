@@ -48,8 +48,7 @@ CMFCDemoDlg::CMFCDemoDlg(CWnd *pParent /*=nullptr*/) : CDialogEx(IDD_MFCDEMO_DIA
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
 	m_pGraphic = CreateGraphicInstance();
-	m_pGraphic->EnterContext();
-	m_pGraphic->LeaveContext();
+	AUTO_GRAPHIC_CONTEXT(m_pGraphic);
 }
 
 void CMFCDemoDlg::DoDataExchange(CDataExchange *pDX)
