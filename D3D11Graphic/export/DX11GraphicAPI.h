@@ -1,8 +1,9 @@
 #pragma once
-#include <stack>
-#include <mutex>
-#include <assert.h>
 #include <Windows.h>
+#include <string>
+#include <memory>
+#include <vector>
+#include <DX11GraphicInstance.h>
 
 #ifdef GRAPHIC_API_EXPORTS
 #define GRAPHIC_API __declspec(dllexport)
@@ -10,19 +11,18 @@
 #define GRAPHIC_API __declspec(dllimport)
 #endif
 
-// 保证了以下规则：
-// CDX11Instance 的操作函数（RunTaskXXX） 必须在 EnterContext和LeaveContext 之间执行
-// 同一个线程中，不同的CDX11Instance实例  必须保证上一个实例leave了 下一个实例才可以enter
-// 同一个CDX11Instance实例，在不同线程中可以多线程访问（entercontext时有锁）
-class CDX11Instance {
-public:
-	void EnterContext();
-	void LeaveContext();
-	bool CheckContext();
+#define TEXTURE_VERTEX_COUNT 4
+#define RECT_LINE_VERTEX_COUNT 5
 
-	void RunTask1();
-	void RunTask2();
+#define COMBINE2(a, b) a##b
+#define COMBINE1(a, b) COMBINE2(a, b)
+#define AUTO_GRAPHIC_CONTEXT(graphic) AutoGraphicContext COMBINE1(autoContext, __LINE__)(graphic, std::source_location::current())
 
-private:
-	std::recursive_mutex m_lockOperation;
-};
+GRAPHIC_API std::shared_ptr<std::vector<ST_GraphicCardInfo>> EnumGraphicCard();
+
+GRAPHIC_API IDX11GraphicInstance *CreateGraphicInstance();
+GRAPHIC_API void DestroyGraphicInstance(IDX11GraphicInstance *&graphic);
+
+GRAPHIC_API void TransposeMatrixWVP(SIZE canvas, SIZE texture, RECT destPos, float outputMatrix[4][4]);
+GRAPHIC_API void VertexList_RectTriangle(SIZE texture, bool flipH, bool flipV, ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT]);
+GRAPHIC_API void VertexList_RectLine(SIZE texture, ST_TextureVertex outputVertex[RECT_LINE_VERTEX_COUNT]);

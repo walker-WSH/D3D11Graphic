@@ -9,30 +9,107 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="include">
+    <Filter Include="DX11Instance">
       <UniqueIdentifier>{3bd543be-52f4-4f5d-81a5-a37ad3f124b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{ec537707-65b5-4cf7-b50d-4756a632f034}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HLSL">
+      <UniqueIdentifier>{c12d1cd6-9173-412e-99da-ab5d919481e0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="DX11Instance.cpp">
-      <Filter>source</Filter>
+    <ClCompile Include="DX11GraphicInstanceImpl.cpp">
+      <Filter>DX11Instance</Filter>
     </ClCompile>
     <ClCompile Include="DX11GraphicAPI.cpp">
-      <Filter>include</Filter>
+      <Filter>DX11Instance</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11GraphicInstanceContext.cpp">
+      <Filter>DX11Instance</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowsVersion.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="EnumAdapter.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11Shader.cpp">
+      <Filter>shader</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11ShaderTexture.cpp">
+      <Filter>shader</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11Texture2D.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11SwapChain.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11GraphicBase.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11GraphicMatrix.cpp">
+      <Filter>DX11Instance</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\ComPtr.hpp">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="DX11Instance.h">
-      <Filter>include</Filter>
+    <ClInclude Include="DX11GraphicInstanceImpl.h">
+      <Filter>DX11Instance</Filter>
     </ClInclude>
-    <ClInclude Include="DX11GraphicAPI.h">
-      <Filter>include</Filter>
+    <ClInclude Include="export\DX11GraphicInstance.h">
+      <Filter>DX11Instance</Filter>
     </ClInclude>
+    <ClInclude Include="export\DX11GraphicAPI.h">
+      <Filter>DX11Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsVersion.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumAdapter.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11Shader.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11ShaderTexture.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11Texture2D.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11SwapChain.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="export\DX11VideoFrame.hpp">
+      <Filter>DX11Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11GraphicBase.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="export\DX11GraphicDefine.h">
+      <Filter>DX11Instance</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="HLSL\defaultPS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\defaultVS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\rectPS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\rectVS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
