@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <DX11GraphicAPI.h>
+#include <DX11GraphicInstance.h>
+
 
 // CMFCDemoDlg 对话框
 class CMFCDemoDlg : public CDialogEx
@@ -24,6 +27,8 @@ public:
 // 实现
 protected:
 	HICON m_hIcon;
+
+	IDX11GraphicInstance *m_pGraphic = nullptr;
 
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();

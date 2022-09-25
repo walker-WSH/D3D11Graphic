@@ -1,8 +1,8 @@
-#include "DX11Instance.h"
+#include "DX11GraphicInstanceImpl.h"
 
-static thread_local std::stack<CDX11Instance *> g_stackContexts;
+static thread_local std::stack<DX11GraphicInstanceImpl *> g_stackContexts;
 
-void CDX11Instance::EnterContext(const std::source_location &location)
+void DX11GraphicInstanceImpl::EnterContext(const std::source_location &location)
 {
 	if (!g_stackContexts.empty() && g_stackContexts.top() != this) {
 		assert(false && "you are in another context!");
@@ -13,7 +13,7 @@ void CDX11Instance::EnterContext(const std::source_location &location)
 	g_stackContexts.push(this);
 }
 
-void CDX11Instance::LeaveContext(const std::source_location &location)
+void DX11GraphicInstanceImpl::LeaveContext(const std::source_location &location)
 {
 	if (g_stackContexts.empty()) {
 		assert(false && "you are not in any context!");
@@ -29,7 +29,7 @@ void CDX11Instance::LeaveContext(const std::source_location &location)
 	m_lockOperation.unlock();
 }
 
-bool CDX11Instance::CheckContext()
+bool DX11GraphicInstanceImpl::CheckContext()
 {
 	bool ret = (!g_stackContexts.empty() && this == g_stackContexts.top());
 	assert(ret);

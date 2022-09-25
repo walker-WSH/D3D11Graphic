@@ -165,12 +165,12 @@
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="DX11GraphicAPI.cpp" />
-    <ClCompile Include="DX11Instance.cpp" />
-    <ClCompile Include="DX11InstanceContext.cpp" />
+    <ClCompile Include="DX11GraphicInstanceContext.cpp" />
+    <ClCompile Include="DX11GraphicInstanceImpl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\ComPtr.hpp" />
-    <ClInclude Include="DX11Instance.h" />
+    <ClInclude Include="DX11GraphicInstanceImpl.h" />
     <ClInclude Include="export\DX11GraphicAPI.h" />
     <ClInclude Include="export\DX11GraphicInstance.h" />
   </ItemGroup>
