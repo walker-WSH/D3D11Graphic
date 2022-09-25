@@ -5,6 +5,11 @@ VisualStudioVersion = 16.0.31729.503
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D3D11Graphic", "D3D11Graphic\D3D11Graphic.vcxproj", "{5CC7C82D-26F3-4F27-81C0-868BC61B9962}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MFCDemo", "MFCDemo\MFCDemo.vcxproj", "{568E9AC8-12B5-42AA-BEC6-76443C2E15E0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5CC7C82D-26F3-4F27-81C0-868BC61B9962} = {5CC7C82D-26F3-4F27-81C0-868BC61B9962}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +26,14 @@ Global
 		{5CC7C82D-26F3-4F27-81C0-868BC61B9962}.Release|x64.Build.0 = Release|x64
 		{5CC7C82D-26F3-4F27-81C0-868BC61B9962}.Release|x86.ActiveCfg = Release|Win32
 		{5CC7C82D-26F3-4F27-81C0-868BC61B9962}.Release|x86.Build.0 = Release|Win32
+		{568E9AC8-12B5-42AA-BEC6-76443C2E15E0}.Debug|x64.ActiveCfg = Debug|x64
+		{568E9AC8-12B5-42AA-BEC6-76443C2E15E0}.Debug|x64.Build.0 = Debug|x64
+		{568E9AC8-12B5-42AA-BEC6-76443C2E15E0}.Debug|x86.ActiveCfg = Debug|Win32
+		{568E9AC8-12B5-42AA-BEC6-76443C2E15E0}.Debug|x86.Build.0 = Debug|Win32
+		{568E9AC8-12B5-42AA-BEC6-76443C2E15E0}.Release|x64.ActiveCfg = Release|x64
+		{568E9AC8-12B5-42AA-BEC6-76443C2E15E0}.Release|x64.Build.0 = Release|x64
+		{568E9AC8-12B5-42AA-BEC6-76443C2E15E0}.Release|x86.ActiveCfg = Release|Win32
+		{568E9AC8-12B5-42AA-BEC6-76443C2E15E0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

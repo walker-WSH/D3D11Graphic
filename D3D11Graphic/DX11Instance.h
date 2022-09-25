@@ -3,25 +3,22 @@
 #include <mutex>
 #include <assert.h>
 #include <Windows.h>
-
-#ifdef GRAPHIC_API_EXPORTS
-#define GRAPHIC_API __declspec(dllexport)
-#else
-#define GRAPHIC_API __declspec(dllimport)
-#endif
+#include <DX11GraphicInstance.h>
 
 // 保证了以下规则：
 // CDX11Instance 的操作函数（RunTaskXXX） 必须在 EnterContext和LeaveContext 之间执行
 // 同一个线程中，不同的CDX11Instance实例  必须保证上一个实例leave了 下一个实例才可以enter
 // 同一个CDX11Instance实例，在不同线程中可以多线程访问（entercontext时有锁）
-class CDX11Instance {
+class CDX11Instance : public DX11Graphic {
 public:
-	void EnterContext();
-	void LeaveContext();
-	bool CheckContext();
+	virtual void EnterContext(const std::source_location &location = std::source_location::current());
+	virtual void LeaveContext(const std::source_location &location = std::source_location::current());
 
-	void RunTask1();
-	void RunTask2();
+	virtual void RunTask1();
+	virtual void RunTask2();
+
+protected:
+	bool CheckContext();
 
 private:
 	std::recursive_mutex m_lockOperation;
