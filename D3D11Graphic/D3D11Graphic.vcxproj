@@ -190,6 +190,7 @@
     <ClInclude Include="EnumAdapter.h" />
     <ClInclude Include="export\DX11GraphicAPI.h" />
     <ClInclude Include="export\DX11GraphicInstance.h" />
+    <ClInclude Include="export\DX11VideoFrame.hpp" />
     <ClInclude Include="WindowsVersion.h" />
   </ItemGroup>
   <ItemGroup>

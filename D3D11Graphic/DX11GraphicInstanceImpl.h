@@ -47,7 +47,7 @@ public:
 
 	virtual bool RenderBegin_Canvas(texture_handle hdl);
 	virtual bool RenderBegin_Display(display_handle hdl);
-	void virtual SetBackgroundColor(float red, float green, float blue, float alpha);
+	virtual void SetBackgroundColor(float red, float green, float blue, float alpha);
 	virtual void RenderEnd();
 
 	//------------------------------------------------------------------------------------------------------

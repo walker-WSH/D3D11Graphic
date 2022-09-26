@@ -2,6 +2,7 @@
 #include <dxgi.h>
 #include <Windows.h>
 #include <source_location>
+#include <DX11VideoFrame.hpp>
 
 using texture_handle = void *;
 using display_handle = void *;
@@ -44,6 +45,37 @@ public:
 
 	virtual bool RenderBegin_Canvas(texture_handle hdl) = 0;
 	virtual bool RenderBegin_Display(display_handle hdl) = 0;
-	void virtual SetBackgroundColor(float red, float green, float blue, float alpha) = 0;
+	virtual void SetBackgroundColor(float red, float green, float blue, float alpha) = 0;
+
+	virtual void SetVideoFrame(VIDEO_FRAME frame) {}
+	virtual void SetVertexBuffer(void *buffer, size_t size) {}
+	virtual void SetConstBuffer(void *vsBuffer, size_t vsSize, void *psBuffer, size_t psSize) {} // such as wvp matrix
+
+	virtual void Draw()
+	{
+		//buffer[0] = m_pUsedShader->m_pVertexBuffer;
+		//TestRenderModuleEngine::Instance()->m_pDeviceContext->IASetVertexBuffers(0, 1, buffer, &stride, &offset);
+		//TestRenderModuleEngine::Instance()->m_pDeviceContext->IASetInputLayout(m_pUsedShader->m_pInputLayout);
+
+		//TestRenderModuleEngine::Instance()->m_pDeviceContext->VSSetShader(m_pUsedShader->m_pVertexShader, NULL, 0);
+		//if (m_pUsedShader->m_pVSBuffer.Get()) {
+		//	buffer[0] = m_pUsedShader->m_pVSBuffer;
+		//	TestRenderModuleEngine::Instance()->m_pDeviceContext->VSSetConstantBuffers(0, 1, buffer);
+		//}
+
+		//TestRenderModuleEngine::Instance()->m_pDeviceContext->PSSetShader(m_pUsedShader->m_pPixelShader, NULL, 0);
+		//if (m_pUsedShader->m_pPSBuffer.Get()) {
+		//	buffer[0] = m_pUsedShader->m_pPSBuffer;
+		//	TestRenderModuleEngine::Instance()->m_pDeviceContext->PSSetConstantBuffers(0, 1, buffer);
+		//}
+
+		//TestRenderModuleEngine::Instance()->m_pDeviceContext->PSSetSamplers(0, 1, &sampleState);
+		//TestRenderModuleEngine::Instance()->m_pDeviceContext->PSSetShaderResources(0, 1, views);
+		//TestRenderModuleEngine::Instance()->m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		//TestRenderModuleEngine::Instance()->m_pDeviceContext->Draw(TEXTURE_VERTEX_COUNT, 0);
+
+		//m_pSwapChain->m_pSwapChain->Present(0, 0);
+	}
+
 	virtual void RenderEnd() = 0;
 };
