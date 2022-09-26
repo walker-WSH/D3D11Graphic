@@ -24,7 +24,7 @@ struct ST_TextureInfo {
 	uint32_t width = 0;
 	uint32_t height = 0;
 	enum DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
-	enum TextureType type = TextureType::Unknown;
+	enum TextureType usage = TextureType::Unknown;
 };
 
 struct ST_Color {

@@ -58,7 +58,7 @@ texture_handle DX11GraphicInstanceImpl::OpenTexture(HANDLE hSharedHanle)
 texture_handle DX11GraphicInstanceImpl::CreateTexture(const ST_TextureInfo &info)
 {
 	CHECK_GRAPHIC_CONTEXT;
-	assert(TextureType::SharedHandle != info.type);
+	assert(TextureType::SharedHandle != info.usage);
 	return new DX11Texture2D(*this, info);
 }
 
@@ -335,7 +335,7 @@ bool DX11GraphicInstanceImpl::GetResource(const std::vector<texture_handle> &tex
 			return false;
 		}
 
-		if (TextureType::CanvasTarget == tex->m_textureInfo.type) {
+		if (TextureType::CanvasTarget == tex->m_textureInfo.usage) {
 			assert(false);
 			return false;
 		}
@@ -385,7 +385,7 @@ bool DX11GraphicInstanceImpl::RenderBegin_Canvas(texture_handle hdl, ST_Color bk
 
 	auto obj = dynamic_cast<DX11Texture2D *>(hdl);
 	assert(obj);
-	if (!obj || obj->m_textureInfo.type != TextureType::CanvasTarget) {
+	if (!obj || obj->m_textureInfo.usage != TextureType::CanvasTarget) {
 		assert(false);
 		return false;
 	}

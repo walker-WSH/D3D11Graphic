@@ -9,7 +9,7 @@ DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, const ST_TextureI
 
 DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, HANDLE handle) : DX11GraphicBase(graphic), m_hSharedHandle(handle)
 {
-	m_textureInfo.type = TextureType::SharedHandle;
+	m_textureInfo.usage = TextureType::SharedHandle;
 	BuildDX();
 }
 
@@ -18,7 +18,7 @@ bool DX11Texture2D::BuildDX()
 	CHECK_GRAPHIC_CONTEXT_EX(m_graphic);
 
 	bool bSuccessed = false;
-	switch (m_textureInfo.type) {
+	switch (m_textureInfo.usage) {
 	case TextureType::CanvasTarget:
 		bSuccessed = InitTargetTexture();
 		break;
