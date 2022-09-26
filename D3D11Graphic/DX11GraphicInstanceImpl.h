@@ -10,6 +10,8 @@
 #include "DX11Object.h"
 #include "DX11ShaderBorder.h"
 #include "DX11ShaderTexture.h"
+#include "DX11Texture2D.h"
+#include "DX11SwapChain.h"
 
 // 保证了以下规则：
 // DX11GraphicInstanceImpl 的操作函数（RunTaskXXX） 必须在 EnterContext和LeaveContext 之间执行
@@ -37,11 +39,16 @@ public:
 	virtual texture_handle OpenTexture(HANDLE hSharedHanle);
 	virtual texture_handle CreateReadTexture(uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM);
 	virtual texture_handle CreateWriteTexture(uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM);
-	virtual texture_handle CreateRenderTarget(uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM);
+	virtual texture_handle CreateRenderCanvas(uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM);
 	virtual ST_TextureInfo GetTextureInfo(texture_handle hdl);
 
 	virtual display_handle CreateDisplay(HWND hWnd);
 	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height);
+
+	virtual bool RenderBegin_Canvas(texture_handle hdl);
+	virtual bool RenderBegin_Display(display_handle hdl);
+	void virtual SetBackgroundColor(float red, float green, float blue, float alpha);
+	virtual void RenderEnd();
 
 	//------------------------------------------------------------------------------------------------------
 	void EnterContext(const std::source_location &location);
@@ -56,15 +63,18 @@ public:
 	void PushObject(DX11Object *obj);
 
 protected:
-	void ReleaseDX();
-	bool BuildDX();
+	void ReleaseAllDX();
+	bool BuildAllDX();
 	bool InitBlendState();
 	bool InitSamplerState();
+
+	void SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width, uint32_t height);
 
 private:
 	LUID m_adapterLuid = {0};
 
 	CRITICAL_SECTION m_lockOperation;
+	bool m_bBuilSuccessed = false;
 	ComPtr<IDXGIFactory1> m_pDX11Factory = nullptr;
 	ComPtr<ID3D11Device> m_pDX11Device = nullptr;
 	ComPtr<ID3D11DeviceContext> m_pDeviceContext = nullptr;
@@ -73,4 +83,7 @@ private:
 	std::shared_ptr<DX11ShaderTexture> m_pShaderDefault = nullptr;
 	std::shared_ptr<DX11ShaderTexture> m_pShaderBorder = nullptr;
 	std::vector<DX11Object *> m_listObject; // Here we do not hold its lifetime.
+
+	ComPtr<ID3D11RenderTargetView> m_pCurrentRenderTarget = nullptr;
+	ComPtr<IDXGISwapChain> m_pCurrentSwapChain = nullptr;
 };

@@ -18,6 +18,7 @@ public:
 
 	virtual bool BuildDX();
 	virtual void ReleaseDX();
+	virtual bool IsBuilt() { return m_pTexture2D; }
 
 protected:
 	bool InitWriteTexture();

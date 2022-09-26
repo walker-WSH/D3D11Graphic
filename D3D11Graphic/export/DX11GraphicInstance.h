@@ -36,9 +36,14 @@ public:
 	virtual texture_handle OpenTexture(HANDLE hSharedHanle) = 0;
 	virtual texture_handle CreateReadTexture(uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM) = 0;
 	virtual texture_handle CreateWriteTexture(uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM) = 0;
-	virtual texture_handle CreateRenderTarget(uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM) = 0;
+	virtual texture_handle CreateRenderCanvas(uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM) = 0;
 	virtual ST_TextureInfo GetTextureInfo(texture_handle hdl) = 0;
 
 	virtual display_handle CreateDisplay(HWND hWnd) = 0;
 	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height) = 0;
+
+	virtual bool RenderBegin_Canvas(texture_handle hdl) = 0;
+	virtual bool RenderBegin_Display(display_handle hdl) = 0;
+	void virtual SetBackgroundColor(float red, float green, float blue, float alpha) = 0;
+	virtual void RenderEnd() = 0;
 };

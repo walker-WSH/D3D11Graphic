@@ -56,7 +56,7 @@ CMFCDemoDlg::CMFCDemoDlg(CWnd *pParent /*=nullptr*/) : CDialogEx(IDD_MFCDEMO_DIA
 		AUTO_GRAPHIC_CONTEXT(m_pGraphic);
 		m_pGraphic->InitializeGraphic(listGraphic->at(0).AdapterLuid);
 
-		m_pGraphic->CreateRenderTarget(200, 200);
+		m_pGraphic->CreateRenderCanvas(200, 200);
 		m_pGraphic->CreateWriteTexture(200, 200);
 
 		texture_handle hdl = m_pGraphic->CreateReadTexture(200, 200);

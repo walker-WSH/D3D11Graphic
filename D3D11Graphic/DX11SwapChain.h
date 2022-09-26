@@ -5,6 +5,8 @@
 
 class DX11GraphicInstanceImpl;
 struct DX11SwapChain : public DX11Object {
+	friend class DX11GraphicInstanceImpl;
+
 public:
 	DX11SwapChain(DX11GraphicInstanceImpl &graphic, HWND hWnd);
 
@@ -13,6 +15,7 @@ public:
 
 	virtual bool BuildDX();
 	virtual void ReleaseDX();
+	virtual bool IsBuilt() { return m_pSwapChain && m_pSwapBackTexture2D && m_pRenderTargetView; }
 
 private:
 	bool InitSwapChain();

@@ -48,20 +48,20 @@ bool DX11SwapChain::TestResizeSwapChain()
 	RECT rcClient;
 	::GetClientRect(m_hWnd, &rcClient);
 
-	LONG nWidth = rcClient.right - rcClient.left;
-	LONG nHeight = rcClient.bottom - rcClient.top;
+	m_dwWidth = rcClient.right - rcClient.left;
+	m_dwHeight = rcClient.bottom - rcClient.top;
 
 	D3D11_TEXTURE2D_DESC desc;
 	m_pSwapBackTexture2D->GetDesc(&desc);
 
-	if (desc.Width != nWidth || desc.Height != nHeight) {
+	if (desc.Width != m_dwWidth || desc.Height != m_dwHeight) {
 		ID3D11RenderTargetView *pRenderView = NULL;
 		m_graphic.DXContext()->OMSetRenderTargets(1, &pRenderView, NULL);
 
 		m_pRenderTargetView = nullptr;
 		m_pSwapBackTexture2D = nullptr;
 
-		HRESULT hr = m_pSwapChain->ResizeBuffers(1, nWidth, nHeight, SWAPCHAIN_FORMAT, 0);
+		HRESULT hr = m_pSwapChain->ResizeBuffers(1, m_dwWidth, m_dwHeight, SWAPCHAIN_FORMAT, 0);
 		if (FAILED(hr)) {
 			assert(false);
 			return false;

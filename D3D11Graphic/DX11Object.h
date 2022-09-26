@@ -12,6 +12,7 @@ public:
 
 	virtual bool BuildDX() = 0;
 	virtual void ReleaseDX() = 0;
+	virtual bool IsBuilt() = 0;
 
 protected:
 	DX11GraphicInstanceImpl &m_graphic;
