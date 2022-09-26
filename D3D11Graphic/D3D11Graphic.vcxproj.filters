@@ -56,6 +56,9 @@
     <ClCompile Include="DX11Texture2D.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="DX11SwapChain.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\ComPtr.hpp">
@@ -92,6 +95,9 @@
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="DX11Texture2D.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11SwapChain.h">
       <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>

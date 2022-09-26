@@ -40,11 +40,15 @@ public:
 	virtual texture_handle CreateRenderTarget(uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM);
 	virtual ST_TextureInfo GetTextureInfo(texture_handle hdl);
 
+	virtual display_handle CreateDisplay(HWND hWnd);
+	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height);
+
 	//------------------------------------------------------------------------------------------------------
 	void EnterContext(const std::source_location &location);
 	void LeaveContext(const std::source_location &location);
 	bool CheckContext(const std::source_location &location);
 
+	ComPtr<IDXGIFactory1> DXFactory();
 	ComPtr<ID3D11Device> DXDevice();
 	ComPtr<ID3D11DeviceContext> DXContext();
 
@@ -61,6 +65,7 @@ private:
 	LUID m_adapterLuid = {0};
 
 	CRITICAL_SECTION m_lockOperation;
+	ComPtr<IDXGIFactory1> m_pDX11Factory = nullptr;
 	ComPtr<ID3D11Device> m_pDX11Device = nullptr;
 	ComPtr<ID3D11DeviceContext> m_pDeviceContext = nullptr;
 	ComPtr<ID3D11BlendState> m_pBlendState = nullptr;

@@ -17,22 +17,22 @@ bool DX11Texture2D::BuildDX()
 {
 	CHECK_GRAPHIC_CONTEXT_EX(m_graphic);
 
-	bool ret = false;
+	bool bSuccessed = false;
 	switch (m_usage) {
 	case TextureType::RenderTarget:
-		ret = InitTargetTexture();
+		bSuccessed = InitTargetTexture();
 		break;
 
 	case TextureType::ReadTexture:
-		ret = InitReadTexture();
+		bSuccessed = InitReadTexture();
 		break;
 
 	case TextureType::WriteTexture:
-		ret = InitWriteTexture();
+		bSuccessed = InitWriteTexture();
 		break;
 
 	case TextureType::SharedHandle:
-		ret = InitSharedTexture();
+		bSuccessed = InitSharedTexture();
 		break;
 
 	default:
@@ -40,10 +40,12 @@ bool DX11Texture2D::BuildDX()
 		break;
 	}
 
-	if (ret)
+	if (bSuccessed)
 		m_pTexture2D->GetDesc(&m_descTexture);
+	else
+		ReleaseDX();
 
-	return ret;
+	return bSuccessed;
 }
 
 void DX11Texture2D::ReleaseDX()
@@ -51,6 +53,7 @@ void DX11Texture2D::ReleaseDX()
 	CHECK_GRAPHIC_CONTEXT_EX(m_graphic);
 
 	m_pTexture2D = nullptr;
+	m_pRenderTargetView = nullptr;
 	m_pTextureResView = nullptr;
 }
 
@@ -130,6 +133,12 @@ bool DX11Texture2D::InitTargetTexture()
 	desc.MiscFlags |= D3D11_RESOURCE_MISC_GDI_COMPATIBLE | D3D11_RESOURCE_MISC_SHARED;
 
 	HRESULT hr = m_graphic.DXDevice()->CreateTexture2D(&desc, nullptr, m_pTexture2D.Assign());
+	if (FAILED(hr)) {
+		assert(false);
+		return false;
+	}
+
+	hr = m_graphic.DXDevice()->CreateRenderTargetView(m_pTexture2D, nullptr, m_pRenderTargetView.Assign());
 	if (FAILED(hr)) {
 		assert(false);
 		return false;

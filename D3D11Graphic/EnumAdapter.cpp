@@ -1,7 +1,8 @@
 #include "EnumAdapter.h"
 
 namespace DXGraphic {
-void EnumD3DAdapters(void *userdata, std::function<bool(void *, ComPtr<IDXGIAdapter1>, const DXGI_ADAPTER_DESC &, const char *)> callback)
+void EnumD3DAdapters(void *userdata,
+		     std::function<bool(void *, ComPtr<IDXGIFactory1>, ComPtr<IDXGIAdapter1>, const DXGI_ADAPTER_DESC &, const char *)> callback)
 {
 	ComPtr<IDXGIFactory1> factory;
 	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&factory));
@@ -25,11 +26,11 @@ void EnumD3DAdapters(void *userdata, std::function<bool(void *, ComPtr<IDXGIAdap
 		LARGE_INTEGER versionNum;
 		hr = adapter->CheckInterfaceSupport(__uuidof(IDXGIDevice), &versionNum);
 		if (SUCCEEDED(hr)) {
-			snprintf(versionStr, MAX_PATH, "%d.%d.%d.%d", HIWORD(versionNum.HighPart), LOWORD(versionNum.HighPart),
-				 HIWORD(versionNum.LowPart), LOWORD(versionNum.LowPart));
+			snprintf(versionStr, MAX_PATH, "%d.%d.%d.%d", HIWORD(versionNum.HighPart), LOWORD(versionNum.HighPart), HIWORD(versionNum.LowPart),
+				 LOWORD(versionNum.LowPart));
 		}
 
-		if (!callback(userdata, adapter, desc, versionStr))
+		if (!callback(userdata, factory, adapter, desc, versionStr))
 			break;
 	}
 }

@@ -29,6 +29,7 @@ protected:
 protected:
 	D3D11_TEXTURE2D_DESC m_descTexture;
 	ComPtr<ID3D11Texture2D> m_pTexture2D = nullptr;
+	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;
 	ComPtr<ID3D11ShaderResourceView> m_pTextureResView = nullptr;
 
 	HANDLE m_hSharedHandle = 0;

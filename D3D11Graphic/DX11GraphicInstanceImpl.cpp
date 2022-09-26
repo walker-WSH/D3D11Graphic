@@ -1,5 +1,6 @@
 #include "DX11GraphicInstanceImpl.h"
 #include "DX11Texture2D.h"
+#include "DX11SwapChain.h"
 
 HMODULE DX11GraphicInstanceImpl::s_hDllModule = nullptr;
 
@@ -21,14 +22,9 @@ bool DX11GraphicInstanceImpl::InitializeGraphic(LUID luid)
 	m_adapterLuid = luid;
 
 	m_pShaderDefault = std::shared_ptr<DX11ShaderTexture>(new DX11ShaderTexture(*this, L"defaultVS.cso", L"defaultPS.cso", sizeof(float) * 16, 0));
-
 	m_pShaderBorder = std::shared_ptr<DX11ShaderTexture>(new DX11ShaderTexture(*this, L"borderVS.cso", L"borderPS.cso", sizeof(float) * 16, 0));
 
-	ReleaseDX();
-	if (!BuildDX())
-		return false;
-
-	return false;
+	return BuildDX();
 }
 
 void DX11GraphicInstanceImpl::UnInitializeGraphic()
@@ -88,6 +84,18 @@ ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle hdl)
 	return ST_TextureInfo(obj->m_descTexture.Width, obj->m_descTexture.Height, obj->m_descTexture.Format);
 }
 
+display_handle DX11GraphicInstanceImpl::CreateDisplay(HWND hWnd)
+{
+	CHECK_GRAPHIC_CONTEXT;
+	return new DX11SwapChain(*this, hWnd);
+}
+
+void DX11GraphicInstanceImpl::SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height)
+{
+	auto obj = static_cast<DX11SwapChain *>(hdl);
+	obj->SetDisplaySize(width, height);
+}
+
 void DX11GraphicInstanceImpl::ReleaseDX()
 {
 	CHECK_GRAPHIC_CONTEXT;
@@ -95,6 +103,7 @@ void DX11GraphicInstanceImpl::ReleaseDX()
 	for (auto &item : m_listObject)
 		item->ReleaseDX();
 
+	m_pDX11Factory = nullptr;
 	m_pDX11Device = nullptr;
 	m_pDeviceContext = nullptr;
 	m_pBlendState = nullptr;
@@ -106,14 +115,15 @@ bool DX11GraphicInstanceImpl::BuildDX()
 	CHECK_GRAPHIC_CONTEXT;
 
 	ComPtr<IDXGIAdapter1> pAdapter;
-	DXGraphic::EnumD3DAdapters(nullptr,
-				   [this, &pAdapter](void *userdata, ComPtr<IDXGIAdapter1> adapter, const DXGI_ADAPTER_DESC &desc, const char *version) {
-					   if (desc.AdapterLuid.HighPart == m_adapterLuid.HighPart && desc.AdapterLuid.LowPart == m_adapterLuid.LowPart) {
-						   pAdapter = adapter;
-						   return false;
-					   }
-					   return true;
-				   });
+	DXGraphic::EnumD3DAdapters(nullptr, [this, &pAdapter](void *userdata, ComPtr<IDXGIFactory1> factory, ComPtr<IDXGIAdapter1> adapter,
+							      const DXGI_ADAPTER_DESC &desc, const char *version) {
+		if (desc.AdapterLuid.HighPart == m_adapterLuid.HighPart && desc.AdapterLuid.LowPart == m_adapterLuid.LowPart) {
+			m_pDX11Factory = factory;
+			pAdapter = adapter;
+			return false;
+		}
+		return true;
+	});
 
 	if (!pAdapter) {
 		assert(false);
@@ -183,6 +193,12 @@ bool DX11GraphicInstanceImpl::InitSamplerState()
 	}
 
 	return true;
+}
+
+ComPtr<IDXGIFactory1> DX11GraphicInstanceImpl::DXFactory()
+{
+	CHECK_GRAPHIC_CONTEXT;
+	return m_pDX11Factory;
 }
 
 ComPtr<ID3D11Device> DX11GraphicInstanceImpl::DXDevice()
