@@ -14,7 +14,6 @@ protected:
 	virtual std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() = 0;
 
 protected:
-	DX11GraphicInstanceImpl &m_graphic;
 	const std::wstring m_strVSFile;
 	const std::wstring m_strPSFile;
 	const int m_nVertexSize = 0;

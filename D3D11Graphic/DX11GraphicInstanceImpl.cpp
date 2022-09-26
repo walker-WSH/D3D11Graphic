@@ -1,4 +1,5 @@
 #include "DX11GraphicInstanceImpl.h"
+#include "DX11Texture2D.h"
 
 HMODULE DX11GraphicInstanceImpl::s_hDllModule = nullptr;
 
@@ -19,11 +20,9 @@ bool DX11GraphicInstanceImpl::InitializeGraphic(LUID luid)
 
 	m_adapterLuid = luid;
 
-	m_pShaderDefault =
-		std::shared_ptr<DX11ShaderTexture>(new DX11ShaderTexture(*this, L"defaultVS.cso", L"defaultPS.cso", sizeof(float) * 16, 0));
+	m_pShaderDefault = std::shared_ptr<DX11ShaderTexture>(new DX11ShaderTexture(*this, L"defaultVS.cso", L"defaultPS.cso", sizeof(float) * 16, 0));
 
-	m_pShaderBorder =
-		std::shared_ptr<DX11ShaderTexture>(new DX11ShaderTexture(*this, L"borderVS.cso", L"borderPS.cso", sizeof(float) * 16, 0));
+	m_pShaderBorder = std::shared_ptr<DX11ShaderTexture>(new DX11ShaderTexture(*this, L"borderVS.cso", L"borderPS.cso", sizeof(float) * 16, 0));
 
 	ReleaseDX();
 	if (!BuildDX())
@@ -42,15 +41,59 @@ void DX11GraphicInstanceImpl::UnInitializeGraphic()
 	m_pShaderBorder = nullptr;
 
 	assert(m_listObject.empty());
+	for (auto &item : m_listObject)
+		delete item;
+}
+
+void DX11GraphicInstanceImpl::ReleaseGraphicObject(void *&hdl)
+{
+	CHECK_GRAPHIC_CONTEXT;
+	auto obj = static_cast<DX11Object *>(hdl);
+	obj->ReleaseDX();
+	delete obj;
+}
+
+texture_handle DX11GraphicInstanceImpl::OpenTexture(HANDLE hSharedHanle)
+{
+	CHECK_GRAPHIC_CONTEXT;
+	return new DX11Texture2D(*this, hSharedHanle);
+}
+
+texture_handle DX11GraphicInstanceImpl::CreateReadTexture(uint32_t width, uint32_t height, enum DXGI_FORMAT format)
+{
+	CHECK_GRAPHIC_CONTEXT;
+	return new DX11Texture2D(*this, width, height, format, TextureType::ReadTexture);
+}
+
+texture_handle DX11GraphicInstanceImpl::CreateWriteTexture(uint32_t width, uint32_t height, enum DXGI_FORMAT format)
+{
+	CHECK_GRAPHIC_CONTEXT;
+	return new DX11Texture2D(*this, width, height, format, TextureType::WriteTexture);
+}
+
+texture_handle DX11GraphicInstanceImpl::CreateRenderTarget(uint32_t width, uint32_t height, enum DXGI_FORMAT format)
+{
+	CHECK_GRAPHIC_CONTEXT;
+	return new DX11Texture2D(*this, width, height, format, TextureType::RenderTarget);
+}
+
+ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle hdl)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	auto obj = static_cast<DX11Texture2D *>(hdl);
+	if (!obj->m_pTexture2D)
+		return ST_TextureInfo();
+
+	return ST_TextureInfo(obj->m_descTexture.Width, obj->m_descTexture.Height, obj->m_descTexture.Format);
 }
 
 void DX11GraphicInstanceImpl::ReleaseDX()
 {
 	CHECK_GRAPHIC_CONTEXT;
 
-	for (auto &item : m_listObject) {
+	for (auto &item : m_listObject)
 		item->ReleaseDX();
-	}
 
 	m_pDX11Device = nullptr;
 	m_pDeviceContext = nullptr;
@@ -63,14 +106,14 @@ bool DX11GraphicInstanceImpl::BuildDX()
 	CHECK_GRAPHIC_CONTEXT;
 
 	ComPtr<IDXGIAdapter1> pAdapter;
-	DXGraphic::EnumD3DAdapters(nullptr, [this, &pAdapter](void *userdata, ComPtr<IDXGIAdapter1> adapter, const DXGI_ADAPTER_DESC &desc,
-							      const char *version) {
-		if (desc.AdapterLuid.HighPart == m_adapterLuid.HighPart && desc.AdapterLuid.LowPart == m_adapterLuid.LowPart) {
-			pAdapter = adapter;
-			return false;
-		}
-		return true;
-	});
+	DXGraphic::EnumD3DAdapters(nullptr,
+				   [this, &pAdapter](void *userdata, ComPtr<IDXGIAdapter1> adapter, const DXGI_ADAPTER_DESC &desc, const char *version) {
+					   if (desc.AdapterLuid.HighPart == m_adapterLuid.HighPart && desc.AdapterLuid.LowPart == m_adapterLuid.LowPart) {
+						   pAdapter = adapter;
+						   return false;
+					   }
+					   return true;
+				   });
 
 	if (!pAdapter) {
 		assert(false);
@@ -79,8 +122,7 @@ bool DX11GraphicInstanceImpl::BuildDX()
 
 	D3D_FEATURE_LEVEL levelUsed = D3D_FEATURE_LEVEL_9_3;
 	HRESULT hr = D3D11CreateDevice(pAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, D3D11_CREATE_DEVICE_BGRA_SUPPORT, featureLevels.data(),
-				       (UINT)featureLevels.size(), D3D11_SDK_VERSION, m_pDX11Device.Assign(), &levelUsed,
-				       m_pDeviceContext.Assign());
+				       (UINT)featureLevels.size(), D3D11_SDK_VERSION, m_pDX11Device.Assign(), &levelUsed, m_pDeviceContext.Assign());
 
 	if (FAILED(hr)) {
 		assert(false);
@@ -93,9 +135,8 @@ bool DX11GraphicInstanceImpl::BuildDX()
 	if (!InitSamplerState())
 		return false;
 
-	for (auto &item : m_listObject) {
+	for (auto &item : m_listObject)
 		item->BuildDX();
-	}
 
 	return true;
 }
@@ -168,13 +209,5 @@ void DX11GraphicInstanceImpl::RemoveObject(DX11Object *obj)
 void DX11GraphicInstanceImpl::PushObject(DX11Object *obj)
 {
 	CHECK_GRAPHIC_CONTEXT;
-
 	m_listObject.push_back(obj);
-}
-
-void DX11GraphicInstanceImpl::RunTask1()
-{
-	CHECK_GRAPHIC_CONTEXT;
-
-	// TODO
 }

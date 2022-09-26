@@ -5,14 +5,14 @@
 #include <mutex>
 #include <assert.h>
 
-GRAPHIC_API std::shared_ptr<std::vector<GraphicCardInfo>> EnumGraphicCard()
+GRAPHIC_API std::shared_ptr<std::vector<ST_GraphicCardInfo>> EnumGraphicCard()
 {
-	std::shared_ptr<std::vector<GraphicCardInfo>> pReturnList(new std::vector<GraphicCardInfo>,
-								  [](std::vector<GraphicCardInfo> *ptr) { delete ptr; });
+	std::shared_ptr<std::vector<ST_GraphicCardInfo>> pReturnList(new std::vector<ST_GraphicCardInfo>,
+								  [](std::vector<ST_GraphicCardInfo> *ptr) { delete ptr; });
 
 	DXGraphic::EnumD3DAdapters(nullptr, [pReturnList](void *userdata, ComPtr<IDXGIAdapter1> adapter, const DXGI_ADAPTER_DESC &desc,
 							  const char *version) {
-		GraphicCardInfo info;
+		ST_GraphicCardInfo info;
 		info.Name = desc.Description;
 		info.Driver = version;
 

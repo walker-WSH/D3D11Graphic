@@ -53,6 +53,9 @@
     <ClCompile Include="DX11Object.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="DX11Texture2D.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\ComPtr.hpp">
@@ -86,6 +89,9 @@
       <Filter>shader</Filter>
     </ClInclude>
     <ClInclude Include="DX11Object.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11Texture2D.h">
       <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>

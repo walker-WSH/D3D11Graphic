@@ -27,20 +27,29 @@ public:
 	DX11GraphicInstanceImpl();
 	virtual ~DX11GraphicInstanceImpl();
 
+	// IDX11GraphicInstance
+	//------------------------------------------------------------------------------------------------------
+	virtual bool InitializeGraphic(LUID luid);
+	virtual void UnInitializeGraphic();
+
+	virtual void ReleaseGraphicObject(void *&hdl);
+
+	virtual texture_handle OpenTexture(HANDLE hSharedHanle);
+	virtual texture_handle CreateReadTexture(uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM);
+	virtual texture_handle CreateWriteTexture(uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM);
+	virtual texture_handle CreateRenderTarget(uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM);
+	virtual ST_TextureInfo GetTextureInfo(texture_handle hdl);
+
+	//------------------------------------------------------------------------------------------------------
 	void EnterContext(const std::source_location &location);
 	void LeaveContext(const std::source_location &location);
 	bool CheckContext(const std::source_location &location);
-
-	virtual bool InitializeGraphic(LUID luid);
-	virtual void UnInitializeGraphic();
 
 	ComPtr<ID3D11Device> DXDevice();
 	ComPtr<ID3D11DeviceContext> DXContext();
 
 	void RemoveObject(DX11Object *obj);
 	void PushObject(DX11Object *obj);
-
-	virtual void RunTask1();
 
 protected:
 	void ReleaseDX();

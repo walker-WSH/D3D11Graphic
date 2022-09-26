@@ -15,7 +15,7 @@
 #define COMBINE1(a, b) COMBINE2(a, b)
 #define AUTO_GRAPHIC_CONTEXT(graphic) AutoGraphicContext COMBINE1(autoContext, __LINE__)(graphic, std::source_location::current())
 
-struct GraphicCardInfo {
+struct ST_GraphicCardInfo {
 	std::wstring Name;
 	std::string Driver;
 
@@ -28,7 +28,7 @@ struct GraphicCardInfo {
 	SIZE_T SharedSystemMemory;
 };
 
-GRAPHIC_API std::shared_ptr<std::vector<GraphicCardInfo>> EnumGraphicCard();
+GRAPHIC_API std::shared_ptr<std::vector<ST_GraphicCardInfo>> EnumGraphicCard();
 
 GRAPHIC_API IDX11GraphicInstance *CreateGraphicInstance();
 GRAPHIC_API void DestroyGraphicInstance(IDX11GraphicInstance *&graphic);

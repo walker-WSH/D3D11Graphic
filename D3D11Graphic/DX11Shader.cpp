@@ -27,7 +27,6 @@ std::wstring GetHLSLDir()
 DX11Shader::DX11Shader(DX11GraphicInstanceImpl &graphic, const WCHAR *vsFile, const WCHAR *psFile, int vertexSize, int vsBufferSize,
 		       int psBufferSize)
 	: DX11Object(graphic),
-	  m_graphic(graphic),
 	  m_strVSFile(vsFile),
 	  m_strPSFile(psFile),
 	  m_nVertexSize(vertexSize),
