@@ -61,9 +61,15 @@ CMFCDemoDlg::CMFCDemoDlg(CWnd *pParent /*=nullptr*/) : CDialogEx(IDD_MFCDEMO_DIA
 		info.height = 201;
 		info.format = DXGI_FORMAT_B8G8R8A8_UNORM;
 
-		texture_handle tex1 = m_pGraphic->CreateTexture(TextureType::ReadTexture, info);
-		texture_handle tex2 = m_pGraphic->CreateTexture(TextureType::WriteTexture, info);
-		texture_handle tex3 = m_pGraphic->CreateTexture(TextureType::CanvasTarget, info);
+		info.type = TextureType::ReadTexture;
+		texture_handle tex1 = m_pGraphic->CreateTexture(info);
+
+		info.type = TextureType::WriteTexture;
+		texture_handle tex2 = m_pGraphic->CreateTexture(info);
+
+		info.type = TextureType::CanvasTarget;
+		texture_handle tex3 = m_pGraphic->CreateTexture(info);
+
 		m_pGraphic->ReleaseGraphicObject(tex1);
 		m_pGraphic->ReleaseGraphicObject(tex2);
 		m_pGraphic->ReleaseGraphicObject(tex3);

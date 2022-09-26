@@ -17,7 +17,7 @@ public:
 	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height) = 0;
 
 	virtual texture_handle OpenTexture(HANDLE hSharedHanle) = 0;
-	virtual texture_handle CreateTexture(TextureType type, const ST_TextureInfo &info) = 0;
+	virtual texture_handle CreateTexture(const ST_TextureInfo &info) = 0;
 	virtual ST_TextureInfo GetTextureInfo(texture_handle tex) = 0;
 	virtual bool CopyTexture(texture_handle dest, texture_handle src) = 0;
 	virtual bool MapTexture(texture_handle tex, bool isRead, D3D11_MAPPED_SUBRESOURCE *mapData) = 0;

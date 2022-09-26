@@ -6,7 +6,7 @@ class DX11Texture2D : public DX11GraphicBase {
 	friend class DX11GraphicInstanceImpl;
 
 public:
-	DX11Texture2D(DX11GraphicInstanceImpl &graphic, const ST_TextureInfo &info, TextureType type);
+	DX11Texture2D(DX11GraphicInstanceImpl &graphic, const ST_TextureInfo &info);
 	DX11Texture2D(DX11GraphicInstanceImpl &graphic, HANDLE handle);
 
 	virtual bool BuildDX();
@@ -28,5 +28,4 @@ protected:
 
 	HANDLE m_hSharedHandle = 0;
 	ST_TextureInfo m_textureInfo;
-	enum TextureType m_usage;
 };
