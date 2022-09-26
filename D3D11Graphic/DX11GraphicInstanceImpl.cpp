@@ -19,8 +19,8 @@ bool DX11GraphicInstanceImpl::InitializeGraphic(LUID luid)
 
 	m_adapterLuid = luid;
 
-	m_pShaderDefault = std::shared_ptr<DX11ShaderTexture>(new DX11ShaderTexture(*this, L"defaultVS.cso", L"defaultPS.cso", sizeof(float) * 16, 0));
-	m_pShaderBorder = std::shared_ptr<DX11ShaderTexture>(new DX11ShaderTexture(*this, L"borderVS.cso", L"borderPS.cso", sizeof(float) * 16, 0));
+	//m_pShaderDefault = std::shared_ptr<DX11ShaderTexture>(new DX11ShaderTexture(*this, L"defaultVS.cso", L"defaultPS.cso", sizeof(float) * 16, 0));
+	//m_pShaderBorder = std::shared_ptr<DX11ShaderTexture>(new DX11ShaderTexture(*this, L"borderVS.cso", L"borderPS.cso", sizeof(float) * 16, 0));
 
 	return BuildAllDX();
 }
@@ -31,20 +31,22 @@ void DX11GraphicInstanceImpl::UnInitializeGraphic()
 
 	ReleaseAllDX();
 
-	m_pShaderDefault = nullptr;
-	m_pShaderBorder = nullptr;
-
 	assert(m_listObject.empty());
 	for (auto &item : m_listObject)
 		delete item;
 }
 
-void DX11GraphicInstanceImpl::ReleaseGraphicObject(void *&hdl)
+void DX11GraphicInstanceImpl::ReleaseGraphicObject(DX11GraphicObject *&hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
-	auto obj = static_cast<DX11Object *>(hdl);
-	obj->ReleaseDX();
-	delete obj;
+
+	auto obj = dynamic_cast<DX11GraphicBase *>(hdl);
+	assert(obj);
+	if (obj)
+		obj->ReleaseDX();
+
+	delete hdl;
+	hdl = nullptr;
 }
 
 texture_handle DX11GraphicInstanceImpl::OpenTexture(HANDLE hSharedHanle)
@@ -53,30 +55,20 @@ texture_handle DX11GraphicInstanceImpl::OpenTexture(HANDLE hSharedHanle)
 	return new DX11Texture2D(*this, hSharedHanle);
 }
 
-texture_handle DX11GraphicInstanceImpl::CreateReadTexture(uint32_t width, uint32_t height, enum DXGI_FORMAT format)
+texture_handle DX11GraphicInstanceImpl::CreateTexture2D(TextureType type, uint32_t width, uint32_t height, enum DXGI_FORMAT format)
 {
 	CHECK_GRAPHIC_CONTEXT;
-	return new DX11Texture2D(*this, width, height, format, TextureType::ReadTexture);
-}
-
-texture_handle DX11GraphicInstanceImpl::CreateWriteTexture(uint32_t width, uint32_t height, enum DXGI_FORMAT format)
-{
-	CHECK_GRAPHIC_CONTEXT;
-	return new DX11Texture2D(*this, width, height, format, TextureType::WriteTexture);
-}
-
-texture_handle DX11GraphicInstanceImpl::CreateRenderCanvas(uint32_t width, uint32_t height, enum DXGI_FORMAT format)
-{
-	CHECK_GRAPHIC_CONTEXT;
-	return new DX11Texture2D(*this, width, height, format, TextureType::RenderTarget);
+	assert(TextureType::SharedHandle != type);
+	return new DX11Texture2D(*this, width, height, format, type);
 }
 
 ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
-	auto obj = static_cast<DX11Texture2D *>(hdl);
-	if (!obj->IsBuilt())
+	auto obj = dynamic_cast<DX11Texture2D *>(hdl);
+	assert(obj);
+	if (!obj || !obj->IsBuilt())
 		return ST_TextureInfo();
 
 	return ST_TextureInfo(obj->m_descTexture.Width, obj->m_descTexture.Height, obj->m_descTexture.Format);
@@ -90,9 +82,12 @@ display_handle DX11GraphicInstanceImpl::CreateDisplay(HWND hWnd)
 
 void DX11GraphicInstanceImpl::SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height)
 {
-	auto obj = static_cast<DX11SwapChain *>(hdl);
-	obj->SetDisplaySize(width, height);
+	auto obj = dynamic_cast<DX11SwapChain *>(hdl);
+	assert(obj);
+	if (obj)
+		obj->SetDisplaySize(width, height);
 }
+
 ComPtr<IDXGIFactory1> DX11GraphicInstanceImpl::DXFactory()
 {
 	CHECK_GRAPHIC_CONTEXT;
@@ -111,19 +106,19 @@ ComPtr<ID3D11DeviceContext> DX11GraphicInstanceImpl::DXContext()
 	return m_pDeviceContext;
 }
 
-void DX11GraphicInstanceImpl::RemoveObject(DX11Object *obj)
+void DX11GraphicInstanceImpl::PushObject(DX11GraphicBase *obj)
+{
+	CHECK_GRAPHIC_CONTEXT;
+	m_listObject.push_back(obj);
+}
+
+void DX11GraphicInstanceImpl::RemoveObject(DX11GraphicBase *obj)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
 	auto itr = find(m_listObject.begin(), m_listObject.end(), obj);
 	if (itr != m_listObject.end())
 		m_listObject.erase(itr);
-}
-
-void DX11GraphicInstanceImpl::PushObject(DX11Object *obj)
-{
-	CHECK_GRAPHIC_CONTEXT;
-	m_listObject.push_back(obj);
 }
 
 void DX11GraphicInstanceImpl::ReleaseAllDX()
@@ -164,7 +159,7 @@ bool DX11GraphicInstanceImpl::BuildAllDX()
 
 	D3D_FEATURE_LEVEL levelUsed = D3D_FEATURE_LEVEL_9_3;
 	HRESULT hr = D3D11CreateDevice(pAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, D3D11_CREATE_DEVICE_BGRA_SUPPORT, featureLevels.data(),
-				       (UINT)featureLevels.size(), D3D11_SDK_VERSION, m_pDX11Device.Assign(), &levelUsed, m_pDeviceContext.Assign());
+				       (uint32_t)featureLevels.size(), D3D11_SDK_VERSION, m_pDX11Device.Assign(), &levelUsed, m_pDeviceContext.Assign());
 
 	if (FAILED(hr)) {
 		assert(false);
@@ -228,7 +223,7 @@ bool DX11GraphicInstanceImpl::InitSamplerState()
 	return true;
 }
 
-void DX11GraphicInstanceImpl::SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width, uint32_t height)
+void DX11GraphicInstanceImpl::SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width, uint32_t height, ST_Color bkClr)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -248,18 +243,92 @@ void DX11GraphicInstanceImpl::SetRenderTarget(ComPtr<ID3D11RenderTargetView> tar
 	float blendFactor[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 	m_pDeviceContext->OMSetBlendState(m_pBlendState, blendFactor, 0xffffffff);
 
+	float color[4] = {bkClr.red, bkClr.green, bkClr.blue, bkClr.alpha};
+	m_pDeviceContext->ClearRenderTargetView(m_pCurrentRenderTarget, color);
+
 	m_pCurrentRenderTarget = target;
 }
 
-bool DX11GraphicInstanceImpl::RenderBegin_Canvas(texture_handle hdl)
+void DX11GraphicInstanceImpl::UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, void *data, size_t size)
 {
 	CHECK_GRAPHIC_CONTEXT;
+
+	D3D11_MAPPED_SUBRESOURCE map;
+	HRESULT hr = m_pDeviceContext->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
+	if (FAILED(hr)) {
+		assert(false);
+		return;
+	}
+
+	memcpy(map.pData, data, size);
+	m_pDeviceContext->Unmap(buffer, 0);
+}
+
+bool DX11GraphicInstanceImpl::GetResource(const std::vector<texture_handle> &textures, std::vector<ID3D11ShaderResourceView *> &resources)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	resources.clear();
+
+	for (auto &item : textures) {
+		auto tex = dynamic_cast<DX11Texture2D *>(item);
+		assert(tex);
+		if (!tex) {
+			assert(false);
+			return false;
+		}
+
+		if (TextureType::CanvasTarget == tex->m_usage) {
+			assert(false);
+			return false;
+		}
+
+		if (!tex->IsBuilt() || !tex->m_pTextureResView)
+			return false;
+
+		resources.push_back(tex->m_pTextureResView.Get());
+	}
+
+	return !resources.empty();
+}
+
+void DX11GraphicInstanceImpl::ApplyShader(DX11Shader *shader)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	uint32_t stride = shader->m_shaderInfo.perVertexSize;
+	uint32_t offset = 0;
+	ID3D11Buffer *buffer[1];
+
+	buffer[0] = shader->m_pVertexBuffer;
+	m_pDeviceContext->IASetVertexBuffers(0, 1, buffer, &stride, &offset);
+	m_pDeviceContext->IASetInputLayout(shader->m_pInputLayout);
+
+	m_pDeviceContext->VSSetShader(shader->m_pVertexShader, NULL, 0);
+	if (shader->m_pVSConstBuffer) {
+		buffer[0] = shader->m_pVSConstBuffer;
+		m_pDeviceContext->VSSetConstantBuffers(0, 1, buffer);
+	}
+
+	m_pDeviceContext->PSSetShader(shader->m_pPixelShader, NULL, 0);
+	if (shader->m_pPSConstBuffer) {
+		buffer[0] = shader->m_pPSConstBuffer;
+		m_pDeviceContext->PSSetConstantBuffers(0, 1, buffer);
+	}
+}
+
+bool DX11GraphicInstanceImpl::RenderBegin_Canvas(texture_handle hdl, ST_Color bkClr)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	assert(!m_pCurrentRenderTarget && !m_pCurrentSwapChain);
 
 	if (!m_bBuilSuccessed)
 		return false;
 
-	auto obj = static_cast<DX11Texture2D *>(hdl);
-	if (obj->m_usage != TextureType::RenderTarget) {
+	auto obj = dynamic_cast<DX11Texture2D *>(hdl);
+	assert(obj);
+	if (!obj || obj->m_usage != TextureType::CanvasTarget) {
 		assert(false);
 		return false;
 	}
@@ -267,39 +336,107 @@ bool DX11GraphicInstanceImpl::RenderBegin_Canvas(texture_handle hdl)
 	if (!obj->IsBuilt())
 		return false;
 
-	SetRenderTarget(obj->m_pRenderTargetView, obj->m_descTexture.Width, obj->m_descTexture.Height);
+	SetRenderTarget(obj->m_pRenderTargetView, obj->m_descTexture.Width, obj->m_descTexture.Height, bkClr);
 	m_pCurrentSwapChain = nullptr;
 
 	return true;
 }
 
-bool DX11GraphicInstanceImpl::RenderBegin_Display(display_handle hdl)
+bool DX11GraphicInstanceImpl::RenderBegin_Display(display_handle hdl, ST_Color bkClr)
 {
 	CHECK_GRAPHIC_CONTEXT;
+
+	assert(!m_pCurrentRenderTarget && !m_pCurrentSwapChain);
 
 	if (!m_bBuilSuccessed)
 		return false;
 
-	auto obj = static_cast<DX11SwapChain *>(hdl);
+	auto obj = dynamic_cast<DX11SwapChain *>(hdl);
+	assert(obj);
+	if (!obj)
+		return false;
+
+	obj->TestResizeSwapChain();
 	if (!obj->IsBuilt())
 		return false;
 
-	SetRenderTarget(obj->m_pRenderTargetView, obj->m_dwWidth, obj->m_dwHeight);
+	SetRenderTarget(obj->m_pRenderTargetView, obj->m_dwWidth, obj->m_dwHeight, bkClr);
 	m_pCurrentSwapChain = obj->m_pSwapChain;
 
 	return true;
 }
 
-void DX11GraphicInstanceImpl::SetBackgroundColor(float red, float green, float blue, float alpha)
+void DX11GraphicInstanceImpl::SetVertexBuffer(shader_handle hdl, void *buffer, size_t size)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
-	float color[4] = {red, green, blue, alpha};
-	m_pDeviceContext->ClearRenderTargetView(m_pCurrentRenderTarget, color);
+	auto shader = dynamic_cast<DX11Shader *>(hdl);
+	assert(shader);
+	if (shader && shader->IsBuilt())
+		UpdateShaderBuffer(shader->m_pVertexBuffer, buffer, size);
+}
+
+void DX11GraphicInstanceImpl::SetVSConstBuffer(shader_handle hdl, void *vsBuffer, size_t vsSize)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	auto shader = dynamic_cast<DX11Shader *>(hdl);
+	assert(shader);
+	if (shader && shader->IsBuilt())
+		UpdateShaderBuffer(shader->m_pVSConstBuffer, vsBuffer, vsSize);
+}
+
+void DX11GraphicInstanceImpl::SetPSConstBuffer(shader_handle hdl, void *psBuffer, size_t psSize)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	auto shader = dynamic_cast<DX11Shader *>(hdl);
+	assert(shader);
+	if (shader && shader->IsBuilt())
+		UpdateShaderBuffer(shader->m_pVSConstBuffer, psBuffer, psSize);
+}
+
+void DX11GraphicInstanceImpl::DrawTriangleStrip(shader_handle hdl)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	auto shader = dynamic_cast<DX11Shader *>(hdl);
+	assert(shader);
+	if (!shader || !shader->IsBuilt())
+		return;
+
+	ApplyShader(shader);
+
+	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	m_pDeviceContext->Draw(shader->m_shaderInfo.vertexCount, 0);
+}
+
+void DX11GraphicInstanceImpl::DrawTexture(shader_handle hdl, const std::vector<texture_handle> &textures)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	auto shader = dynamic_cast<DX11Shader *>(hdl);
+	assert(shader);
+	if (!shader || !shader->IsBuilt())
+		return;
+
+	std::vector<ID3D11ShaderResourceView *> resources;
+	if (!GetResource(textures, resources))
+		return;
+
+	ApplyShader(shader);
+
+	ID3D11SamplerState *sampleState = m_pSampleState.Get();
+	m_pDeviceContext->PSSetSamplers(0, 1, &sampleState);
+	m_pDeviceContext->PSSetShaderResources(0, (uint32_t)resources.size(), resources.data());
+	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	m_pDeviceContext->Draw(shader->m_shaderInfo.vertexCount, 0);
 }
 
 void DX11GraphicInstanceImpl::RenderEnd()
 {
+	CHECK_GRAPHIC_CONTEXT;
+
 	if (m_pCurrentSwapChain)
 		m_pCurrentSwapChain->Present(0, 0);
 

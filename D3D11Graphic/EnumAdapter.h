@@ -1,6 +1,6 @@
 #pragma once
 #include <Windows.h>
-#include <DXDefine.h>
+#include <DX11GraphicBase.h>
 #include <ComPtr.hpp>
 #include <functional>
 

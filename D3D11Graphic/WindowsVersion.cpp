@@ -1,5 +1,5 @@
 #include "WindowsVersion.h"
-#include <DXDefine.h>
+#include <DX11GraphicBase.h>
 #include <memory>
 
 using get_file_version_info_size_wt = DWORD(WINAPI *)(LPCWSTR md, LPDWORD unused);
@@ -34,7 +34,7 @@ VS_FIXEDFILEINFO RTCWindowVersion::GetDllVersion(const wchar_t *pDllName)
 		if (!pGetFileVersionInfo(L"kernel32", 0, size, data))
 			break;
 
-		UINT len = 0;
+		uint32_t len = 0;
 		VS_FIXEDFILEINFO *info = nullptr;
 		pVerQueryValue(data, L"\\", (LPVOID *)&info, &len);
 

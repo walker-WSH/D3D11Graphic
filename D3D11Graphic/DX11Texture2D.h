@@ -1,15 +1,8 @@
 #pragma once
-#include <DX11Object.h>
-
-enum class TextureType {
-	RenderTarget = 0,
-	ReadTexture,
-	WriteTexture,
-	SharedHandle,
-};
+#include <DX11GraphicBase.h>
 
 class DX11GraphicInstanceImpl;
-class DX11Texture2D : public DX11Object {
+class DX11Texture2D : public DX11GraphicBase {
 	friend class DX11GraphicInstanceImpl;
 
 public:

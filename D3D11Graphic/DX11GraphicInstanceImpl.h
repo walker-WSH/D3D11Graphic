@@ -4,10 +4,10 @@
 #include <assert.h>
 #include <vector>
 #include <Windows.h>
-#include <DXDefine.h>
+#include <DX11GraphicBase.h>
 #include <DX11GraphicInstance.h>
 #include "EnumAdapter.h"
-#include "DX11Object.h"
+#include "DX11GraphicBase.h"
 #include "DX11ShaderBorder.h"
 #include "DX11ShaderTexture.h"
 #include "DX11Texture2D.h"
@@ -34,20 +34,22 @@ public:
 	virtual bool InitializeGraphic(LUID luid);
 	virtual void UnInitializeGraphic();
 
-	virtual void ReleaseGraphicObject(void *&hdl);
+	virtual void ReleaseGraphicObject(DX11GraphicObject *&hdl);
 
 	virtual texture_handle OpenTexture(HANDLE hSharedHanle);
-	virtual texture_handle CreateReadTexture(uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM);
-	virtual texture_handle CreateWriteTexture(uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM);
-	virtual texture_handle CreateRenderCanvas(uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM);
+	virtual texture_handle CreateTexture2D(TextureType type, uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM);
 	virtual ST_TextureInfo GetTextureInfo(texture_handle hdl);
 
 	virtual display_handle CreateDisplay(HWND hWnd);
 	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height);
 
-	virtual bool RenderBegin_Canvas(texture_handle hdl);
-	virtual bool RenderBegin_Display(display_handle hdl);
-	virtual void SetBackgroundColor(float red, float green, float blue, float alpha);
+	virtual bool RenderBegin_Canvas(texture_handle hdl, ST_Color bkClr);
+	virtual bool RenderBegin_Display(display_handle hdl, ST_Color bkClr);
+	virtual void SetVertexBuffer(shader_handle hdl, void *buffer, size_t size);
+	virtual void SetVSConstBuffer(shader_handle hdl, void *vsBuffer, size_t vsSize);
+	virtual void SetPSConstBuffer(shader_handle hdl, void *psBuffer, size_t psSize);
+	virtual void DrawTriangleStrip(shader_handle hdl);
+	virtual void DrawTexture(shader_handle hdl, const std::vector<texture_handle> &textures);
 	virtual void RenderEnd();
 
 	//------------------------------------------------------------------------------------------------------
@@ -59,8 +61,8 @@ public:
 	ComPtr<ID3D11Device> DXDevice();
 	ComPtr<ID3D11DeviceContext> DXContext();
 
-	void RemoveObject(DX11Object *obj);
-	void PushObject(DX11Object *obj);
+	void PushObject(DX11GraphicBase *obj);
+	void RemoveObject(DX11GraphicBase *obj);
 
 protected:
 	void ReleaseAllDX();
@@ -68,7 +70,10 @@ protected:
 	bool InitBlendState();
 	bool InitSamplerState();
 
-	void SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width, uint32_t height);
+	void SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width, uint32_t height, ST_Color bkClr);
+	void UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, void *data, size_t size);
+	bool GetResource(const std::vector<texture_handle> &textures, std::vector<ID3D11ShaderResourceView *> &resources);
+	void ApplyShader(DX11Shader *shader);
 
 private:
 	LUID m_adapterLuid = {0};
@@ -80,10 +85,8 @@ private:
 	ComPtr<ID3D11DeviceContext> m_pDeviceContext = nullptr;
 	ComPtr<ID3D11BlendState> m_pBlendState = nullptr;
 	ComPtr<ID3D11SamplerState> m_pSampleState = nullptr;
-	std::shared_ptr<DX11ShaderTexture> m_pShaderDefault = nullptr;
-	std::shared_ptr<DX11ShaderTexture> m_pShaderBorder = nullptr;
-	std::vector<DX11Object *> m_listObject; // Here we do not hold its lifetime.
+	std::vector<DX11GraphicBase *> m_listObject; // Here we do not hold its lifetime.
 
-	ComPtr<ID3D11RenderTargetView> m_pCurrentRenderTarget = nullptr;
-	ComPtr<IDXGISwapChain> m_pCurrentSwapChain = nullptr;
+	ID3D11RenderTargetView *m_pCurrentRenderTarget = nullptr;
+	IDXGISwapChain *m_pCurrentSwapChain = nullptr;
 };

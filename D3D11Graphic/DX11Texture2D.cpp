@@ -3,12 +3,13 @@
 #include <d3dcompiler.h>
 
 DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, uint32_t width, uint32_t height, enum DXGI_FORMAT format, TextureType type)
-	: DX11Object(graphic), m_dwWidth(width), m_dwHeight(height), m_format(format), m_usage(type)
+	: DX11GraphicBase(graphic), m_dwWidth(width), m_dwHeight(height), m_format(format), m_usage(type)
 {
 	BuildDX();
 }
 
-DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, HANDLE handle) : DX11Object(graphic), m_hSharedHandle(handle), m_usage(TextureType::SharedHandle)
+DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, HANDLE handle)
+	: DX11GraphicBase(graphic), m_hSharedHandle(handle), m_usage(TextureType::SharedHandle)
 {
 	BuildDX();
 }
@@ -19,7 +20,7 @@ bool DX11Texture2D::BuildDX()
 
 	bool bSuccessed = false;
 	switch (m_usage) {
-	case TextureType::RenderTarget:
+	case TextureType::CanvasTarget:
 		bSuccessed = InitTargetTexture();
 		break;
 
@@ -130,7 +131,7 @@ bool DX11Texture2D::InitTargetTexture()
 	desc.SampleDesc.Count = 1;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	desc.MiscFlags |= D3D11_RESOURCE_MISC_GDI_COMPATIBLE | D3D11_RESOURCE_MISC_SHARED;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_GDI_COMPATIBLE | D3D11_RESOURCE_MISC_SHARED;
 
 	HRESULT hr = m_graphic.DXDevice()->CreateTexture2D(&desc, nullptr, m_pTexture2D.Assign());
 	if (FAILED(hr)) {
@@ -143,9 +144,6 @@ bool DX11Texture2D::InitTargetTexture()
 		assert(false);
 		return false;
 	}
-
-	if (!InitResourceView())
-		return false;
 
 	return true;
 }

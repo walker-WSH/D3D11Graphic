@@ -165,30 +165,29 @@
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="DX11GraphicAPI.cpp" />
+    <ClCompile Include="DX11GraphicBase.cpp" />
     <ClCompile Include="DX11GraphicInstanceContext.cpp" />
     <ClCompile Include="DX11GraphicInstanceImpl.cpp" />
-    <ClCompile Include="DX11Object.cpp" />
     <ClCompile Include="DX11Shader.cpp" />
     <ClCompile Include="DX11ShaderBorder.cpp" />
     <ClCompile Include="DX11ShaderTexture.cpp" />
     <ClCompile Include="DX11SwapChain.cpp" />
     <ClCompile Include="DX11Texture2D.cpp" />
-    <ClCompile Include="DXDefine.cpp" />
     <ClCompile Include="EnumAdapter.cpp" />
     <ClCompile Include="WindowsVersion.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\ComPtr.hpp" />
+    <ClInclude Include="DX11GraphicBase.h" />
     <ClInclude Include="DX11GraphicInstanceImpl.h" />
-    <ClInclude Include="DX11Object.h" />
     <ClInclude Include="DX11Shader.h" />
     <ClInclude Include="DX11ShaderBorder.h" />
     <ClInclude Include="DX11ShaderTexture.h" />
     <ClInclude Include="DX11SwapChain.h" />
     <ClInclude Include="DX11Texture2D.h" />
-    <ClInclude Include="DXDefine.h" />
     <ClInclude Include="EnumAdapter.h" />
     <ClInclude Include="export\DX11GraphicAPI.h" />
+    <ClInclude Include="export\DX11GraphicDefine.h" />
     <ClInclude Include="export\DX11GraphicInstance.h" />
     <ClInclude Include="export\DX11VideoFrame.hpp" />
     <ClInclude Include="WindowsVersion.h" />

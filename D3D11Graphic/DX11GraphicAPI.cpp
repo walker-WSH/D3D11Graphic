@@ -13,16 +13,16 @@ GRAPHIC_API std::shared_ptr<std::vector<ST_GraphicCardInfo>> EnumGraphicCard()
 	DXGraphic::EnumD3DAdapters(nullptr, [pReturnList](void *userdata, ComPtr<IDXGIFactory1>, ComPtr<IDXGIAdapter1> adapter, const DXGI_ADAPTER_DESC &desc,
 							  const char *version) {
 		ST_GraphicCardInfo info;
-		info.Name = desc.Description;
-		info.Driver = version;
+		info.graphicName = desc.Description;
+		info.driverVersion = version;
 
-		info.AdapterLuid = desc.AdapterLuid;
-		info.VendorId = desc.VendorId;
-		info.DeviceId = desc.DeviceId;
+		info.adapterLuid = desc.AdapterLuid;
+		info.vendorId = desc.VendorId;
+		info.deviceId = desc.DeviceId;
 
-		info.DedicatedVideoMemory = desc.DedicatedVideoMemory;
-		info.DedicatedSystemMemory = desc.DedicatedSystemMemory;
-		info.SharedSystemMemory = desc.SharedSystemMemory;
+		info.dedicatedVideoMemory = desc.DedicatedVideoMemory;
+		info.dedicatedSystemMemory = desc.DedicatedSystemMemory;
+		info.sharedSystemMemory = desc.SharedSystemMemory;
 
 		pReturnList->push_back(info);
 		return true;

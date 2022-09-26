@@ -1,8 +1,8 @@
 #include "DX11ShaderBorder.h"
 
-DX11ShaderBorder::DX11ShaderBorder(DX11GraphicInstanceImpl &graphic, const WCHAR *vsFile, const WCHAR *psFile)
-	: DX11Shader(graphic, vsFile, psFile, sizeof(tBorderVertexType) * BORDER_VERTEX_COUNT, sizeof(float) * 16, 0)
+DX11ShaderBorder::DX11ShaderBorder(DX11GraphicInstanceImpl &graphic, const ST_ShaderInfo *info) : DX11Shader(graphic, info)
 {
+	BuildDX();
 }
 
 std::vector<D3D11_INPUT_ELEMENT_DESC> DX11ShaderBorder::GetInputLayout()

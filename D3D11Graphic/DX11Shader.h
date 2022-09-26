@@ -1,10 +1,12 @@
 #pragma once
-#include <DX11Object.h>
+#include <DX11GraphicBase.h>
 
 class DX11GraphicInstanceImpl;
-class DX11Shader : public DX11Object {
+class DX11Shader : public DX11GraphicBase {
+	friend class DX11GraphicInstanceImpl;
+
 public:
-	DX11Shader(DX11GraphicInstanceImpl &graphic, const WCHAR *vsFile, const WCHAR *psFile, int vertexSize, int vsBufferSize, int psBufferSize);
+	DX11Shader(DX11GraphicInstanceImpl &graphic, const ST_ShaderInfo* info);
 
 	virtual bool BuildDX();
 	virtual void ReleaseDX();
@@ -14,21 +16,17 @@ protected:
 	virtual std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() = 0;
 
 protected:
-	const std::wstring m_strVSFile;
-	const std::wstring m_strPSFile;
-	const int m_nVertexSize = 0;
-	const int m_nVSBufferSize = 0;
-	const int m_nPSBufferSize = 0;
+	const ST_ShaderInfo m_shaderInfo;
 
 	// vertex shader
-	ComPtr<ID3D11VertexShader> m_pVertexShader;
-	ComPtr<ID3D11Buffer> m_pVSBuffer;
+	ComPtr<ID3D11VertexShader> m_pVertexShader = nullptr;
+	ComPtr<ID3D11Buffer> m_pVSConstBuffer = nullptr;
 
 	// pixel shader
-	ComPtr<ID3D11PixelShader> m_pPixelShader;
-	ComPtr<ID3D11Buffer> m_pPSBuffer;
+	ComPtr<ID3D11PixelShader> m_pPixelShader = nullptr;
+	ComPtr<ID3D11Buffer> m_pPSConstBuffer = nullptr;
 
 	// vertex info
-	ComPtr<ID3D11InputLayout> m_pInputLayout;
-	ComPtr<ID3D11Buffer> m_pVertexBuffer;
+	ComPtr<ID3D11InputLayout> m_pInputLayout = nullptr;
+	ComPtr<ID3D11Buffer> m_pVertexBuffer = nullptr;
 };

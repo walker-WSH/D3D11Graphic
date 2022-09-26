@@ -1,7 +1,7 @@
 #include "DX11SwapChain.h"
 #include "DX11GraphicInstanceImpl.h"
 
-DX11SwapChain::DX11SwapChain(DX11GraphicInstanceImpl &graphic, HWND hWnd) : DX11Object(graphic), m_hWnd(hWnd)
+DX11SwapChain::DX11SwapChain(DX11GraphicInstanceImpl &graphic, HWND hWnd) : DX11GraphicBase(graphic), m_hWnd(hWnd)
 {
 	RECT rc;
 	GetClientRect(hWnd, &rc);
@@ -9,7 +9,7 @@ DX11SwapChain::DX11SwapChain(DX11GraphicInstanceImpl &graphic, HWND hWnd) : DX11
 	m_dwWidth = rc.right - rc.left;
 	m_dwHeight = rc.bottom - rc.top;
 
-	InitSwapChain();
+	BuildDX();
 }
 
 bool DX11SwapChain::BuildDX()

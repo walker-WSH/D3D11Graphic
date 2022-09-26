@@ -38,9 +38,6 @@
     <ClCompile Include="EnumAdapter.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="DXDefine.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="DX11Shader.cpp">
       <Filter>shader</Filter>
     </ClCompile>
@@ -50,13 +47,13 @@
     <ClCompile Include="DX11ShaderTexture.cpp">
       <Filter>shader</Filter>
     </ClCompile>
-    <ClCompile Include="DX11Object.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="DX11Texture2D.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="DX11SwapChain.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11GraphicBase.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -76,9 +73,6 @@
     <ClInclude Include="WindowsVersion.h">
       <Filter>source</Filter>
     </ClInclude>
-    <ClInclude Include="DXDefine.h">
-      <Filter>source</Filter>
-    </ClInclude>
     <ClInclude Include="EnumAdapter.h">
       <Filter>source</Filter>
     </ClInclude>
@@ -91,9 +85,6 @@
     <ClInclude Include="DX11ShaderTexture.h">
       <Filter>shader</Filter>
     </ClInclude>
-    <ClInclude Include="DX11Object.h">
-      <Filter>source</Filter>
-    </ClInclude>
     <ClInclude Include="DX11Texture2D.h">
       <Filter>source</Filter>
     </ClInclude>
@@ -101,6 +92,12 @@
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="export\DX11VideoFrame.hpp">
+      <Filter>DX11Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11GraphicBase.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="export\DX11GraphicDefine.h">
       <Filter>DX11Instance</Filter>
     </ClInclude>
   </ItemGroup>

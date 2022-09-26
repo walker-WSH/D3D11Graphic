@@ -1,9 +1,8 @@
 #include "DX11ShaderTexture.h"
 
-DX11ShaderTexture::DX11ShaderTexture(DX11GraphicInstanceImpl &graphic, const WCHAR *vsFile, const WCHAR *psFile, int vsBufferSize,
-				     int psBufferSize)
-	: DX11Shader(graphic, vsFile, psFile, sizeof(tTextureVertexType) * TEXTURE_VERTEX_COUNT, vsBufferSize, psBufferSize)
+DX11ShaderTexture::DX11ShaderTexture(DX11GraphicInstanceImpl &graphic, const ST_ShaderInfo *info) : DX11Shader(graphic, info)
 {
+	BuildDX();
 }
 
 std::vector<D3D11_INPUT_ELEMENT_DESC> DX11ShaderTexture::GetInputLayout()

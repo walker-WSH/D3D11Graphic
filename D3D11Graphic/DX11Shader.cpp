@@ -24,24 +24,15 @@ std::wstring GetHLSLDir()
 	return s_strHLSLDir;
 }
 
-DX11Shader::DX11Shader(DX11GraphicInstanceImpl &graphic, const WCHAR *vsFile, const WCHAR *psFile, int vertexSize, int vsBufferSize,
-		       int psBufferSize)
-	: DX11Object(graphic),
-	  m_strVSFile(vsFile),
-	  m_strPSFile(psFile),
-	  m_nVertexSize(vertexSize),
-	  m_nVSBufferSize(vsBufferSize),
-	  m_nPSBufferSize(psBufferSize)
-{
-}
+DX11Shader::DX11Shader(DX11GraphicInstanceImpl &graphic, const ST_ShaderInfo *info) : DX11GraphicBase(graphic), m_shaderInfo(*info) {}
 
 bool DX11Shader::BuildDX()
 {
 	CHECK_GRAPHIC_CONTEXT_EX(m_graphic);
 
 	std::wstring dir = GetHLSLDir();
-	std::wstring vs = dir + m_strVSFile;
-	std::wstring ps = dir + m_strPSFile;
+	std::wstring vs = dir + m_shaderInfo.vsFile;
+	std::wstring ps = dir + m_shaderInfo.psFile;
 
 	ComPtr<ID3D10Blob> vertexShaderBuffer;
 	ComPtr<ID3D10Blob> pixelShaderBuffer;
@@ -65,17 +56,15 @@ bool DX11Shader::BuildDX()
 		return false;
 	}
 
-	hr = m_graphic.DXDevice()->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL,
-						     m_pPixelShader.Assign());
+	hr = m_graphic.DXDevice()->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, m_pPixelShader.Assign());
 	if (FAILED(hr)) {
 		assert(false);
 		return false;
 	}
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc = GetInputLayout();
-	hr = m_graphic.DXDevice()->CreateInputLayout(inputLayoutDesc.data(), (UINT)inputLayoutDesc.size(),
-						     vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(),
-						     m_pInputLayout.Assign());
+	hr = m_graphic.DXDevice()->CreateInputLayout(inputLayoutDesc.data(), (uint32_t)inputLayoutDesc.size(), vertexShaderBuffer->GetBufferPointer(),
+						     vertexShaderBuffer->GetBufferSize(), m_pInputLayout.Assign());
 	if (FAILED(hr)) {
 		assert(false);
 		return false;
@@ -83,7 +72,7 @@ bool DX11Shader::BuildDX()
 
 	D3D11_BUFFER_DESC vertexBufferDesc = {};
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = m_nVertexSize;
+	vertexBufferDesc.ByteWidth = m_shaderInfo.vertexCount * m_shaderInfo.perVertexSize;
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	hr = m_graphic.DXDevice()->CreateBuffer(&vertexBufferDesc, NULL, m_pVertexBuffer.Assign());
 	if (FAILED(hr)) {
@@ -91,24 +80,24 @@ bool DX11Shader::BuildDX()
 		return false;
 	}
 
-	if (m_nVSBufferSize > 0) {
+	if (m_shaderInfo.vsBufferSize > 0) {
 		D3D11_BUFFER_DESC CBufferDesc = {};
 		CBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		CBufferDesc.ByteWidth = m_nVSBufferSize;
+		CBufferDesc.ByteWidth = m_shaderInfo.vsBufferSize;
 		CBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		hr = m_graphic.DXDevice()->CreateBuffer(&CBufferDesc, NULL, m_pVSBuffer.Assign());
+		hr = m_graphic.DXDevice()->CreateBuffer(&CBufferDesc, NULL, m_pVSConstBuffer.Assign());
 		if (FAILED(hr)) {
 			assert(false);
 			return false;
 		}
 	}
 
-	if (m_nPSBufferSize > 0) {
+	if (m_shaderInfo.psBufferSize > 0) {
 		D3D11_BUFFER_DESC CBufferDesc = {};
 		CBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		CBufferDesc.ByteWidth = m_nPSBufferSize;
+		CBufferDesc.ByteWidth = m_shaderInfo.psBufferSize;
 		CBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		hr = m_graphic.DXDevice()->CreateBuffer(&CBufferDesc, NULL, m_pPSBuffer.Assign());
+		hr = m_graphic.DXDevice()->CreateBuffer(&CBufferDesc, NULL, m_pPSConstBuffer.Assign());
 		if (FAILED(hr)) {
 			assert(false);
 			return false;
@@ -123,10 +112,10 @@ void DX11Shader::ReleaseDX()
 	CHECK_GRAPHIC_CONTEXT_EX(m_graphic);
 
 	m_pVertexShader = nullptr;
-	m_pVSBuffer = nullptr;
+	m_pVSConstBuffer = nullptr;
 
 	m_pPixelShader = nullptr;
-	m_pPSBuffer = nullptr;
+	m_pPSConstBuffer = nullptr;
 
 	m_pInputLayout = nullptr;
 	m_pVertexBuffer = nullptr;
