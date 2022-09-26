@@ -26,6 +26,15 @@
     <ClCompile Include="DX11GraphicInstanceContext.cpp">
       <Filter>DX11Instance</Filter>
     </ClCompile>
+    <ClCompile Include="WindowsVersion.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="EnumAdapter.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="DXDefine.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\ComPtr.hpp">
@@ -39,6 +48,15 @@
     </ClInclude>
     <ClInclude Include="export\DX11GraphicAPI.h">
       <Filter>DX11Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsVersion.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="DXDefine.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumAdapter.h">
+      <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
