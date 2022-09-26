@@ -453,7 +453,7 @@ void DX11GraphicInstanceImpl::SetPSConstBuffer(shader_handle hdl, void *psBuffer
 		UpdateShaderBuffer(shader->m_pVSConstBuffer, psBuffer, psSize);
 }
 
-void DX11GraphicInstanceImpl::DrawTriangleStrip(shader_handle hdl)
+void DX11GraphicInstanceImpl::DrawTriangle(shader_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
 

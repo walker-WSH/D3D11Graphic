@@ -29,7 +29,7 @@ public:
 	virtual void SetVertexBuffer(shader_handle hdl, void *buffer, size_t size) = 0;
 	virtual void SetVSConstBuffer(shader_handle hdl, void *vsBuffer, size_t vsSize) = 0;
 	virtual void SetPSConstBuffer(shader_handle hdl, void *psBuffer, size_t psSize) = 0;
-	virtual void DrawTriangleStrip(shader_handle hdl) = 0;
+	virtual void DrawTriangle(shader_handle hdl) = 0;
 	virtual void DrawTexture(shader_handle hdl, const std::vector<texture_handle> &textures) = 0;
 	virtual void RenderEnd() = 0;
 };

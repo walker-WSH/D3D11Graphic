@@ -50,7 +50,7 @@ public:
 	virtual void SetVertexBuffer(shader_handle hdl, void *buffer, size_t size);
 	virtual void SetVSConstBuffer(shader_handle hdl, void *vsBuffer, size_t vsSize);
 	virtual void SetPSConstBuffer(shader_handle hdl, void *psBuffer, size_t psSize);
-	virtual void DrawTriangleStrip(shader_handle hdl);
+	virtual void DrawTriangle(shader_handle hdl);
 	virtual void DrawTexture(shader_handle hdl, const std::vector<texture_handle> &textures);
 	virtual void RenderEnd();
 
