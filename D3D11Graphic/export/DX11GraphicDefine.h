@@ -13,7 +13,8 @@ using display_handle = DX11GraphicObject *;
 using shader_handle = DX11GraphicObject *;
 
 enum class TextureType {
-	CanvasTarget = 0,
+	Unknown = 0,
+	CanvasTarget,
 	ReadTexture,
 	WriteTexture,
 	SharedHandle,
@@ -23,7 +24,7 @@ struct ST_TextureInfo {
 	uint32_t width = 0;
 	uint32_t height = 0;
 	enum DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
-	TextureType type;
+	enum TextureType type = TextureType::Unknown;
 };
 
 struct ST_Color {
