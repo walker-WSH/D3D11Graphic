@@ -1,9 +1,26 @@
 #pragma once
-#include <Windows.h>
-#include <string>
-#include <DXDefine.h>
+#include <DX11Object.h>
 
-struct DX11Shader {
+class DX11GraphicInstanceImpl;
+class DX11Shader : public DX11Object {
+public:
+	DX11Shader(DX11GraphicInstanceImpl &graphic, const WCHAR *vsFile, const WCHAR *psFile, int vertexSize, int vsBufferSize,
+		   int psBufferSize);
+
+	virtual bool BuildDX();
+	virtual void ReleaseDX();
+
+protected:
+	virtual std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() = 0;
+
+protected:
+	DX11GraphicInstanceImpl &m_graphic;
+	const std::wstring m_strVSFile;
+	const std::wstring m_strPSFile;
+	const int m_nVertexSize = 0;
+	const int m_nVSBufferSize = 0;
+	const int m_nPSBufferSize = 0;
+
 	// vertex shader
 	ComPtr<ID3D11VertexShader> m_pVertexShader;
 	ComPtr<ID3D11Buffer> m_pVSBuffer;
@@ -15,8 +32,4 @@ struct DX11Shader {
 	// vertex info
 	ComPtr<ID3D11InputLayout> m_pInputLayout;
 	ComPtr<ID3D11Buffer> m_pVertexBuffer;
-
-public:
-	bool InitShader(ComPtr<ID3D11Device> pDevice, const WCHAR *vsFile, const WCHAR *psFile, int vertexSize, int vsBufferSize,
-			int psBufferSize);
 };

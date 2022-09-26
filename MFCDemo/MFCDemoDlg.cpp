@@ -47,15 +47,26 @@ CMFCDemoDlg::CMFCDemoDlg(CWnd *pParent /*=nullptr*/) : CDialogEx(IDD_MFCDEMO_DIA
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
-	EnumGraphicCard();
+	auto listGraphic = EnumGraphicCard();
+	assert(!listGraphic->empty());
+
 	m_pGraphic = CreateGraphicInstance();
+
 	AUTO_GRAPHIC_CONTEXT(m_pGraphic);
+	m_pGraphic->InitializeGraphic(listGraphic->at(0).AdapterLuid);
+}
+
+CMFCDemoDlg::~CMFCDemoDlg()
+{
+	{
+		AUTO_GRAPHIC_CONTEXT(m_pGraphic);
+		m_pGraphic->UnInitializeGraphic();
+	}
+	DestroyGraphicInstance(m_pGraphic);
 }
 
 void CMFCDemoDlg::DoDataExchange(CDataExchange *pDX)
 {
-	DestroyGraphicInstance(m_pGraphic);
-
 	CDialogEx::DoDataExchange(pDX);
 }
 

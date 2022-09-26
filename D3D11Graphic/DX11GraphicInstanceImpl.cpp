@@ -1,6 +1,6 @@
 #include "DX11GraphicInstanceImpl.h"
 
-#define CHECK_GRAPHIC_CONTEXT CheckContext(std::source_location::current())
+HMODULE DX11GraphicInstanceImpl::s_hDllModule = nullptr;
 
 DX11GraphicInstanceImpl::DX11GraphicInstanceImpl()
 {
@@ -9,12 +9,21 @@ DX11GraphicInstanceImpl::DX11GraphicInstanceImpl()
 
 DX11GraphicInstanceImpl::~DX11GraphicInstanceImpl()
 {
+	assert(m_listObject.empty());
 	DeleteCriticalSection(&m_lockOperation);
 }
 
 bool DX11GraphicInstanceImpl::InitializeGraphic(LUID luid)
 {
+	CHECK_GRAPHIC_CONTEXT;
+
 	m_adapterLuid = luid;
+
+	m_pShaderDefault =
+		std::shared_ptr<DX11ShaderTexture>(new DX11ShaderTexture(*this, L"defaultVS.cso", L"defaultPS.cso", sizeof(float) * 16, 0));
+
+	m_pShaderBorder =
+		std::shared_ptr<DX11ShaderTexture>(new DX11ShaderTexture(*this, L"borderVS.cso", L"borderPS.cso", sizeof(float) * 16, 0));
 
 	ReleaseDX();
 	if (!BuildDX())
@@ -25,13 +34,34 @@ bool DX11GraphicInstanceImpl::InitializeGraphic(LUID luid)
 
 void DX11GraphicInstanceImpl::UnInitializeGraphic()
 {
+	CHECK_GRAPHIC_CONTEXT;
+
 	ReleaseDX();
 
-	// free all wrapper object
+	m_pShaderDefault = nullptr;
+	m_pShaderBorder = nullptr;
+
+	assert(m_listObject.empty());
+}
+
+void DX11GraphicInstanceImpl::ReleaseDX()
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	for (auto &item : m_listObject) {
+		item->ReleaseDX();
+	}
+
+	m_pDX11Device = nullptr;
+	m_pDeviceContext = nullptr;
+	m_pBlendState = nullptr;
+	m_pSampleState = nullptr;
 }
 
 bool DX11GraphicInstanceImpl::BuildDX()
 {
+	CHECK_GRAPHIC_CONTEXT;
+
 	ComPtr<IDXGIAdapter1> pAdapter;
 	DXGraphic::EnumD3DAdapters(nullptr, [this, &pAdapter](void *userdata, ComPtr<IDXGIAdapter1> adapter, const DXGI_ADAPTER_DESC &desc,
 							      const char *version) {
@@ -63,11 +93,17 @@ bool DX11GraphicInstanceImpl::BuildDX()
 	if (!InitSamplerState())
 		return false;
 
+	for (auto &item : m_listObject) {
+		item->BuildDX();
+	}
+
 	return true;
 }
 
 bool DX11GraphicInstanceImpl::InitBlendState()
 {
+	CHECK_GRAPHIC_CONTEXT;
+
 	D3D11_BLEND_DESC blendStateDescription = {};
 	blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
 	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
@@ -88,6 +124,8 @@ bool DX11GraphicInstanceImpl::InitBlendState()
 
 bool DX11GraphicInstanceImpl::InitSamplerState()
 {
+	CHECK_GRAPHIC_CONTEXT;
+
 	D3D11_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	samplerDesc.MaxAnisotropy = 16;
@@ -106,12 +144,32 @@ bool DX11GraphicInstanceImpl::InitSamplerState()
 	return true;
 }
 
-void DX11GraphicInstanceImpl::ReleaseDX()
+ComPtr<ID3D11Device> DX11GraphicInstanceImpl::DXDevice()
 {
-	m_pDX11Device = nullptr;
-	m_pDeviceContext = nullptr;
-	m_pBlendState = nullptr;
-	m_pSampleState = nullptr;
+	CHECK_GRAPHIC_CONTEXT;
+	return m_pDX11Device;
+}
+
+ComPtr<ID3D11DeviceContext> DX11GraphicInstanceImpl::DXContext()
+{
+	CHECK_GRAPHIC_CONTEXT;
+	return m_pDeviceContext;
+}
+
+void DX11GraphicInstanceImpl::RemoveObject(DX11Object *obj)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	auto itr = find(m_listObject.begin(), m_listObject.end(), obj);
+	if (itr != m_listObject.end())
+		m_listObject.erase(itr);
+}
+
+void DX11GraphicInstanceImpl::PushObject(DX11Object *obj)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	m_listObject.push_back(obj);
 }
 
 void DX11GraphicInstanceImpl::RunTask1()

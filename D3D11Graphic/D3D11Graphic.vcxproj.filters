@@ -12,6 +12,12 @@
     <Filter Include="DX11Instance">
       <UniqueIdentifier>{3bd543be-52f4-4f5d-81a5-a37ad3f124b4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{ec537707-65b5-4cf7-b50d-4756a632f034}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HLSL">
+      <UniqueIdentifier>{c12d1cd6-9173-412e-99da-ab5d919481e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -36,6 +42,15 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="DX11Shader.cpp">
+      <Filter>shader</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11ShaderBorder.cpp">
+      <Filter>shader</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11ShaderTexture.cpp">
+      <Filter>shader</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11Object.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,7 +77,30 @@
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="DX11Shader.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11ShaderBorder.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11ShaderTexture.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11Object.h">
       <Filter>source</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="HLSL\borderPS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\borderVS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\defaultPS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\defaultVS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
