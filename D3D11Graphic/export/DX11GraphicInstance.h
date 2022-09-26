@@ -6,6 +6,7 @@
 
 using texture_handle = void *;
 using display_handle = void *;
+using shader_handle = void *;
 
 struct ST_TextureInfo {
 	uint32_t width = 0;
@@ -47,9 +48,13 @@ public:
 	virtual bool RenderBegin_Display(display_handle hdl) = 0;
 	virtual void SetBackgroundColor(float red, float green, float blue, float alpha) = 0;
 
+	virtual shader_handle GetBorderShader() { return 0; }
+	virtual shader_handle GetTextureShader() { return 0; }
+	virtual void SetVertexBuffer(shader_handle hdl, void *buffer, size_t size) {}
+	virtual void SetVSConstBuffer(shader_handle hdl, void *vsBuffer, size_t vsSize) {} // such as wvp matrix
+	virtual void SetPSConstBuffer(shader_handle hdl, void *psBuffer, size_t psSize) {}
+
 	virtual void SetVideoFrame(VIDEO_FRAME frame) {}
-	virtual void SetVertexBuffer(void *buffer, size_t size) {}
-	virtual void SetConstBuffer(void *vsBuffer, size_t vsSize, void *psBuffer, size_t psSize) {} // such as wvp matrix
 
 	virtual void Draw()
 	{
