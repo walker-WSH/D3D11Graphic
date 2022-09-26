@@ -35,14 +35,15 @@ public:
 
 	virtual void ReleaseGraphicObject(DX11GraphicObject *&hdl);
 
-	virtual texture_handle OpenTexture(HANDLE hSharedHanle);
-	virtual texture_handle CreateTexture2D(TextureType type, uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM);
-	virtual ST_TextureInfo GetTextureInfo(texture_handle tex);
-	virtual bool MapTexture(texture_handle tex, bool isRead, D3D11_MAPPED_SUBRESOURCE *mapData);
-	virtual void UnmapTexture(texture_handle tex);
-
 	virtual display_handle CreateDisplay(HWND hWnd);
 	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height);
+
+	virtual texture_handle OpenTexture(HANDLE hSharedHanle);
+	virtual texture_handle CreateTexture(TextureType type, const ST_TextureInfo &info);
+	virtual ST_TextureInfo GetTextureInfo(texture_handle tex);
+	virtual bool CopyTexture(texture_handle dest, texture_handle src);
+	virtual bool MapTexture(texture_handle tex, bool isRead, D3D11_MAPPED_SUBRESOURCE *mapData);
+	virtual void UnmapTexture(texture_handle tex);
 
 	virtual bool RenderBegin_Canvas(texture_handle hdl, ST_Color bkClr);
 	virtual bool RenderBegin_Display(display_handle hdl, ST_Color bkClr);

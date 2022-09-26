@@ -6,7 +6,7 @@ class DX11Texture2D : public DX11GraphicBase {
 	friend class DX11GraphicInstanceImpl;
 
 public:
-	DX11Texture2D(DX11GraphicInstanceImpl &graphic, uint32_t width, uint32_t height, enum DXGI_FORMAT format, TextureType type);
+	DX11Texture2D(DX11GraphicInstanceImpl &graphic, const ST_TextureInfo &info, TextureType type);
 	DX11Texture2D(DX11GraphicInstanceImpl &graphic, HANDLE handle);
 
 	virtual bool BuildDX();
@@ -27,8 +27,6 @@ protected:
 	ComPtr<ID3D11ShaderResourceView> m_pTextureResView = nullptr;
 
 	HANDLE m_hSharedHandle = 0;
-	uint32_t m_dwWidth = 0;
-	uint32_t m_dwHeight = 0;
-	enum DXGI_FORMAT m_format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	ST_TextureInfo m_textureInfo;
 	enum TextureType m_usage;
 };

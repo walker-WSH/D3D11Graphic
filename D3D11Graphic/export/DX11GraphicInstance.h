@@ -13,15 +13,17 @@ public:
 
 	virtual void ReleaseGraphicObject(DX11GraphicObject *&hdl) = 0;
 
-	virtual texture_handle OpenTexture(HANDLE hSharedHanle) = 0;
-	virtual texture_handle CreateTexture2D(TextureType type, uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM) = 0;
-	virtual ST_TextureInfo GetTextureInfo(texture_handle tex) = 0;
-	virtual bool MapTexture(texture_handle tex, bool isRead, D3D11_MAPPED_SUBRESOURCE *mapData) = 0;
-	virtual void UnmapTexture(texture_handle tex) = 0;
-
 	virtual display_handle CreateDisplay(HWND hWnd) = 0;
 	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height) = 0;
 
+	virtual texture_handle OpenTexture(HANDLE hSharedHanle) = 0;
+	virtual texture_handle CreateTexture(TextureType type, const ST_TextureInfo &info) = 0;
+	virtual ST_TextureInfo GetTextureInfo(texture_handle tex) = 0;
+	virtual bool CopyTexture(texture_handle dest, texture_handle src) = 0;
+	virtual bool MapTexture(texture_handle tex, bool isRead, D3D11_MAPPED_SUBRESOURCE *mapData) = 0;
+	virtual void UnmapTexture(texture_handle tex) = 0;
+
+	//--------------------------------------------------------------------------------------------
 	virtual bool RenderBegin_Canvas(texture_handle hdl, ST_Color bkClr) = 0;
 	virtual bool RenderBegin_Display(display_handle hdl, ST_Color bkClr) = 0;
 	virtual void SetVertexBuffer(shader_handle hdl, void *buffer, size_t size) = 0;

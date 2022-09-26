@@ -56,11 +56,17 @@ CMFCDemoDlg::CMFCDemoDlg(CWnd *pParent /*=nullptr*/) : CDialogEx(IDD_MFCDEMO_DIA
 		AUTO_GRAPHIC_CONTEXT(m_pGraphic);
 		m_pGraphic->InitializeGraphic(listGraphic->at(0).adapterLuid);
 
-		m_pGraphic->CreateTexture2D(TextureType::ReadTexture, 200, 200);
-		m_pGraphic->CreateTexture2D(TextureType::WriteTexture, 200, 200);
+		ST_TextureInfo info;
+		info.width = 201;
+		info.height = 201;
+		info.format = DXGI_FORMAT_B8G8R8A8_UNORM;
 
-		texture_handle hdl = m_pGraphic->CreateTexture2D(TextureType::CanvasTarget, 200, 200);
-		m_pGraphic->ReleaseGraphicObject(hdl);
+		texture_handle tex1 = m_pGraphic->CreateTexture(TextureType::ReadTexture, info);
+		texture_handle tex2 = m_pGraphic->CreateTexture(TextureType::WriteTexture, info);
+		texture_handle tex3 = m_pGraphic->CreateTexture(TextureType::CanvasTarget, info);
+		m_pGraphic->ReleaseGraphicObject(tex1);
+		m_pGraphic->ReleaseGraphicObject(tex2);
+		m_pGraphic->ReleaseGraphicObject(tex3);
 	}
 }
 

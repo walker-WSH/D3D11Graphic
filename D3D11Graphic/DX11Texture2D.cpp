@@ -2,8 +2,8 @@
 #include "DX11GraphicInstanceImpl.h"
 #include <d3dcompiler.h>
 
-DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, uint32_t width, uint32_t height, enum DXGI_FORMAT format, TextureType type)
-	: DX11GraphicBase(graphic), m_dwWidth(width), m_dwHeight(height), m_format(format), m_usage(type)
+DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, const ST_TextureInfo &info, TextureType type)
+	: DX11GraphicBase(graphic), m_textureInfo(info), m_usage(type)
 {
 	BuildDX();
 }
@@ -61,9 +61,9 @@ void DX11Texture2D::ReleaseDX()
 bool DX11Texture2D::InitWriteTexture()
 {
 	D3D11_TEXTURE2D_DESC desc = {};
-	desc.Width = m_dwWidth;
-	desc.Height = m_dwHeight;
-	desc.Format = m_format;
+	desc.Width = m_textureInfo.width;
+	desc.Height = m_textureInfo.height;
+	desc.Format = m_textureInfo.format;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.SampleDesc.Count = 1;
@@ -94,9 +94,9 @@ bool DX11Texture2D::InitWriteTexture()
 bool DX11Texture2D::InitReadTexture()
 {
 	D3D11_TEXTURE2D_DESC desc = {};
-	desc.Width = m_dwWidth;
-	desc.Height = m_dwHeight;
-	desc.Format = m_format;
+	desc.Width = m_textureInfo.width;
+	desc.Height = m_textureInfo.height;
+	desc.Format = m_textureInfo.format;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.SampleDesc.Count = 1;
@@ -123,9 +123,9 @@ bool DX11Texture2D::InitReadTexture()
 bool DX11Texture2D::InitTargetTexture()
 {
 	D3D11_TEXTURE2D_DESC desc = {};
-	desc.Width = m_dwWidth;
-	desc.Height = m_dwHeight;
-	desc.Format = m_format;
+	desc.Width = m_textureInfo.width;
+	desc.Height = m_textureInfo.height;
+	desc.Format = m_textureInfo.format;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.SampleDesc.Count = 1;

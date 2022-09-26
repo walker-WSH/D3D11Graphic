@@ -55,11 +55,11 @@ texture_handle DX11GraphicInstanceImpl::OpenTexture(HANDLE hSharedHanle)
 	return new DX11Texture2D(*this, hSharedHanle);
 }
 
-texture_handle DX11GraphicInstanceImpl::CreateTexture2D(TextureType type, uint32_t width, uint32_t height, enum DXGI_FORMAT format)
+texture_handle DX11GraphicInstanceImpl::CreateTexture(TextureType type, const ST_TextureInfo &info)
 {
 	CHECK_GRAPHIC_CONTEXT;
 	assert(TextureType::SharedHandle != type);
-	return new DX11Texture2D(*this, width, height, format, type);
+	return new DX11Texture2D(*this, info, type);
 }
 
 ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle tex)
@@ -72,6 +72,27 @@ ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle tex)
 		return ST_TextureInfo();
 
 	return ST_TextureInfo(obj->m_descTexture.Width, obj->m_descTexture.Height, obj->m_descTexture.Format);
+}
+
+bool DX11GraphicInstanceImpl::CopyTexture(texture_handle dest, texture_handle src)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	if (!m_bBuildSuccessed)
+		return false;
+
+	auto destTex = dynamic_cast<DX11Texture2D *>(dest);
+	assert(destTex);
+	if (!destTex || !destTex->IsBuilt())
+		return false;
+
+	auto srcTex = dynamic_cast<DX11Texture2D *>(src);
+	assert(srcTex);
+	if (!srcTex || !srcTex->IsBuilt())
+		return false;
+
+	m_pDeviceContext->CopyResource(destTex->m_pTexture2D, srcTex->m_pTexture2D);
+	return true;
 }
 
 bool DX11GraphicInstanceImpl::MapTexture(texture_handle tex, bool isRead, D3D11_MAPPED_SUBRESOURCE *mapData)
