@@ -6,8 +6,10 @@ class IDX11GraphicInstance {
 public:
 	virtual ~IDX11GraphicInstance() = default;
 
+	virtual bool InitializeGraphic(LUID luid) = 0;
+	virtual void UnInitializeGraphic() = 0;
+
 	virtual void RunTask1() = 0;
-	virtual void RunTask2() = 0;
 };
 
 class __declspec(dllexport) AutoGraphicContext {

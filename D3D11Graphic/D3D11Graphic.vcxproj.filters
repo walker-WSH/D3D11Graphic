@@ -35,6 +35,9 @@
     <ClCompile Include="DXDefine.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="DX11Shader.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\ComPtr.hpp">
@@ -56,6 +59,9 @@
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="EnumAdapter.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11Shader.h">
       <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>

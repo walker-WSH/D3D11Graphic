@@ -55,9 +55,9 @@ void DX11GraphicInstanceImpl::LeaveContext(const std::source_location &location)
 	LeaveCriticalSection(&m_lockOperation);
 }
 
-bool DX11GraphicInstanceImpl::CheckContext()
+bool DX11GraphicInstanceImpl::CheckContext(const std::source_location &location)
 {
 	bool ret = (!g_stackContexts.empty() && this == g_stackContexts.top());
-	assert(ret);
+	assert(ret && "invalid context");
 	return ret;
 }

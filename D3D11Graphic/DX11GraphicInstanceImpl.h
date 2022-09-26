@@ -3,7 +3,9 @@
 #include <mutex>
 #include <assert.h>
 #include <Windows.h>
+#include <DXDefine.h>
 #include <DX11GraphicInstance.h>
+#include "EnumAdapter.h"
 
 // 保证了以下规则：
 // DX11GraphicInstanceImpl 的操作函数（RunTaskXXX） 必须在 EnterContext和LeaveContext 之间执行
@@ -16,14 +18,29 @@ public:
 	DX11GraphicInstanceImpl();
 	virtual ~DX11GraphicInstanceImpl();
 
+	virtual bool InitializeGraphic(LUID luid);
+	virtual void UnInitializeGraphic();
+
 	virtual void RunTask1();
-	virtual void RunTask2();
 
 protected:
 	void EnterContext(const std::source_location &location);
 	void LeaveContext(const std::source_location &location);
-	bool CheckContext();
+	bool CheckContext(const std::source_location &location);
+
+	bool BuildDX();
+	bool InitBlendState();
+	bool InitSamplerState();
+
+	void ReleaseDX();
 
 private:
 	CRITICAL_SECTION m_lockOperation;
+
+	LUID m_adapterLuid = {0};
+
+	ComPtr<ID3D11Device> m_pDX11Device = nullptr;
+	ComPtr<ID3D11DeviceContext> m_pDeviceContext = nullptr;
+	ComPtr<ID3D11BlendState> m_pBlendState = nullptr;
+	ComPtr<ID3D11SamplerState> m_pSampleState = nullptr;
 };
