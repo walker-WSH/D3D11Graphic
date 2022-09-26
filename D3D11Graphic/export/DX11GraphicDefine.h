@@ -1,5 +1,7 @@
 #pragma once
 #include <Windows.h>
+#include <d3d11.h>
+#include <dxgi.h>
 #include <source_location>
 
 class DX11GraphicObject;

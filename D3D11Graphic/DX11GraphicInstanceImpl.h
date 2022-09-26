@@ -29,8 +29,7 @@ public:
 	DX11GraphicInstanceImpl();
 	virtual ~DX11GraphicInstanceImpl();
 
-	// IDX11GraphicInstance
-	//------------------------------------------------------------------------------------------------------
+	//--------------------------------------------------- IDX11GraphicInstance ---------------------------------------------------
 	virtual bool InitializeGraphic(LUID luid);
 	virtual void UnInitializeGraphic();
 
@@ -38,7 +37,9 @@ public:
 
 	virtual texture_handle OpenTexture(HANDLE hSharedHanle);
 	virtual texture_handle CreateTexture2D(TextureType type, uint32_t width, uint32_t height, enum DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM);
-	virtual ST_TextureInfo GetTextureInfo(texture_handle hdl);
+	virtual ST_TextureInfo GetTextureInfo(texture_handle tex);
+	virtual bool MapTexture(texture_handle tex, bool isRead, D3D11_MAPPED_SUBRESOURCE *mapData);
+	virtual void UnmapTexture(texture_handle tex);
 
 	virtual display_handle CreateDisplay(HWND hWnd);
 	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height);
@@ -79,7 +80,7 @@ private:
 	LUID m_adapterLuid = {0};
 
 	CRITICAL_SECTION m_lockOperation;
-	bool m_bBuilSuccessed = false;
+	bool m_bBuildSuccessed = false;
 	ComPtr<IDXGIFactory1> m_pDX11Factory = nullptr;
 	ComPtr<ID3D11Device> m_pDX11Device = nullptr;
 	ComPtr<ID3D11DeviceContext> m_pDeviceContext = nullptr;

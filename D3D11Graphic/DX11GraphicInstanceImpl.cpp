@@ -62,16 +62,52 @@ texture_handle DX11GraphicInstanceImpl::CreateTexture2D(TextureType type, uint32
 	return new DX11Texture2D(*this, width, height, format, type);
 }
 
-ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle hdl)
+ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle tex)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
-	auto obj = dynamic_cast<DX11Texture2D *>(hdl);
+	auto obj = dynamic_cast<DX11Texture2D *>(tex);
 	assert(obj);
 	if (!obj || !obj->IsBuilt())
 		return ST_TextureInfo();
 
 	return ST_TextureInfo(obj->m_descTexture.Width, obj->m_descTexture.Height, obj->m_descTexture.Format);
+}
+
+bool DX11GraphicInstanceImpl::MapTexture(texture_handle tex, bool isRead, D3D11_MAPPED_SUBRESOURCE *mapData)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	if (!m_bBuildSuccessed)
+		return false;
+
+	auto obj = dynamic_cast<DX11Texture2D *>(tex);
+	assert(obj);
+	if (!obj || !obj->IsBuilt())
+		return false;
+
+	D3D11_MAP type = isRead ? D3D11_MAP_READ : D3D11_MAP_WRITE_DISCARD;
+	HRESULT hr = m_pDeviceContext->Map(obj->m_pTexture2D, 0, type, 0, mapData);
+	if (FAILED(hr)) {
+		assert(false);
+		return false;
+	}
+
+	return true;
+}
+
+void DX11GraphicInstanceImpl::UnmapTexture(texture_handle tex)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	auto obj = dynamic_cast<DX11Texture2D *>(tex);
+	assert(obj);
+	if (!obj || !obj->IsBuilt()) {
+		assert(false);
+		return;
+	}
+
+	m_pDeviceContext->Unmap(obj->m_pTexture2D, 0);
 }
 
 display_handle DX11GraphicInstanceImpl::CreateDisplay(HWND hWnd)
@@ -125,7 +161,7 @@ void DX11GraphicInstanceImpl::ReleaseAllDX()
 {
 	CHECK_GRAPHIC_CONTEXT;
 
-	m_bBuilSuccessed = false;
+	m_bBuildSuccessed = false;
 
 	for (auto &item : m_listObject)
 		item->ReleaseDX();
@@ -175,7 +211,7 @@ bool DX11GraphicInstanceImpl::BuildAllDX()
 	for (auto &item : m_listObject)
 		item->BuildDX();
 
-	m_bBuilSuccessed = true;
+	m_bBuildSuccessed = true;
 	return true;
 }
 
@@ -323,7 +359,7 @@ bool DX11GraphicInstanceImpl::RenderBegin_Canvas(texture_handle hdl, ST_Color bk
 
 	assert(!m_pCurrentRenderTarget && !m_pCurrentSwapChain);
 
-	if (!m_bBuilSuccessed)
+	if (!m_bBuildSuccessed)
 		return false;
 
 	auto obj = dynamic_cast<DX11Texture2D *>(hdl);
@@ -348,7 +384,7 @@ bool DX11GraphicInstanceImpl::RenderBegin_Display(display_handle hdl, ST_Color b
 
 	assert(!m_pCurrentRenderTarget && !m_pCurrentSwapChain);
 
-	if (!m_bBuilSuccessed)
+	if (!m_bBuildSuccessed)
 		return false;
 
 	auto obj = dynamic_cast<DX11SwapChain *>(hdl);
