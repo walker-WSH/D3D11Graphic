@@ -56,6 +56,9 @@
     <ClCompile Include="DX11GraphicBase.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="DX11GraphicMatrix.cpp">
+      <Filter>DX11Instance</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\ComPtr.hpp">

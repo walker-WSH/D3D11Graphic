@@ -172,6 +172,7 @@
     <ClCompile Include="DX11GraphicBase.cpp" />
     <ClCompile Include="DX11GraphicInstanceContext.cpp" />
     <ClCompile Include="DX11GraphicInstanceImpl.cpp" />
+    <ClCompile Include="DX11GraphicMatrix.cpp" />
     <ClCompile Include="DX11Shader.cpp" />
     <ClCompile Include="DX11ShaderBorder.cpp" />
     <ClCompile Include="DX11ShaderTexture.cpp" />

@@ -28,6 +28,15 @@ struct ST_TextureInfo {
 	enum TextureType usage = TextureType::Unknown;
 };
 
+struct ST_TextureVertex {
+	float x, y, z, w;
+	float u, v;
+};
+
+struct ST_BorderVertex {
+	float x, y, z, w;
+};
+
 struct ST_Color {
 	float red = 0.0;
 	float green = 0.0;

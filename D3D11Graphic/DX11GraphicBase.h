@@ -5,7 +5,6 @@
 #include <assert.h>
 #include <d3d11.h>
 #include <dxgi.h>
-#include <dxgi1_2.h>
 #include <ComPtr.hpp>
 #include <DX11GraphicDefine.h>
 

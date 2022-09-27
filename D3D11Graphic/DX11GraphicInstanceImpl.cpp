@@ -80,9 +80,18 @@ texture_handle DX11GraphicInstanceImpl::OpenImageTexture(const WCHAR *fullPath)
 texture_handle DX11GraphicInstanceImpl::CreateTexture(const ST_TextureInfo &info)
 {
 	CHECK_GRAPHIC_CONTEXT;
+
 	assert(TextureType::SharedHandle != info.usage);
 	assert(TextureType::StaticImageFile != info.usage);
-	return new DX11Texture2D(*this, info);
+
+	DX11Texture2D *tex = new DX11Texture2D(*this, info);
+	if (!tex->IsBuilt()) {
+		delete tex;
+		assert(false);
+		return nullptr;
+	}
+
+	return tex;
 }
 
 ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle tex)
