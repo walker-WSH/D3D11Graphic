@@ -451,6 +451,9 @@ bool DX11GraphicInstanceImpl::RenderBegin_Display(display_handle hdl, ST_Color b
 	if (!obj->IsBuilt())
 		return false;
 
+	if (!IsWindow(obj->m_hWnd))
+		return false;
+
 	SetRenderTarget(obj->m_pRenderTargetView, obj->m_dwWidth, obj->m_dwHeight, bkClr);
 	m_pCurrentSwapChain = obj->m_pSwapChain;
 

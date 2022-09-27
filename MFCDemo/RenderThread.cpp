@@ -29,7 +29,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		display = m_pGraphic->CreateDisplay(self->m_hWnd);
 		assert(display);
 
-		tex = m_pGraphic->OpenImageTexture(L"testAlpha.png");
+		tex = m_pGraphic->OpenImageTexture(L"testGirl.png");
 		assert(tex);
 		texInfo = m_pGraphic->GetTextureInfo(tex);
 
@@ -57,10 +57,10 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		RECT rc;
 		::GetClientRect(self->m_hWnd, &rc);
 		RECT dest;
-		dest.left = 100;
-		dest.top = 100;
-		dest.right = 300;
-		dest.bottom = 300;
+		dest.left = (WINDOW_WIDTH - texInfo.width) / 2;
+		dest.top = (WINDOW_HEIGHT - texInfo.height) / 2;
+		dest.right = dest.left + texInfo.width;
+		dest.bottom = dest.top + texInfo.width;
 
 		float outputMatrix[4][4];
 		TransposeMatrixWVP(SIZE(rc.right - rc.left, rc.bottom - rc.top), SIZE(texInfo.width, texInfo.height), dest, outputMatrix);
@@ -74,7 +74,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		AUTO_GRAPHIC_CONTEXT(m_pGraphic);
 		m_pGraphic->SetVertexBuffer(0, outputVertex, 4 * sizeof(ST_TextureVertex));
 		m_pGraphic->SetVSConstBuffer(0, &(outputMatrix[0][0]), 16 * sizeof(float));
-		m_pGraphic->RenderBegin_Display(display, ST_Color(1.0, 0, 0, 1.0));
+		m_pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.3f, 0.3f, 1.0f));
 		m_pGraphic->DrawTexture(0, texs);
 		m_pGraphic->RenderEnd();
 	}

@@ -48,8 +48,6 @@ CMFCDemoDlg::CMFCDemoDlg(CWnd *pParent /*=nullptr*/) : CDialogEx(IDD_MFCDEMO_DIA
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
 	m_pGraphic = CreateGraphicInstance();
-	m_bExit = false;
-	m_hThread = (HANDLE)_beginthreadex(0, 0, ThreadFunc, this, 0, 0);
 }
 
 CMFCDemoDlg::~CMFCDemoDlg()
@@ -101,6 +99,10 @@ BOOL CMFCDemoDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE); // 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+	MoveWindow(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+	CenterWindow();
+	m_bExit = false;
+	m_hThread = (HANDLE)_beginthreadex(0, 0, ThreadFunc, this, 0, 0);
 
 	return TRUE; // 除非将焦点设置到控件，否则返回 TRUE
 }
