@@ -13,10 +13,14 @@ public:
 
 	virtual void ReleaseGraphicObject(DX11GraphicObject *&hdl) = 0;
 
+	virtual void TransposeMatrixWVP(SIZE canvas, SIZE texture, RECT destPos, float outputMatrix[4][4]) = 0;
+	virtual void TextureVertexBuffer(SIZE texture, bool flipH, bool flipV, ST_TextureVertex outputBuffer[4]) = 0;
+
 	virtual display_handle CreateDisplay(HWND hWnd) = 0;
 	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height) = 0;
 
-	virtual texture_handle OpenTexture(HANDLE hSharedHanle) = 0;
+	virtual texture_handle OpenSharedTexture(HANDLE hSharedHanle) = 0;
+	virtual texture_handle OpenImageTexture(const WCHAR *fullPath) = 0;
 	virtual texture_handle CreateTexture(const ST_TextureInfo &info) = 0;
 	virtual ST_TextureInfo GetTextureInfo(texture_handle tex) = 0;
 	virtual bool CopyTexture(texture_handle dest, texture_handle src) = 0;

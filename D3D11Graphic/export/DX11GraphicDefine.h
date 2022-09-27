@@ -18,6 +18,7 @@ enum class TextureType {
 	ReadTexture,
 	WriteTexture,
 	SharedHandle,
+	StaticImageFile,
 };
 
 struct ST_TextureInfo {
@@ -25,6 +26,15 @@ struct ST_TextureInfo {
 	uint32_t height = 0;
 	enum DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
 	enum TextureType usage = TextureType::Unknown;
+};
+
+struct ST_TextureVertex {
+	float x, y, z, w;
+	float u, v;
+};
+
+struct ST_BorderVertex {
+	float x, y, z, w;
 };
 
 struct ST_Color {
