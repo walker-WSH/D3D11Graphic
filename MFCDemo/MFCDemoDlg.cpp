@@ -47,41 +47,16 @@ CMFCDemoDlg::CMFCDemoDlg(CWnd *pParent /*=nullptr*/) : CDialogEx(IDD_MFCDEMO_DIA
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
-	auto listGraphic = EnumGraphicCard();
-	assert(!listGraphic->empty());
-
 	m_pGraphic = CreateGraphicInstance();
-
-	{
-		AUTO_GRAPHIC_CONTEXT(m_pGraphic);
-		m_pGraphic->InitializeGraphic(listGraphic->at(0).adapterLuid);
-
-		ST_TextureInfo info;
-		info.width = 201;
-		info.height = 201;
-		info.format = DXGI_FORMAT_B8G8R8A8_UNORM;
-
-		info.usage = TextureType::ReadTexture;
-		texture_handle tex1 = m_pGraphic->CreateTexture(info);
-
-		info.usage = TextureType::WriteTexture;
-		texture_handle tex2 = m_pGraphic->CreateTexture(info);
-
-		info.usage = TextureType::CanvasTarget;
-		texture_handle tex3 = m_pGraphic->CreateTexture(info);
-
-		m_pGraphic->ReleaseGraphicObject(tex1);
-		m_pGraphic->ReleaseGraphicObject(tex2);
-		m_pGraphic->ReleaseGraphicObject(tex3);
-	}
+	m_bExit = false;
+	m_hThread = (HANDLE)_beginthreadex(0, 0, ThreadFunc, this, 0, 0);
 }
 
 CMFCDemoDlg::~CMFCDemoDlg()
 {
-	{
-		AUTO_GRAPHIC_CONTEXT(m_pGraphic);
-		m_pGraphic->UnInitializeGraphic();
-	}
+	m_bExit = true;
+	WaitForSingleObject(m_hThread, INFINITE);
+	CloseHandle(m_hThread);
 	DestroyGraphicInstance(m_pGraphic);
 }
 

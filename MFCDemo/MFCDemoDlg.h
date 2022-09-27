@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <Windows.h>
+#include <process.h>
+
 #include <DX11GraphicAPI.h>
 #include <DX11GraphicInstance.h>
 
@@ -29,7 +32,10 @@ public:
 protected:
 	HICON m_hIcon;
 
+	bool m_bExit = false;
+	HANDLE m_hThread = 0;
 	IDX11GraphicInstance *m_pGraphic = nullptr;
+	static unsigned __stdcall ThreadFunc(void *pParam);
 
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();
