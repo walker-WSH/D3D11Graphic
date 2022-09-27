@@ -35,9 +35,6 @@ public:
 
 	virtual void ReleaseGraphicObject(DX11GraphicObject *&hdl);
 
-	virtual void TransposeMatrixWVP(SIZE canvas, SIZE texture, RECT destPos, float outputMatrix[4][4]);
-	virtual void TextureVertexBuffer(SIZE texture, bool flipH, bool flipV, ST_TextureVertex outputBuffer[4]);
-
 	virtual display_handle CreateDisplay(HWND hWnd);
 	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height);
 

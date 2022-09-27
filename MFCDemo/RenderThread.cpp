@@ -4,6 +4,12 @@
 
 unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 {
+	float outputMatrix[4][4] = {0};
+	TransposeMatrixWVP(SIZE(1920, 1080), SIZE(200, 300), RECT(20, 20, 100, 100), outputMatrix);
+
+	ST_TextureVertex outputBuffer[4] = {0};
+	TextureVertexBuffer(SIZE(100, 100), false, false, outputBuffer);
+
 	CMFCDemoDlg *self = reinterpret_cast<CMFCDemoDlg *>(pParam);
 	IDX11GraphicInstance *m_pGraphic = self->m_pGraphic;
 
@@ -20,7 +26,9 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 		AUTO_GRAPHIC_CONTEXT(m_pGraphic);
 
-		ST_TextureInfo info;
+		texture_handle tex = m_pGraphic->OpenImageTexture(L"testAlpha.png");
+		ST_TextureInfo info = m_pGraphic->GetTextureInfo(tex);
+
 		info.width = 201;
 		info.height = 201;
 		info.format = DXGI_FORMAT_B8G8R8A8_UNORM;

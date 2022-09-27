@@ -103,7 +103,7 @@ ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle tex)
 	if (!obj || !obj->IsBuilt())
 		return ST_TextureInfo();
 
-	return ST_TextureInfo(obj->m_descTexture.Width, obj->m_descTexture.Height, obj->m_descTexture.Format);
+	return ST_TextureInfo(obj->m_descTexture.Width, obj->m_descTexture.Height, obj->m_descTexture.Format, obj->m_textureInfo.usage);
 }
 
 bool DX11GraphicInstanceImpl::CopyTexture(texture_handle dest, texture_handle src)
@@ -461,8 +461,10 @@ void DX11GraphicInstanceImpl::SetVertexBuffer(shader_handle hdl, void *buffer, s
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
 	assert(shader);
-	if (shader && shader->IsBuilt())
+	if (shader && shader->IsBuilt()) {
+		assert((shader->m_shaderInfo.vertexCount * shader->m_shaderInfo.perVertexSize) == size);
 		UpdateShaderBuffer(shader->m_pVertexBuffer, buffer, size);
+	}
 }
 
 void DX11GraphicInstanceImpl::SetVSConstBuffer(shader_handle hdl, void *vsBuffer, size_t vsSize)
@@ -471,8 +473,10 @@ void DX11GraphicInstanceImpl::SetVSConstBuffer(shader_handle hdl, void *vsBuffer
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
 	assert(shader);
-	if (shader && shader->IsBuilt())
+	if (shader && shader->IsBuilt()) {
+		assert(shader->m_shaderInfo.vsBufferSize == vsSize);
 		UpdateShaderBuffer(shader->m_pVSConstBuffer, vsBuffer, vsSize);
+	}
 }
 
 void DX11GraphicInstanceImpl::SetPSConstBuffer(shader_handle hdl, void *psBuffer, size_t psSize)
@@ -481,8 +485,10 @@ void DX11GraphicInstanceImpl::SetPSConstBuffer(shader_handle hdl, void *psBuffer
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
 	assert(shader);
-	if (shader && shader->IsBuilt())
+	if (shader && shader->IsBuilt()) {
+		assert(shader->m_shaderInfo.psBufferSize == psSize);
 		UpdateShaderBuffer(shader->m_pVSConstBuffer, psBuffer, psSize);
+	}
 }
 
 void DX11GraphicInstanceImpl::DrawTriangle(shader_handle hdl)

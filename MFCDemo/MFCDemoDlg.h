@@ -8,7 +8,6 @@
 #include <process.h>
 
 #include <DX11GraphicAPI.h>
-#include <DX11GraphicInstance.h>
 
 
 // CMFCDemoDlg 对话框

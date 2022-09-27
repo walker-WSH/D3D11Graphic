@@ -3,8 +3,6 @@
 #include <d3dcompiler.h>
 #include <dxsdk/include/D3DX11tex.h>
 
-#pragma comment(lib, "D3DX11.lib")
-
 DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, const ST_TextureInfo &info) : DX11GraphicBase(graphic), m_textureInfo(info)
 {
 	BuildDX();

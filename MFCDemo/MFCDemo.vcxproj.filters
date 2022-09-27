@@ -35,17 +35,17 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MFCDemo.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="MFCDemoDlg.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="RenderThread.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MFCDemo.cpp">
+      <Filter>头文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
