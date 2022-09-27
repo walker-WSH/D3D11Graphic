@@ -344,7 +344,7 @@ void DX11GraphicInstanceImpl::SetRenderTarget(ComPtr<ID3D11RenderTargetView> tar
 	m_pDeviceContext->OMSetBlendState(m_pBlendState, blendFactor, 0xffffffff);
 
 	float color[4] = {bkClr.red, bkClr.green, bkClr.blue, bkClr.alpha};
-	m_pDeviceContext->ClearRenderTargetView(m_pCurrentRenderTarget, color);
+	m_pDeviceContext->ClearRenderTargetView(target, color);
 
 	m_pCurrentRenderTarget = target;
 }

@@ -74,7 +74,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		AUTO_GRAPHIC_CONTEXT(m_pGraphic);
 		m_pGraphic->SetVertexBuffer(0, outputVertex, 4 * sizeof(ST_TextureVertex));
 		m_pGraphic->SetVSConstBuffer(0, &(outputMatrix[0][0]), 16 * sizeof(float));
-		m_pGraphic->RenderBegin_Display(display, ST_Color(1.0, 1.0, 1.0, 1.0));
+		m_pGraphic->RenderBegin_Display(display, ST_Color(1.0, 0, 0, 1.0));
 		m_pGraphic->DrawTexture(0, texs);
 		m_pGraphic->RenderEnd();
 	}
