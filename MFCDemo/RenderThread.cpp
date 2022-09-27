@@ -1,6 +1,7 @@
 ﻿
 #include "pch.h"
 #include "MFCDemoDlg.h"
+#include <assert.h>
 
 unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 {
