@@ -38,7 +38,8 @@ public:
 	virtual display_handle CreateDisplay(HWND hWnd);
 	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height);
 
-	virtual texture_handle OpenTexture(HANDLE hSharedHanle);
+	virtual texture_handle OpenSharedTexture(HANDLE hSharedHanle);
+	virtual texture_handle OpenImageTexture(const WCHAR *fullPath);
 	virtual texture_handle CreateTexture(const ST_TextureInfo &info);
 	virtual ST_TextureInfo GetTextureInfo(texture_handle tex);
 	virtual bool CopyTexture(texture_handle dest, texture_handle src);

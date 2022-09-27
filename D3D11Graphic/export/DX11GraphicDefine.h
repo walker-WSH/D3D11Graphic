@@ -18,6 +18,7 @@ enum class TextureType {
 	ReadTexture,
 	WriteTexture,
 	SharedHandle,
+	StaticImageFile,
 };
 
 struct ST_TextureInfo {

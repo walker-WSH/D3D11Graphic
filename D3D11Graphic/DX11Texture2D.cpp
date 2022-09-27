@@ -1,6 +1,9 @@
 #include "DX11Texture2D.h"
 #include "DX11GraphicInstanceImpl.h"
 #include <d3dcompiler.h>
+#include <dxsdk/include/D3DX11tex.h>
+
+#pragma comment(lib, "D3DX11.lib")
 
 DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, const ST_TextureInfo &info) : DX11GraphicBase(graphic), m_textureInfo(info)
 {
@@ -10,6 +13,12 @@ DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, const ST_TextureI
 DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, HANDLE handle) : DX11GraphicBase(graphic), m_hSharedHandle(handle)
 {
 	m_textureInfo.usage = TextureType::SharedHandle;
+	BuildDX();
+}
+
+DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, const WCHAR *fullPath) : DX11GraphicBase(graphic), m_strImagePath(fullPath)
+{
+	m_textureInfo.usage = TextureType::StaticImageFile;
 	BuildDX();
 }
 
@@ -33,6 +42,10 @@ bool DX11Texture2D::BuildDX()
 
 	case TextureType::SharedHandle:
 		bSuccessed = InitSharedTexture();
+		break;
+
+	case TextureType::StaticImageFile:
+		bSuccessed = InitImageTexture();
 		break;
 
 	default:
@@ -157,6 +170,30 @@ bool DX11Texture2D::InitSharedTexture()
 
 	if (!InitResourceView())
 		return false;
+
+	return true;
+}
+
+bool DX11Texture2D::InitImageTexture()
+{
+	HRESULT hr = D3DX11CreateShaderResourceViewFromFile(m_graphic.DXDevice(), m_strImagePath.c_str(), NULL, NULL, m_pTextureResView.Assign(), NULL);
+	if (FAILED(hr)) {
+		assert(false);
+		return false;
+	}
+
+	ComPtr<ID3D11Resource> pResource;
+	m_pTextureResView->GetResource(pResource.Assign());
+	if (!pResource) {
+		assert(false);
+		return false;
+	}
+
+	hr = pResource->QueryInterface<ID3D11Texture2D>(m_pTexture2D.Assign());
+	if (FAILED(hr)) {
+		assert(false);
+		return false;
+	}
 
 	return true;
 }

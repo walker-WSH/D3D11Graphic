@@ -49,16 +49,39 @@ void DX11GraphicInstanceImpl::ReleaseGraphicObject(DX11GraphicObject *&hdl)
 	hdl = nullptr;
 }
 
-texture_handle DX11GraphicInstanceImpl::OpenTexture(HANDLE hSharedHanle)
+texture_handle DX11GraphicInstanceImpl::OpenSharedTexture(HANDLE hSharedHanle)
 {
 	CHECK_GRAPHIC_CONTEXT;
-	return new DX11Texture2D(*this, hSharedHanle);
+
+	DX11Texture2D *tex = new DX11Texture2D(*this, hSharedHanle);
+	if (!tex->IsBuilt()) {
+		delete tex;
+		assert(false);
+		return nullptr;
+	}
+
+	return tex;
+}
+
+texture_handle DX11GraphicInstanceImpl::OpenImageTexture(const WCHAR *fullPath)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	DX11Texture2D *tex = new DX11Texture2D(*this, fullPath);
+	if (!tex->IsBuilt()) {
+		delete tex;
+		assert(false);
+		return nullptr;
+	}
+
+	return tex;
 }
 
 texture_handle DX11GraphicInstanceImpl::CreateTexture(const ST_TextureInfo &info)
 {
 	CHECK_GRAPHIC_CONTEXT;
 	assert(TextureType::SharedHandle != info.usage);
+	assert(TextureType::StaticImageFile != info.usage);
 	return new DX11Texture2D(*this, info);
 }
 
