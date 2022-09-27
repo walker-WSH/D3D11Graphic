@@ -51,6 +51,9 @@ bool DX11SwapChain::TestResizeSwapChain()
 	m_dwWidth = rcClient.right - rcClient.left;
 	m_dwHeight = rcClient.bottom - rcClient.top;
 
+	if (!m_dwWidth || !m_dwHeight)
+		return false;
+
 	D3D11_TEXTURE2D_DESC desc;
 	m_pSwapBackTexture2D->GetDesc(&desc);
 
@@ -76,6 +79,8 @@ bool DX11SwapChain::TestResizeSwapChain()
 bool DX11SwapChain::InitSwapChain()
 {
 	CHECK_GRAPHIC_CONTEXT_EX(m_graphic);
+
+	assert(m_dwWidth > 0 && m_dwHeight > 0);
 
 	DXGI_SWAP_CHAIN_DESC sd;
 	ZeroMemory(&sd, sizeof(sd));

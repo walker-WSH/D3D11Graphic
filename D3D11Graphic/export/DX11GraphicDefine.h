@@ -45,8 +45,8 @@ struct ST_Color {
 };
 
 struct ST_ShaderInfo {
-	const std::wstring vsFile;
-	const std::wstring psFile;
+	std::wstring vsFile;
+	std::wstring psFile;
 
 	uint32_t perVertexSize = 0;
 	uint32_t vertexCount = 0;

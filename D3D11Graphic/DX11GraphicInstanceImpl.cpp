@@ -1,6 +1,7 @@
 #include "DX11GraphicInstanceImpl.h"
 
 HMODULE DX11GraphicInstanceImpl::s_hDllModule = nullptr;
+DX11ShaderTexture *pShaderDefault = nullptr;
 
 DX11GraphicInstanceImpl::DX11GraphicInstanceImpl()
 {
@@ -264,6 +265,16 @@ bool DX11GraphicInstanceImpl::BuildAllDX()
 	for (auto &item : m_listObject)
 		item->BuildDX();
 
+	ST_ShaderInfo info;
+	info.vsFile = L"defaultVS.cso";
+	info.psFile = L"defaultPS.cso";
+	info.vsBufferSize = sizeof(float) * 16;
+	info.psBufferSize = 0;
+	info.vertexCount = 4;
+	info.perVertexSize = sizeof(ST_TextureVertex);
+	pShaderDefault = new DX11ShaderTexture(*this, &info);
+	assert(pShaderDefault->IsBuilt());
+
 	m_bBuildSuccessed = true;
 	return true;
 }
@@ -341,16 +352,7 @@ void DX11GraphicInstanceImpl::SetRenderTarget(ComPtr<ID3D11RenderTargetView> tar
 void DX11GraphicInstanceImpl::UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, void *data, size_t size)
 {
 	CHECK_GRAPHIC_CONTEXT;
-
-	D3D11_MAPPED_SUBRESOURCE map;
-	HRESULT hr = m_pDeviceContext->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
-	if (FAILED(hr)) {
-		assert(false);
-		return;
-	}
-
-	memcpy(map.pData, data, size);
-	m_pDeviceContext->Unmap(buffer, 0);
+	m_pDeviceContext->UpdateSubresource(buffer, 0, nullptr, data, 0, 0);
 }
 
 bool DX11GraphicInstanceImpl::GetResource(const std::vector<texture_handle> &textures, std::vector<ID3D11ShaderResourceView *> &resources)
@@ -460,6 +462,7 @@ void DX11GraphicInstanceImpl::SetVertexBuffer(shader_handle hdl, void *buffer, s
 	CHECK_GRAPHIC_CONTEXT;
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
+	shader = pShaderDefault;
 	assert(shader);
 	if (shader && shader->IsBuilt()) {
 		assert((shader->m_shaderInfo.vertexCount * shader->m_shaderInfo.perVertexSize) == size);
@@ -472,6 +475,7 @@ void DX11GraphicInstanceImpl::SetVSConstBuffer(shader_handle hdl, void *vsBuffer
 	CHECK_GRAPHIC_CONTEXT;
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
+	shader = pShaderDefault;
 	assert(shader);
 	if (shader && shader->IsBuilt()) {
 		assert(shader->m_shaderInfo.vsBufferSize == vsSize);
@@ -484,6 +488,7 @@ void DX11GraphicInstanceImpl::SetPSConstBuffer(shader_handle hdl, void *psBuffer
 	CHECK_GRAPHIC_CONTEXT;
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
+	shader = pShaderDefault;
 	assert(shader);
 	if (shader && shader->IsBuilt()) {
 		assert(shader->m_shaderInfo.psBufferSize == psSize);
@@ -496,6 +501,7 @@ void DX11GraphicInstanceImpl::DrawTriangle(shader_handle hdl)
 	CHECK_GRAPHIC_CONTEXT;
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
+	shader = pShaderDefault;
 	assert(shader);
 	if (!shader || !shader->IsBuilt())
 		return;
@@ -511,6 +517,7 @@ void DX11GraphicInstanceImpl::DrawTexture(shader_handle hdl, const std::vector<t
 	CHECK_GRAPHIC_CONTEXT;
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
+	shader = pShaderDefault;
 	assert(shader);
 	if (!shader || !shader->IsBuilt())
 		return;
