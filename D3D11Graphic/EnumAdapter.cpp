@@ -18,10 +18,6 @@ void EnumD3DAdapters(void *userdata,
 		if (FAILED(hr))
 			continue;
 
-		/* ignore Microsoft's 'basic' renderer' */
-		if (desc.VendorId == 0x1414 && desc.DeviceId == 0x8c)
-			continue;
-
 		char versionStr[MAX_PATH] = {0};
 		LARGE_INTEGER versionNum;
 		hr = adapter->CheckInterfaceSupport(__uuidof(IDXGIDevice), &versionNum);

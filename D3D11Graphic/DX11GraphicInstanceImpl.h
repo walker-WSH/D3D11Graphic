@@ -29,8 +29,14 @@ public:
 	virtual ~DX11GraphicInstanceImpl();
 
 	//--------------------------------------------------- IDX11GraphicInstance ---------------------------------------------------
-	virtual bool InitializeGraphic(LUID luid);
+	virtual bool InitializeGraphic(const ST_GraphicCardInfo *graphic = nullptr);
 	virtual void UnInitializeGraphic();
+
+	virtual void RegisterCallback(std::weak_ptr<DX11GraphicCallback> cb);
+	virtual void UnRegisterCallback(DX11GraphicCallback *cb);
+
+	virtual bool IsGraphicBuilt();
+	virtual bool ReBuildGraphic();
 
 	virtual void ReleaseGraphicObject(DX11GraphicObject *&hdl);
 
@@ -73,6 +79,7 @@ protected:
 	bool BuildAllDX();
 	bool InitBlendState();
 	bool InitSamplerState();
+	void HandleDXHResult(HRESULT hr, std::source_location location = std::source_location::current());
 
 	void SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width, uint32_t height, ST_Color bkClr);
 	void UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, void *data, size_t size);
@@ -80,16 +87,18 @@ protected:
 	void ApplyShader(DX11Shader *shader);
 
 private:
-	LUID m_adapterLuid = {0};
+	ST_GraphicCardInfo m_destGraphic;
 
 	CRITICAL_SECTION m_lockOperation;
 	bool m_bBuildSuccessed = false;
+	ComPtr<IDXGIAdapter1> m_pAdapter = nullptr;
 	ComPtr<IDXGIFactory1> m_pDX11Factory = nullptr;
 	ComPtr<ID3D11Device> m_pDX11Device = nullptr;
 	ComPtr<ID3D11DeviceContext> m_pDeviceContext = nullptr;
 	ComPtr<ID3D11BlendState> m_pBlendState = nullptr;
 	ComPtr<ID3D11SamplerState> m_pSampleState = nullptr;
 	std::vector<DX11GraphicBase *> m_listObject; // Here we do not hold its lifetime.
+	std::vector<std::weak_ptr<DX11GraphicCallback>> m_pGraphicCallbacks;
 
 	ID3D11RenderTargetView *m_pCurrentRenderTarget = nullptr;
 	IDXGISwapChain *m_pCurrentSwapChain = nullptr;

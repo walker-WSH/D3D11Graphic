@@ -11,15 +11,15 @@ public:
 	DX11SwapChain(DX11GraphicInstanceImpl &graphic, HWND hWnd);
 
 	void SetDisplaySize(uint32_t width, uint32_t height);
-	bool TestResizeSwapChain();
+	HRESULT TestResizeSwapChain();
 
 	virtual bool BuildDX();
 	virtual void ReleaseDX();
 	virtual bool IsBuilt() { return m_pSwapChain && m_pSwapBackTexture2D && m_pRenderTargetView; }
 
 private:
-	bool InitSwapChain();
-	bool CreateTargetView();
+	HRESULT InitSwapChain();
+	HRESULT CreateTargetView();
 
 private:
 	HWND m_hWnd = 0;

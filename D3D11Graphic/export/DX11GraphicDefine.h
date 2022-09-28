@@ -52,8 +52,8 @@ struct ST_ShaderInfo {
 };
 
 struct ST_GraphicCardInfo {
-	std::wstring graphicName;
-	std::string driverVersion;
+	std::wstring graphicName = L"";
+	std::string driverVersion = "";
 
 	LUID adapterLuid = {0, 0};
 	uint32_t vendorId = 0;
@@ -68,6 +68,14 @@ class DX11GraphicObject {
 public:
 	virtual ~DX11GraphicObject() = default;
 	virtual bool IsBuilt() = 0;
+};
+
+class DX11GraphicCallback {
+public:
+	virtual ~DX11GraphicCallback() = default;
+	virtual void OnD3D11Error(HRESULT hr) = 0;
+	virtual void OnDeviceRemoved() = 0;
+	virtual void OnBuildSuccessed() = 0;
 };
 
 class __declspec(dllexport) AutoGraphicContext {

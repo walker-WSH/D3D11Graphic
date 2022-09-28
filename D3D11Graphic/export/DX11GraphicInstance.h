@@ -1,6 +1,7 @@
 #pragma once
 #include <dxgi.h>
 #include <Windows.h>
+#include <memory>
 #include <DX11VideoFrame.hpp>
 #include <DX11GraphicDefine.h>
 
@@ -8,8 +9,14 @@ class IDX11GraphicInstance {
 public:
 	virtual ~IDX11GraphicInstance() = default;
 
-	virtual bool InitializeGraphic(LUID luid) = 0;
+	virtual bool InitializeGraphic(const ST_GraphicCardInfo *graphic = nullptr) = 0;
 	virtual void UnInitializeGraphic() = 0;
+
+	virtual void RegisterCallback(std::weak_ptr<DX11GraphicCallback> cb) = 0;
+	virtual void UnRegisterCallback(DX11GraphicCallback *cb) = 0;
+
+	virtual bool IsGraphicBuilt() = 0;
+	virtual bool ReBuildGraphic() = 0;
 
 	virtual void ReleaseGraphicObject(DX11GraphicObject *&hdl) = 0;
 

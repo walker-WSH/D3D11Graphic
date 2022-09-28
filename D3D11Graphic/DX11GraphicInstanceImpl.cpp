@@ -13,11 +13,14 @@ DX11GraphicInstanceImpl::~DX11GraphicInstanceImpl()
 	DeleteCriticalSection(&m_lockOperation);
 }
 
-bool DX11GraphicInstanceImpl::InitializeGraphic(LUID luid)
+bool DX11GraphicInstanceImpl::InitializeGraphic(const ST_GraphicCardInfo *graphic)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
-	m_adapterLuid = luid;
+	if (graphic)
+		m_destGraphic = *graphic;
+	else
+		m_destGraphic = ST_GraphicCardInfo();
 
 	return BuildAllDX();
 }
@@ -31,6 +34,40 @@ void DX11GraphicInstanceImpl::UnInitializeGraphic()
 	assert(m_listObject.empty());
 	for (auto &item : m_listObject)
 		delete item;
+}
+
+void DX11GraphicInstanceImpl::RegisterCallback(std::weak_ptr<DX11GraphicCallback> cb)
+{
+	CHECK_GRAPHIC_CONTEXT;
+	m_pGraphicCallbacks.push_back(cb);
+}
+
+void DX11GraphicInstanceImpl::UnRegisterCallback(DX11GraphicCallback *cb)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	auto itr = m_pGraphicCallbacks.begin();
+	while (itr != m_pGraphicCallbacks.end()) {
+		auto temp = itr->lock();
+		if (!temp || temp.get() == cb) {
+			itr = m_pGraphicCallbacks.erase(itr);
+			continue;
+		}
+
+		++itr;
+	}
+}
+
+bool DX11GraphicInstanceImpl::IsGraphicBuilt()
+{
+	CHECK_GRAPHIC_CONTEXT;
+	return m_bBuildSuccessed;
+}
+
+bool DX11GraphicInstanceImpl::ReBuildGraphic()
+{
+	CHECK_GRAPHIC_CONTEXT;
+	return BuildAllDX();
 }
 
 void DX11GraphicInstanceImpl::ReleaseGraphicObject(DX11GraphicObject *&hdl)
@@ -252,30 +289,25 @@ bool DX11GraphicInstanceImpl::BuildAllDX()
 {
 	CHECK_GRAPHIC_CONTEXT;
 
-	ComPtr<IDXGIAdapter1> pAdapter;
-	DXGraphic::EnumD3DAdapters(nullptr, [this, &pAdapter](void *userdata, ComPtr<IDXGIFactory1> factory, ComPtr<IDXGIAdapter1> adapter,
-							      const DXGI_ADAPTER_DESC &desc, const char *version) {
-		if (desc.AdapterLuid.HighPart == m_adapterLuid.HighPart && desc.AdapterLuid.LowPart == m_adapterLuid.LowPart) {
+	DXGraphic::EnumD3DAdapters(nullptr, [this](void *userdata, ComPtr<IDXGIFactory1> factory, ComPtr<IDXGIAdapter1> adapter, const DXGI_ADAPTER_DESC &desc,
+						   const char *version) {
+		if (desc.VendorId == m_destGraphic.vendorId && desc.DeviceId == m_destGraphic.deviceId) {
 			m_pDX11Factory = factory;
-			pAdapter = adapter;
+			m_pAdapter = adapter;
 			return false;
 		}
 		return true;
 	});
 
-	if (!pAdapter) {
-		assert(false);
+	if (!m_pAdapter)
 		return false;
-	}
 
 	D3D_FEATURE_LEVEL levelUsed = D3D_FEATURE_LEVEL_9_3;
-	HRESULT hr = D3D11CreateDevice(pAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, D3D11_CREATE_DEVICE_BGRA_SUPPORT, featureLevels.data(),
+	HRESULT hr = D3D11CreateDevice(m_pAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, D3D11_CREATE_DEVICE_BGRA_SUPPORT, featureLevels.data(),
 				       (uint32_t)featureLevels.size(), D3D11_SDK_VERSION, m_pDX11Device.Assign(), &levelUsed, m_pDeviceContext.Assign());
 
-	if (FAILED(hr)) {
-		assert(false);
+	if (FAILED(hr))
 		return false;
-	}
 
 	if (!InitBlendState())
 		return false;
@@ -431,8 +463,10 @@ bool DX11GraphicInstanceImpl::RenderBegin_Canvas(texture_handle hdl, ST_Color bk
 
 	assert(!m_pCurrentRenderTarget && !m_pCurrentSwapChain);
 
-	if (!m_bBuildSuccessed)
-		return false;
+	if (!m_bBuildSuccessed) {
+		if (!BuildAllDX())
+			return false;
+	}
 
 	auto obj = dynamic_cast<DX11Texture2D *>(hdl);
 	assert(obj);
@@ -456,8 +490,10 @@ bool DX11GraphicInstanceImpl::RenderBegin_Display(display_handle hdl, ST_Color b
 
 	assert(!m_pCurrentRenderTarget && !m_pCurrentSwapChain);
 
-	if (!m_bBuildSuccessed)
-		return false;
+	if (!m_bBuildSuccessed) {
+		if (!BuildAllDX())
+			return false;
+	}
 
 	auto obj = dynamic_cast<DX11SwapChain *>(hdl);
 	assert(obj);
@@ -467,9 +503,11 @@ bool DX11GraphicInstanceImpl::RenderBegin_Display(display_handle hdl, ST_Color b
 	if (!IsWindow(obj->m_hWnd))
 		return false;
 
-	obj->TestResizeSwapChain();
-	if (!obj->IsBuilt())
+	HRESULT hr = obj->TestResizeSwapChain();
+	if (FAILED(hr)) {
+		HandleDXHResult(hr);
 		return false;
+	}
 
 	SetRenderTarget(obj->m_pRenderTargetView, obj->m_dwWidth, obj->m_dwHeight, bkClr);
 	m_pCurrentSwapChain = obj->m_pSwapChain;
@@ -554,9 +592,43 @@ void DX11GraphicInstanceImpl::RenderEnd()
 {
 	CHECK_GRAPHIC_CONTEXT;
 
-	if (m_pCurrentSwapChain)
-		m_pCurrentSwapChain->Present(0, 0);
+	HRESULT hr = S_OK;
+	if (m_pCurrentSwapChain) {
+		hr = m_pCurrentSwapChain->Present(0, 0);
+	}
 
 	m_pCurrentRenderTarget = nullptr;
 	m_pCurrentSwapChain = nullptr;
+
+	HandleDXHResult(hr);
+}
+
+void DX11GraphicInstanceImpl::HandleDXHResult(HRESULT hr, std::source_location location)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	if (FAILED(hr)) {
+		for (auto &item : m_pGraphicCallbacks) {
+			auto cb = item.lock();
+			if (cb)
+				cb->OnD3D11Error(hr);
+		}
+
+		if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
+			for (auto &item : m_pGraphicCallbacks) {
+				auto cb = item.lock();
+				if (cb)
+					cb->OnDeviceRemoved();
+			}
+
+			ReleaseAllDX();
+			if (BuildAllDX()) {
+				for (auto &item : m_pGraphicCallbacks) {
+					auto cb = item.lock();
+					if (cb)
+						cb->OnBuildSuccessed();
+				}
+			}
+		}
+	}
 }

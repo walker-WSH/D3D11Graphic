@@ -16,11 +16,13 @@ bool DX11SwapChain::BuildDX()
 {
 	CHECK_GRAPHIC_CONTEXT_EX(m_graphic);
 
-	bool bSuccessed = InitSwapChain();
-	if (!bSuccessed)
+	HRESULT hr = InitSwapChain();
+	if (FAILED(hr)) {
 		ReleaseDX();
+		return false;
+	}
 
-	return bSuccessed;
+	return true;
 }
 
 void DX11SwapChain::ReleaseDX()
@@ -38,12 +40,12 @@ void DX11SwapChain::SetDisplaySize(uint32_t width, uint32_t height)
 	m_dwHeight = height;
 }
 
-bool DX11SwapChain::TestResizeSwapChain()
+HRESULT DX11SwapChain::TestResizeSwapChain()
 {
 	CHECK_GRAPHIC_CONTEXT_EX(m_graphic);
 
 	if (!m_pSwapChain || !m_dwWidth || !m_dwHeight)
-		return false;
+		return S_FALSE;
 
 	D3D11_TEXTURE2D_DESC desc;
 	m_pSwapBackTexture2D->GetDesc(&desc);
@@ -56,18 +58,16 @@ bool DX11SwapChain::TestResizeSwapChain()
 		m_pSwapBackTexture2D = nullptr;
 
 		HRESULT hr = m_pSwapChain->ResizeBuffers(1, m_dwWidth, m_dwHeight, SWAPCHAIN_FORMAT, 0);
-		if (FAILED(hr)) {
-			assert(false);
-			return false;
-		}
+		if (FAILED(hr)) 
+			return hr;
 
 		return CreateTargetView();
 	}
 
-	return true;
+	return S_OK;
 }
 
-bool DX11SwapChain::InitSwapChain()
+HRESULT DX11SwapChain::InitSwapChain()
 {
 	CHECK_GRAPHIC_CONTEXT_EX(m_graphic);
 
@@ -89,25 +89,25 @@ bool DX11SwapChain::InitSwapChain()
 	HRESULT hr = m_graphic.DXFactory()->CreateSwapChain(m_graphic.DXDevice(), &sd, m_pSwapChain.Assign());
 	if (FAILED(hr)) {
 		assert(false);
-		return false;
+		return hr;
 	}
 
 	return CreateTargetView();
 }
 
-bool DX11SwapChain::CreateTargetView()
+HRESULT DX11SwapChain::CreateTargetView()
 {
 	HRESULT hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void **>(m_pSwapBackTexture2D.Assign()));
 	if (FAILED(hr)) {
 		assert(false);
-		return false;
+		return hr;
 	}
 
 	hr = m_graphic.DXDevice()->CreateRenderTargetView(m_pSwapBackTexture2D, nullptr, m_pRenderTargetView.Assign());
 	if (FAILED(hr)) {
 		assert(false);
-		return false;
+		return hr;
 	}
 
-	return true;
+	return S_OK;
 }

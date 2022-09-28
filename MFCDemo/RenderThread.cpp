@@ -21,7 +21,7 @@ texture_handle texGirl = nullptr;
 texture_handle texShared = nullptr;
 texture_handle texAlpha = nullptr;
 
-void InitGraphic(HWND hWnd);
+bool InitGraphic(HWND hWnd);
 void UnInitGraphic();
 
 void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest);
@@ -34,10 +34,19 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 	CMFCDemoDlg *self = reinterpret_cast<CMFCDemoDlg *>(pParam);
 	pGraphic = self->m_pGraphic;
 
-	InitGraphic(self->m_hWnd);
+	if (!InitGraphic(self->m_hWnd))
+		return 1;
 
 	while (!self->m_bExit) {
 		Sleep(20);
+
+		{
+			AUTO_GRAPHIC_CONTEXT(pGraphic);
+			if (!pGraphic->IsGraphicBuilt()) {
+				if (!pGraphic->ReBuildGraphic())
+					continue;
+			}
+		}
 
 		RECT rc;
 		::GetClientRect(self->m_hWnd, &rc);
@@ -80,7 +89,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize, tex2DestRect);
 			RenderBorderWithSize(canvasSize, tex2DestRect, 4, ST_Color(1.0, 0, 0, 1.0));
 
-			RenderRect(canvasSize, rectFill, ST_Color(1.0, 0, 0, 1.0));
+			RenderRect(canvasSize, rectFill, ST_Color(1.0, 1.0, 0, 1.0));
 
 			pGraphic->RenderEnd();
 		}
@@ -176,14 +185,16 @@ void RenderBorder(SIZE canvas, RECT drawDest, ST_Color clr)
 	pGraphic->DrawTopplogy(shaders[type], D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 }
 
-void InitGraphic(HWND hWnd)
+bool InitGraphic(HWND hWnd)
 {
 	auto listGraphic = EnumGraphicCard();
-	assert(!listGraphic->empty());
+	assert(!listGraphic->empty() && "no valid graphic");
+	if (listGraphic->empty())
+		return false;
 
 	AUTO_GRAPHIC_CONTEXT(pGraphic);
 
-	bool bOK = pGraphic->InitializeGraphic(listGraphic->at(0).adapterLuid);
+	bool bOK = pGraphic->InitializeGraphic(&listGraphic->at(0));
 	assert(bOK);
 
 	//------------------------------------------------------------------
@@ -260,7 +271,9 @@ void InitGraphic(HWND hWnd)
 	pGraphic->ReleaseGraphicObject(tex1);
 	pGraphic->ReleaseGraphicObject(tex2);
 	pGraphic->ReleaseGraphicObject(tex3);
+
 	//------------------------------------------------------------------
+	return true;
 }
 
 void UnInitGraphic()
