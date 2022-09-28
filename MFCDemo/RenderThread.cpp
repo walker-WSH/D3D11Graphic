@@ -40,14 +40,6 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 	while (!self->m_bExit) {
 		Sleep(50);
 
-		{
-			AUTO_GRAPHIC_CONTEXT(pGraphic);
-			if (!pGraphic->IsGraphicBuilt()) {
-				if (!pGraphic->ReBuildGraphic())
-					continue;
-			}
-		}
-
 		RECT rc;
 		::GetClientRect(self->m_hWnd, &rc);
 
@@ -79,6 +71,12 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		rectFill.bottom = rectFill.top + 30;
 
 		AUTO_GRAPHIC_CONTEXT(pGraphic);
+
+		if (!pGraphic->IsGraphicBuilt()) {
+			if (!pGraphic->ReBuildGraphic())
+				continue;
+		}
+
 		if (pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.3f, 0.3f, 1.0f))) {
 			if (texShared)
 				RenderTexture(std::vector<texture_handle>{texShared}, canvasSize, tex3DestRect);
