@@ -2,95 +2,176 @@
 #include "pch.h"
 #include "MFCDemoDlg.h"
 #include <assert.h>
+#include <vector>
+
+IDX11GraphicInstance *pGraphic = nullptr;
+std::vector<DX11GraphicObject *> graphicList;
+
+shader_handle texShader = nullptr;
+shader_handle rectShader = nullptr;
+texture_handle texGirl = nullptr;
+texture_handle texAlpha = nullptr;
+display_handle display = nullptr;
+
+void InitGraphic(HWND hWnd);
+void UnInitGraphic();
+
+void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest);
+void RenderRect(SIZE canvas, RECT drawDest);
 
 unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 {
-	float outputMatrix[4][4] = {0};
-	TransposeMatrixWVP(SIZE(1920, 1080), SIZE(200, 300), RECT(20, 20, 100, 100), outputMatrix);
-
-	ST_TextureVertex outputBuffer[4] = {0};
-	TextureVertexBuffer(SIZE(100, 100), false, false, outputBuffer);
-
 	CMFCDemoDlg *self = reinterpret_cast<CMFCDemoDlg *>(pParam);
-	IDX11GraphicInstance *m_pGraphic = self->m_pGraphic;
+	pGraphic = self->m_pGraphic;
 
-	auto listGraphic = EnumGraphicCard();
-	assert(!listGraphic->empty());
-
-	texture_handle tex = nullptr;
-	display_handle display = nullptr;
-	ST_TextureInfo texInfo;
-
-	{
-		AUTO_GRAPHIC_CONTEXT(m_pGraphic);
-
-		bool bOK = m_pGraphic->InitializeGraphic(listGraphic->at(0).adapterLuid);
-		assert(bOK);
-
-		display = m_pGraphic->CreateDisplay(self->m_hWnd);
-		assert(display);
-
-		tex = m_pGraphic->OpenImageTexture(L"testGirl.png");
-		assert(tex);
-		texInfo = m_pGraphic->GetTextureInfo(tex);
-
-		ST_TextureInfo info;
-		info.width = 201;
-		info.height = 201;
-		info.format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		info.usage = TextureType::ReadTexture;
-		texture_handle tex1 = m_pGraphic->CreateTexture(info);
-
-		info.usage = TextureType::WriteTexture;
-		texture_handle tex2 = m_pGraphic->CreateTexture(info);
-
-		info.usage = TextureType::CanvasTarget;
-		texture_handle tex3 = m_pGraphic->CreateTexture(info);
-
-		m_pGraphic->ReleaseGraphicObject(tex1);
-		m_pGraphic->ReleaseGraphicObject(tex2);
-		m_pGraphic->ReleaseGraphicObject(tex3);
-	}
+	InitGraphic(self->m_hWnd);
 
 	while (!self->m_bExit) {
 		Sleep(20);
 
 		RECT rc;
 		::GetClientRect(self->m_hWnd, &rc);
-		RECT dest;
-		dest.left = (WINDOW_WIDTH - texInfo.width) / 2;
-		dest.top = (WINDOW_HEIGHT - texInfo.height) / 2;
-		dest.right = dest.left + texInfo.width;
-		dest.bottom = dest.top + texInfo.width;
+		SIZE canvasSize(rc.right - rc.left, rc.bottom - rc.top);
 
-		float outputMatrix[4][4];
-		TransposeMatrixWVP(SIZE(rc.right - rc.left, rc.bottom - rc.top), SIZE(texInfo.width, texInfo.height), dest, outputMatrix);
+		RECT texDestRect;
+		texDestRect.left = 50;
+		texDestRect.top = 50;
+		texDestRect.right = texDestRect.left + 250;
+		texDestRect.bottom = texDestRect.top + 400;
 
-		ST_TextureVertex outputVertex[4];
-		TextureVertexBuffer(SIZE(texInfo.width, texInfo.height), false, false, outputVertex);
+		RECT tex2DestRect;
+		tex2DestRect.left = texDestRect.right + 20;
+		tex2DestRect.top = 50;
+		tex2DestRect.right = tex2DestRect.left + 250;
+		tex2DestRect.bottom = tex2DestRect.top + 400;
 
-		std::vector<texture_handle> texs;
-		texs.push_back(tex);
-
-		AUTO_GRAPHIC_CONTEXT(m_pGraphic);
-		m_pGraphic->SetVertexBuffer(0, outputVertex, 4 * sizeof(ST_TextureVertex));
-		m_pGraphic->SetVSConstBuffer(0, &(outputMatrix[0][0]), 16 * sizeof(float));
-		m_pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.3f, 0.3f, 1.0f));
-		m_pGraphic->DrawTexture(0, texs);
-		m_pGraphic->RenderEnd();
+		AUTO_GRAPHIC_CONTEXT(pGraphic);
+		pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.3f, 0.3f, 1.0f));
+		RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize, texDestRect);
+		RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize, tex2DestRect);
+		RenderRect(canvasSize, tex2DestRect);
+		pGraphic->RenderEnd();
 	}
 
-	{
-		AUTO_GRAPHIC_CONTEXT(m_pGraphic);
-
-		if (tex)
-			m_pGraphic->ReleaseGraphicObject(tex);
-
-		if (display)
-			m_pGraphic->ReleaseGraphicObject(display);
-
-		m_pGraphic->UnInitializeGraphic();
-	}
+	UnInitGraphic();
 
 	return 0;
+}
+
+void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
+{
+	AUTO_GRAPHIC_CONTEXT(pGraphic);
+
+	ST_TextureInfo texInfo = pGraphic->GetTextureInfo(texs.at(0));
+	SIZE texSize(texInfo.width, texInfo.height);
+
+	float outputMatrix[4][4];
+	TransposeMatrixWVP(canvas, texSize, drawDest, outputMatrix);
+
+	ST_TextureVertex outputVertex[4];
+	TextureVertexBuffer(texSize, false, false, outputVertex);
+
+	pGraphic->SetVertexBuffer(texShader, outputVertex, 4 * sizeof(ST_TextureVertex));
+	pGraphic->SetVSConstBuffer(texShader, &(outputMatrix[0][0]), 16 * sizeof(float));
+	pGraphic->DrawTexture(texShader, texs);
+}
+
+void RenderRect(SIZE canvas, RECT drawDest)
+{
+	AUTO_GRAPHIC_CONTEXT(pGraphic);
+
+	SIZE texSize(drawDest.right - drawDest.left, drawDest.bottom - drawDest.top);
+
+	float outputMatrix[4][4];
+	TransposeMatrixWVP(canvas, texSize, drawDest, outputMatrix);
+
+	ST_TextureVertex outputVertex[4];
+	TextureVertexBuffer(texSize, false, false, outputVertex);
+
+	ST_Color fillColor;
+	fillColor.red = 1.0;
+	fillColor.alpha = 1.0;
+
+	pGraphic->SetVertexBuffer(rectShader, outputVertex, 4 * sizeof(ST_TextureVertex));
+	pGraphic->SetVSConstBuffer(rectShader, &(outputMatrix[0][0]), 16 * sizeof(float));
+	pGraphic->SetPSConstBuffer(rectShader, &fillColor, 4 * sizeof(float));
+	pGraphic->FillRectangle(rectShader);
+}
+
+void InitGraphic(HWND hWnd)
+{
+	auto listGraphic = EnumGraphicCard();
+	assert(!listGraphic->empty());
+
+	AUTO_GRAPHIC_CONTEXT(pGraphic);
+
+	bool bOK = pGraphic->InitializeGraphic(listGraphic->at(0).adapterLuid);
+	assert(bOK);
+
+	//------------------------------------------------------------------
+	ST_ShaderInfo shaderInfo;
+	shaderInfo.vsFile = L"defaultVS.cso";
+	shaderInfo.psFile = L"defaultPS.cso";
+	shaderInfo.vsBufferSize = sizeof(float) * 16;
+	shaderInfo.psBufferSize = 0;
+	shaderInfo.vertexCount = 4;
+	shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
+	texShader = pGraphic->CreateShader(shaderInfo);
+	assert(texShader);
+	graphicList.push_back(texShader);
+
+	//------------------------------------------------------------------
+	shaderInfo.vsFile = L"rectVS.cso";
+	shaderInfo.psFile = L"rectPS.cso";
+	shaderInfo.vsBufferSize = sizeof(float) * 16;
+	shaderInfo.psBufferSize = sizeof(float) * 4;
+	shaderInfo.vertexCount = 4;
+	shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
+	rectShader = pGraphic->CreateShader(shaderInfo);
+	assert(rectShader);
+	graphicList.push_back(rectShader);
+
+	//------------------------------------------------------------------
+	display = pGraphic->CreateDisplay(hWnd);
+	assert(display);
+	graphicList.push_back(display);
+
+	//------------------------------------------------------------------
+	texGirl = pGraphic->OpenImageTexture(L"testGirl.png");
+	assert(texGirl);
+	graphicList.push_back(texGirl);
+
+	texAlpha = pGraphic->OpenImageTexture(L"testAlpha.png");
+	assert(texAlpha);
+	graphicList.push_back(texAlpha);
+
+	//------------------------------- test texutres --------------------
+	ST_TextureInfo info;
+	info.width = 201;
+	info.height = 201;
+	info.format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	info.usage = TextureType::ReadTexture;
+	texture_handle tex1 = pGraphic->CreateTexture(info);
+
+	info.usage = TextureType::WriteTexture;
+	texture_handle tex2 = pGraphic->CreateTexture(info);
+
+	info.usage = TextureType::CanvasTarget;
+	texture_handle tex3 = pGraphic->CreateTexture(info);
+
+	pGraphic->ReleaseGraphicObject(tex1);
+	pGraphic->ReleaseGraphicObject(tex2);
+	pGraphic->ReleaseGraphicObject(tex3);
+	//------------------------------------------------------------------
+}
+
+void UnInitGraphic()
+{
+	AUTO_GRAPHIC_CONTEXT(pGraphic);
+
+	for (auto &item : graphicList)
+		pGraphic->ReleaseGraphicObject(item);
+
+	graphicList.clear();
+	pGraphic->UnInitializeGraphic();
 }

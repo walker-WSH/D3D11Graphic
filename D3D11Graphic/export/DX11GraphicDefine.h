@@ -33,10 +33,6 @@ struct ST_TextureVertex {
 	float u, v;
 };
 
-struct ST_BorderVertex {
-	float x, y, z, w;
-};
-
 struct ST_Color {
 	float red = 0.0;
 	float green = 0.0;

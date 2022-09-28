@@ -41,9 +41,6 @@
     <ClCompile Include="DX11Shader.cpp">
       <Filter>shader</Filter>
     </ClCompile>
-    <ClCompile Include="DX11ShaderBorder.cpp">
-      <Filter>shader</Filter>
-    </ClCompile>
     <ClCompile Include="DX11ShaderTexture.cpp">
       <Filter>shader</Filter>
     </ClCompile>
@@ -82,9 +79,6 @@
     <ClInclude Include="DX11Shader.h">
       <Filter>shader</Filter>
     </ClInclude>
-    <ClInclude Include="DX11ShaderBorder.h">
-      <Filter>shader</Filter>
-    </ClInclude>
     <ClInclude Include="DX11ShaderTexture.h">
       <Filter>shader</Filter>
     </ClInclude>
@@ -105,16 +99,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="HLSL\borderPS.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="HLSL\borderVS.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
     <FxCompile Include="HLSL\defaultPS.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
     <FxCompile Include="HLSL\defaultVS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\rectPS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="HLSL\rectVS.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
   </ItemGroup>

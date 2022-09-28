@@ -8,7 +8,6 @@
 #include <DX11GraphicInstance.h>
 #include "EnumAdapter.h"
 #include "DX11GraphicBase.h"
-#include "DX11ShaderBorder.h"
 #include "DX11ShaderTexture.h"
 #include "DX11Texture2D.h"
 #include "DX11SwapChain.h"
@@ -38,6 +37,8 @@ public:
 	virtual display_handle CreateDisplay(HWND hWnd);
 	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height);
 
+	virtual shader_handle CreateShader(const ST_ShaderInfo &info);
+
 	virtual texture_handle OpenSharedTexture(HANDLE hSharedHanle);
 	virtual texture_handle OpenImageTexture(const WCHAR *fullPath);
 	virtual texture_handle CreateTexture(const ST_TextureInfo &info);
@@ -51,7 +52,7 @@ public:
 	virtual void SetVertexBuffer(shader_handle hdl, void *buffer, size_t size);
 	virtual void SetVSConstBuffer(shader_handle hdl, void *vsBuffer, size_t vsSize);
 	virtual void SetPSConstBuffer(shader_handle hdl, void *psBuffer, size_t psSize);
-	virtual void DrawTriangle(shader_handle hdl);
+	virtual void FillRectangle(shader_handle hdl);
 	virtual void DrawTexture(shader_handle hdl, const std::vector<texture_handle> &textures);
 	virtual void RenderEnd();
 

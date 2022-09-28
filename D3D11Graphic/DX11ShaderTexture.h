@@ -1,11 +1,6 @@
 #pragma once
 #include "DX11Shader.h"
 
-struct tTextureVertexType {
-	float x, y, z, w;
-	float u, v;
-};
-
 class DX11GraphicInstanceImpl;
 class DX11ShaderTexture : public DX11Shader {
 public:

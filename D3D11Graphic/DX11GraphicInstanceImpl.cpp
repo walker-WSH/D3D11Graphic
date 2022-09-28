@@ -1,7 +1,6 @@
 #include "DX11GraphicInstanceImpl.h"
 
 HMODULE DX11GraphicInstanceImpl::s_hDllModule = nullptr;
-DX11ShaderTexture *pShaderDefault = nullptr;
 
 DX11GraphicInstanceImpl::DX11GraphicInstanceImpl()
 {
@@ -19,9 +18,6 @@ bool DX11GraphicInstanceImpl::InitializeGraphic(LUID luid)
 	CHECK_GRAPHIC_CONTEXT;
 
 	m_adapterLuid = luid;
-
-	//m_pShaderDefault = std::shared_ptr<DX11ShaderTexture>(new DX11ShaderTexture(*this, L"defaultVS.cso", L"defaultPS.cso", sizeof(float) * 16, 0));
-	//m_pShaderBorder = std::shared_ptr<DX11ShaderTexture>(new DX11ShaderTexture(*this, L"borderVS.cso", L"borderPS.cso", sizeof(float) * 16, 0));
 
 	return BuildAllDX();
 }
@@ -171,7 +167,15 @@ void DX11GraphicInstanceImpl::UnmapTexture(texture_handle tex)
 display_handle DX11GraphicInstanceImpl::CreateDisplay(HWND hWnd)
 {
 	CHECK_GRAPHIC_CONTEXT;
-	return new DX11SwapChain(*this, hWnd);
+
+	auto ret = new DX11SwapChain(*this, hWnd);
+	if (!ret->IsBuilt()) {
+		delete ret;
+		assert(false);
+		return nullptr;
+	}
+
+	return ret;
 }
 
 void DX11GraphicInstanceImpl::SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height)
@@ -180,6 +184,20 @@ void DX11GraphicInstanceImpl::SetDisplaySize(display_handle hdl, uint32_t width,
 	assert(obj);
 	if (obj)
 		obj->SetDisplaySize(width, height);
+}
+
+shader_handle DX11GraphicInstanceImpl::CreateShader(const ST_ShaderInfo &info)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	auto ret = new DX11ShaderTexture(*this, &info);
+	if (!ret->IsBuilt()) {
+		delete ret;
+		assert(false);
+		return nullptr;
+	}
+
+	return ret;
 }
 
 ComPtr<IDXGIFactory1> DX11GraphicInstanceImpl::DXFactory()
@@ -268,16 +286,6 @@ bool DX11GraphicInstanceImpl::BuildAllDX()
 
 	for (auto &item : m_listObject)
 		item->BuildDX();
-
-	ST_ShaderInfo info;
-	info.vsFile = L"defaultVS.cso";
-	info.psFile = L"defaultPS.cso";
-	info.vsBufferSize = sizeof(float) * 16;
-	info.psBufferSize = 0;
-	info.vertexCount = 4;
-	info.perVertexSize = sizeof(ST_TextureVertex);
-	pShaderDefault = new DX11ShaderTexture(*this, &info);
-	assert(pShaderDefault->IsBuilt());
 
 	m_bBuildSuccessed = true;
 	return true;
@@ -469,7 +477,6 @@ void DX11GraphicInstanceImpl::SetVertexBuffer(shader_handle hdl, void *buffer, s
 	CHECK_GRAPHIC_CONTEXT;
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
-	shader = pShaderDefault;
 	assert(shader);
 	if (shader && shader->IsBuilt()) {
 		assert((shader->m_shaderInfo.vertexCount * shader->m_shaderInfo.perVertexSize) == size);
@@ -482,7 +489,6 @@ void DX11GraphicInstanceImpl::SetVSConstBuffer(shader_handle hdl, void *vsBuffer
 	CHECK_GRAPHIC_CONTEXT;
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
-	shader = pShaderDefault;
 	assert(shader);
 	if (shader && shader->IsBuilt()) {
 		assert(shader->m_shaderInfo.vsBufferSize == vsSize);
@@ -495,7 +501,6 @@ void DX11GraphicInstanceImpl::SetPSConstBuffer(shader_handle hdl, void *psBuffer
 	CHECK_GRAPHIC_CONTEXT;
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
-	shader = pShaderDefault;
 	assert(shader);
 	if (shader && shader->IsBuilt()) {
 		assert(shader->m_shaderInfo.psBufferSize == psSize);
@@ -503,12 +508,11 @@ void DX11GraphicInstanceImpl::SetPSConstBuffer(shader_handle hdl, void *psBuffer
 	}
 }
 
-void DX11GraphicInstanceImpl::DrawTriangle(shader_handle hdl)
+void DX11GraphicInstanceImpl::FillRectangle(shader_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
-	shader = pShaderDefault;
 	assert(shader);
 	if (!shader || !shader->IsBuilt())
 		return;
@@ -524,7 +528,6 @@ void DX11GraphicInstanceImpl::DrawTexture(shader_handle hdl, const std::vector<t
 	CHECK_GRAPHIC_CONTEXT;
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
-	shader = pShaderDefault;
 	assert(shader);
 	if (!shader || !shader->IsBuilt())
 		return;

@@ -16,6 +16,8 @@ public:
 	virtual display_handle CreateDisplay(HWND hWnd) = 0;
 	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height) = 0;
 
+	virtual shader_handle CreateShader(const ST_ShaderInfo &info) = 0;
+
 	virtual texture_handle OpenSharedTexture(HANDLE hSharedHanle) = 0;
 	virtual texture_handle OpenImageTexture(const WCHAR *fullPath) = 0;
 	virtual texture_handle CreateTexture(const ST_TextureInfo &info) = 0;
@@ -30,7 +32,7 @@ public:
 	virtual void SetVertexBuffer(shader_handle hdl, void *buffer, size_t size) = 0;
 	virtual void SetVSConstBuffer(shader_handle hdl, void *vsBuffer, size_t vsSize) = 0;
 	virtual void SetPSConstBuffer(shader_handle hdl, void *psBuffer, size_t psSize) = 0;
-	virtual void DrawTriangle(shader_handle hdl) = 0;
+	virtual void FillRectangle(shader_handle hdl) = 0;
 	virtual void DrawTexture(shader_handle hdl, const std::vector<texture_handle> &textures) = 0;
 	virtual void RenderEnd() = 0;
 };
