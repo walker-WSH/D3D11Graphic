@@ -504,7 +504,7 @@ void DX11GraphicInstanceImpl::SetPSConstBuffer(shader_handle hdl, void *psBuffer
 	assert(shader);
 	if (shader && shader->IsBuilt()) {
 		assert(shader->m_shaderInfo.psBufferSize == psSize);
-		UpdateShaderBuffer(shader->m_pVSConstBuffer, psBuffer, psSize);
+		UpdateShaderBuffer(shader->m_pPSConstBuffer, psBuffer, psSize);
 	}
 }
 
