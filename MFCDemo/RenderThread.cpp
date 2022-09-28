@@ -25,8 +25,9 @@ void InitGraphic(HWND hWnd);
 void UnInitGraphic();
 
 void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest);
-void RenderRect(SIZE canvas, RECT drawDest);
+void RenderRect(SIZE canvas, RECT drawDest, ST_Color clr);
 void RenderBorder(SIZE canvas, RECT drawDest, ST_Color clr);
+void RenderBorderWithSize(SIZE canvas, RECT drawDest, long borderSize, ST_Color clr);
 
 unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 {
@@ -51,10 +52,10 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		texDestRect.bottom = texDestRect.top + 400;
 
 		RECT tex2DestRect;
-		tex2DestRect.left = texDestRect.right + 20;
-		tex2DestRect.top = 50;
-		tex2DestRect.right = tex2DestRect.left + 250;
-		tex2DestRect.bottom = tex2DestRect.top + 400;
+		tex2DestRect.left = texDestRect.right + 100;
+		tex2DestRect.top = 100;
+		tex2DestRect.right = tex2DestRect.left + 400;
+		tex2DestRect.bottom = tex2DestRect.top + 300;
 
 		RECT tex3DestRect;
 		tex3DestRect.left = 20;
@@ -75,16 +76,11 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 			RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize, texDestRect);
 			RenderBorder(canvasSize, texDestRect, ST_Color(1.0, 0, 0, 1.0));
-			texDestRect.left -= 1;
-			texDestRect.top -= 1;
-			texDestRect.right -= 1;
-			texDestRect.bottom -= 1;
-			RenderBorder(canvasSize, texDestRect, ST_Color(1.0, 0, 0, 1.0));
 
 			RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize, tex2DestRect);
-			RenderBorder(canvasSize, tex2DestRect, ST_Color(1.0, 1.0, 0, 1.0));
+			RenderBorderWithSize(canvasSize, tex2DestRect, 4, ST_Color(1.0, 0, 0, 1.0));
 
-			RenderRect(canvasSize, rectFill);
+			RenderRect(canvasSize, rectFill, ST_Color(1.0, 0, 0, 1.0));
 
 			pGraphic->RenderEnd();
 		}
@@ -113,7 +109,7 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 	pGraphic->DrawTexture(shaders[type], texs);
 }
 
-void RenderRect(SIZE canvas, RECT drawDest)
+void RenderRect(SIZE canvas, RECT drawDest, ST_Color clr)
 {
 	AUTO_GRAPHIC_CONTEXT(pGraphic);
 
@@ -124,14 +120,43 @@ void RenderRect(SIZE canvas, RECT drawDest)
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
 	VertexList_RectTriangle(texSize, false, false, outputVertex);
 
-	ST_Color fillColor;
-	fillColor.red = 1.0;
-	fillColor.alpha = 1.0;
-
 	pGraphic->SetVertexBuffer(shaders[type], outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(shaders[type], &(matrixWVP[0][0]), sizeof(matrixWVP));
-	pGraphic->SetPSConstBuffer(shaders[type], &fillColor, sizeof(fillColor));
+	pGraphic->SetPSConstBuffer(shaders[type], &clr, sizeof(ST_Color));
 	pGraphic->DrawTopplogy(shaders[type], D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+}
+
+void RenderBorderWithSize(SIZE canvas, RECT drawDest, long borderSize, ST_Color clr)
+{
+	RECT rcLeft;
+	RECT rcRight;
+	RECT rcTop;
+	RECT rcBottom;
+
+	rcLeft.right = drawDest.left;
+	rcLeft.left = drawDest.left - borderSize;
+	rcLeft.top = drawDest.top - borderSize;
+	rcLeft.bottom = drawDest.bottom + borderSize;
+
+	rcRight.left = drawDest.right;
+	rcRight.right = drawDest.right + borderSize;
+	rcRight.top = drawDest.top - borderSize;
+	rcRight.bottom = drawDest.bottom + borderSize;
+
+	rcTop.left = drawDest.left - borderSize;
+	rcTop.right = drawDest.right + borderSize;
+	rcTop.top = drawDest.top - borderSize;
+	rcTop.bottom = drawDest.top;
+
+	rcBottom.left = drawDest.left - borderSize;
+	rcBottom.right = drawDest.right + borderSize;
+	rcBottom.top = drawDest.bottom;
+	rcBottom.bottom = drawDest.bottom + borderSize;
+
+	RenderRect(canvas, rcLeft, clr);
+	RenderRect(canvas, rcRight, clr);
+	RenderRect(canvas, rcTop, clr);
+	RenderRect(canvas, rcBottom, clr);
 }
 
 void RenderBorder(SIZE canvas, RECT drawDest, ST_Color clr)
