@@ -45,11 +45,17 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		tex2DestRect.right = tex2DestRect.left + 250;
 		tex2DestRect.bottom = tex2DestRect.top + 400;
 
+		RECT rectFill;
+		rectFill.left = 20;
+		rectFill.top = 10;
+		rectFill.right = rc.right - 20;
+		rectFill.bottom = rectFill.top + 30;
+
 		AUTO_GRAPHIC_CONTEXT(pGraphic);
 		pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.3f, 0.3f, 1.0f));
 		RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize, texDestRect);
 		RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize, tex2DestRect);
-		RenderRect(canvasSize, tex2DestRect);
+		RenderRect(canvasSize, rectFill);
 		pGraphic->RenderEnd();
 	}
 
@@ -134,6 +140,9 @@ void InitGraphic(HWND hWnd)
 	//------------------------------------------------------------------
 	display = pGraphic->CreateDisplay(hWnd);
 	assert(display);
+	RECT rc;
+	::GetClientRect(hWnd, &rc);
+	pGraphic->SetDisplaySize(display, rc.right - rc.left, rc.bottom - rc.top);
 	graphicList.push_back(display);
 
 	//------------------------------------------------------------------

@@ -42,16 +42,7 @@ bool DX11SwapChain::TestResizeSwapChain()
 {
 	CHECK_GRAPHIC_CONTEXT_EX(m_graphic);
 
-	if (!m_pSwapChain)
-		return false;
-
-	RECT rcClient;
-	::GetClientRect(m_hWnd, &rcClient);
-
-	m_dwWidth = rcClient.right - rcClient.left;
-	m_dwHeight = rcClient.bottom - rcClient.top;
-
-	if (!m_dwWidth || !m_dwHeight)
+	if (!m_pSwapChain || !m_dwWidth || !m_dwHeight)
 		return false;
 
 	D3D11_TEXTURE2D_DESC desc;

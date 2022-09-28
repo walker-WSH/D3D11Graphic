@@ -364,7 +364,13 @@ void DX11GraphicInstanceImpl::SetRenderTarget(ComPtr<ID3D11RenderTargetView> tar
 void DX11GraphicInstanceImpl::UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, void *data, size_t size)
 {
 	CHECK_GRAPHIC_CONTEXT;
-	m_pDeviceContext->UpdateSubresource(buffer, 0, nullptr, data, 0, 0);
+
+	D3D11_BUFFER_DESC desc;
+	buffer->GetDesc(&desc);
+
+	assert(desc.ByteWidth == size);
+	if (desc.ByteWidth == size)
+		m_pDeviceContext->UpdateSubresource(buffer, 0, nullptr, data, 0, 0);
 }
 
 bool DX11GraphicInstanceImpl::GetResource(const std::vector<texture_handle> &textures, std::vector<ID3D11ShaderResourceView *> &resources)
@@ -459,11 +465,11 @@ bool DX11GraphicInstanceImpl::RenderBegin_Display(display_handle hdl, ST_Color b
 	if (!obj)
 		return false;
 
-	obj->TestResizeSwapChain();
-	if (!obj->IsBuilt())
+	if (!IsWindow(obj->m_hWnd))
 		return false;
 
-	if (!IsWindow(obj->m_hWnd))
+	obj->TestResizeSwapChain();
+	if (!obj->IsBuilt())
 		return false;
 
 	SetRenderTarget(obj->m_pRenderTargetView, obj->m_dwWidth, obj->m_dwHeight, bkClr);
