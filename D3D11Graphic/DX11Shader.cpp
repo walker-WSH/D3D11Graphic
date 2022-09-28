@@ -39,12 +39,14 @@ bool DX11Shader::BuildDX()
 
 	HRESULT hr = D3DReadFileToBlob(vs.c_str(), vertexShaderBuffer.Assign());
 	if (FAILED(hr)) {
+		CheckDXError(hr);
 		assert(false);
 		return false;
 	}
 
 	hr = D3DReadFileToBlob(ps.c_str(), pixelShaderBuffer.Assign());
 	if (FAILED(hr)) {
+		CheckDXError(hr);
 		assert(false);
 		return false;
 	}
@@ -52,12 +54,14 @@ bool DX11Shader::BuildDX()
 	hr = m_graphic.DXDevice()->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL,
 						      m_pVertexShader.Assign());
 	if (FAILED(hr)) {
+		CheckDXError(hr);
 		assert(false);
 		return false;
 	}
 
 	hr = m_graphic.DXDevice()->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, m_pPixelShader.Assign());
 	if (FAILED(hr)) {
+		CheckDXError(hr);
 		assert(false);
 		return false;
 	}
@@ -66,6 +70,7 @@ bool DX11Shader::BuildDX()
 	hr = m_graphic.DXDevice()->CreateInputLayout(inputLayoutDesc.data(), (uint32_t)inputLayoutDesc.size(), vertexShaderBuffer->GetBufferPointer(),
 						     vertexShaderBuffer->GetBufferSize(), m_pInputLayout.Assign());
 	if (FAILED(hr)) {
+		CheckDXError(hr);
 		assert(false);
 		return false;
 	}
@@ -76,6 +81,7 @@ bool DX11Shader::BuildDX()
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	hr = m_graphic.DXDevice()->CreateBuffer(&vertexBufferDesc, NULL, m_pVertexBuffer.Assign());
 	if (FAILED(hr)) {
+		CheckDXError(hr);
 		assert(false);
 		return false;
 	}
@@ -87,6 +93,7 @@ bool DX11Shader::BuildDX()
 		CBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		hr = m_graphic.DXDevice()->CreateBuffer(&CBufferDesc, NULL, m_pVSConstBuffer.Assign());
 		if (FAILED(hr)) {
+			CheckDXError(hr);
 			assert(false);
 			return false;
 		}
@@ -99,6 +106,7 @@ bool DX11Shader::BuildDX()
 		CBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		hr = m_graphic.DXDevice()->CreateBuffer(&CBufferDesc, NULL, m_pPSConstBuffer.Assign());
 		if (FAILED(hr)) {
+			CheckDXError(hr);
 			assert(false);
 			return false;
 		}

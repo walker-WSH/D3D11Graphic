@@ -179,6 +179,7 @@ bool DX11GraphicInstanceImpl::MapTexture(texture_handle tex, bool isRead, D3D11_
 	D3D11_MAP type = isRead ? D3D11_MAP_READ : D3D11_MAP_WRITE_DISCARD;
 	HRESULT hr = m_pDeviceContext->Map(obj->m_pTexture2D, 0, type, 0, mapData);
 	if (FAILED(hr)) {
+		CheckDXError(hr);
 		assert(false);
 		return false;
 	}
@@ -306,8 +307,10 @@ bool DX11GraphicInstanceImpl::BuildAllDX()
 	HRESULT hr = D3D11CreateDevice(m_pAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, D3D11_CREATE_DEVICE_BGRA_SUPPORT, featureLevels.data(),
 				       (uint32_t)featureLevels.size(), D3D11_SDK_VERSION, m_pDX11Device.Assign(), &levelUsed, m_pDeviceContext.Assign());
 
-	if (FAILED(hr))
+	if (FAILED(hr)) {
+		CheckDXError(hr);
 		return false;
+	}
 
 	if (!InitBlendState())
 		return false;
@@ -336,7 +339,9 @@ bool DX11GraphicInstanceImpl::InitBlendState()
 	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-	if (FAILED(m_pDX11Device->CreateBlendState(&blendStateDescription, m_pBlendState.Assign()))) {
+	HRESULT hr = m_pDX11Device->CreateBlendState(&blendStateDescription, m_pBlendState.Assign());
+	if (FAILED(hr)) {
+		CheckDXError(hr);
 		assert(false);
 		return false;
 	}
@@ -358,7 +363,9 @@ bool DX11GraphicInstanceImpl::InitSamplerState()
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	if (FAILED(m_pDX11Device->CreateSamplerState(&samplerDesc, m_pSampleState.Assign()))) {
+	HRESULT hr = m_pDX11Device->CreateSamplerState(&samplerDesc, m_pSampleState.Assign());
+	if (FAILED(hr)) {
+		CheckDXError(hr);
 		assert(false);
 		return false;
 	}
@@ -505,6 +512,7 @@ bool DX11GraphicInstanceImpl::RenderBegin_Display(display_handle hdl, ST_Color b
 
 	HRESULT hr = obj->TestResizeSwapChain();
 	if (FAILED(hr)) {
+		CheckDXError(hr);
 		HandleDXHResult(hr);
 		return false;
 	}
