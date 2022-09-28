@@ -124,6 +124,10 @@ bool DX11GraphicInstanceImpl::CopyTexture(texture_handle dest, texture_handle sr
 	if (!srcTex || !srcTex->IsBuilt())
 		return false;
 
+	assert(destTex->m_descTexture.Width == srcTex->m_descTexture.Width);
+	assert(destTex->m_descTexture.Height == srcTex->m_descTexture.Height);
+	assert(destTex->m_descTexture.Format == srcTex->m_descTexture.Format);
+
 	m_pDeviceContext->CopyResource(destTex->m_pTexture2D, srcTex->m_pTexture2D);
 	return true;
 }
