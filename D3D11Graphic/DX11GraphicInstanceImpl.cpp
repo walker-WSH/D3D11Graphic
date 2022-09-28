@@ -53,7 +53,6 @@ texture_handle DX11GraphicInstanceImpl::OpenSharedTexture(HANDLE hSharedHanle)
 	DX11Texture2D *tex = new DX11Texture2D(*this, hSharedHanle);
 	if (!tex->IsBuilt()) {
 		delete tex;
-		assert(false);
 		return nullptr;
 	}
 

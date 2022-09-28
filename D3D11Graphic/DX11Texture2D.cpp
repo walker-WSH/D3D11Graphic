@@ -161,10 +161,8 @@ bool DX11Texture2D::InitTargetTexture()
 bool DX11Texture2D::InitSharedTexture()
 {
 	HRESULT hr = m_graphic.DXDevice()->OpenSharedResource((HANDLE)m_hSharedHandle, __uuidof(ID3D11Texture2D), (void **)m_pTexture2D.Assign());
-	if (FAILED(hr)) {
-		assert(false);
+	if (FAILED(hr)) 
 		return false;
-	}
 
 	if (!InitResourceView())
 		return false;

@@ -10,6 +10,7 @@ std::vector<DX11GraphicObject *> graphicList;
 shader_handle texShader = nullptr;
 shader_handle rectShader = nullptr;
 texture_handle texGirl = nullptr;
+texture_handle texShared = nullptr;
 texture_handle texAlpha = nullptr;
 display_handle display = nullptr;
 
@@ -45,6 +46,12 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		tex2DestRect.right = tex2DestRect.left + 250;
 		tex2DestRect.bottom = tex2DestRect.top + 400;
 
+		RECT tex3DestRect;
+		tex3DestRect.left = 20;
+		tex3DestRect.top = 50;
+		tex3DestRect.right = rc.right - 20;
+		tex3DestRect.bottom = rc.bottom - 20;
+
 		RECT rectFill;
 		rectFill.left = 20;
 		rectFill.top = 10;
@@ -53,9 +60,14 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 		AUTO_GRAPHIC_CONTEXT(pGraphic);
 		pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.3f, 0.3f, 1.0f));
+
+		if (texShared)
+			RenderTexture(std::vector<texture_handle>{texShared}, canvasSize, tex3DestRect);
+
 		RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize, texDestRect);
 		RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize, tex2DestRect);
 		RenderRect(canvasSize, rectFill);
+
 		pGraphic->RenderEnd();
 	}
 
@@ -153,6 +165,10 @@ void InitGraphic(HWND hWnd)
 	texAlpha = pGraphic->OpenImageTexture(L"testAlpha.png");
 	assert(texAlpha);
 	graphicList.push_back(texAlpha);
+
+	texShared = pGraphic->OpenSharedTexture((HANDLE)0X0000000040003282);
+	if (texShared)
+		graphicList.push_back(texShared);
 
 	//------------------------------- test texutres --------------------
 	ST_TextureInfo info;
