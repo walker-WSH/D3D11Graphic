@@ -26,7 +26,7 @@ void UnInitGraphic();
 
 void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest);
 void RenderRect(SIZE canvas, RECT drawDest);
-void RenderBorder(SIZE canvas, RECT drawDest);
+void RenderBorder(SIZE canvas, RECT drawDest, ST_Color clr);
 
 unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 {
@@ -72,10 +72,20 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		if (pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.3f, 0.3f, 1.0f))) {
 			if (texShared)
 				RenderTexture(std::vector<texture_handle>{texShared}, canvasSize, tex3DestRect);
+
 			RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize, texDestRect);
+			RenderBorder(canvasSize, texDestRect, ST_Color(1.0, 0, 0, 1.0));
+			texDestRect.left -= 1;
+			texDestRect.top -= 1;
+			texDestRect.right -= 1;
+			texDestRect.bottom -= 1;
+			RenderBorder(canvasSize, texDestRect, ST_Color(1.0, 0, 0, 1.0));
+
 			RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize, tex2DestRect);
+			RenderBorder(canvasSize, tex2DestRect, ST_Color(1.0, 1.0, 0, 1.0));
+
 			RenderRect(canvasSize, rectFill);
-			RenderBorder(canvasSize, tex2DestRect);
+
 			pGraphic->RenderEnd();
 		}
 	}
@@ -124,7 +134,7 @@ void RenderRect(SIZE canvas, RECT drawDest)
 	pGraphic->DrawTopplogy(shaders[type], D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 
-void RenderBorder(SIZE canvas, RECT drawDest)
+void RenderBorder(SIZE canvas, RECT drawDest, ST_Color clr)
 {
 	AUTO_GRAPHIC_CONTEXT(pGraphic);
 
@@ -135,14 +145,9 @@ void RenderBorder(SIZE canvas, RECT drawDest)
 	ST_TextureVertex outputVertex[RECT_LINE_VERTEX_COUNT];
 	VertexList_RectLine(texSize, outputVertex);
 
-	ST_Color fillColor;
-	fillColor.red = 1.0;
-	fillColor.green = 1.0;
-	fillColor.alpha = 1.0;
-
 	pGraphic->SetVertexBuffer(shaders[type], outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(shaders[type], &(matrixWVP[0][0]), sizeof(matrixWVP));
-	pGraphic->SetPSConstBuffer(shaders[type], &fillColor, sizeof(fillColor));
+	pGraphic->SetPSConstBuffer(shaders[type], &clr, sizeof(ST_Color));
 	pGraphic->DrawTopplogy(shaders[type], D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 }
 
