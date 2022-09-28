@@ -156,9 +156,20 @@ bool DX11GraphicInstanceImpl::CopyTexture(texture_handle dest, texture_handle sr
 	if (!srcTex || !srcTex->IsBuilt())
 		return false;
 
-	assert(destTex->m_descTexture.Width == srcTex->m_descTexture.Width);
-	assert(destTex->m_descTexture.Height == srcTex->m_descTexture.Height);
-	assert(destTex->m_descTexture.Format == srcTex->m_descTexture.Format);
+	if (destTex->m_descTexture.Width != srcTex->m_descTexture.Width) {
+		assert(false);
+		return false;
+	}
+
+	if (destTex->m_descTexture.Height != srcTex->m_descTexture.Height) {
+		assert(false);
+		return false;
+	}
+
+	if (destTex->m_descTexture.Format != srcTex->m_descTexture.Format) {
+		assert(false);
+		return false;
+	}
 
 	m_pDeviceContext->CopyResource(destTex->m_pTexture2D, srcTex->m_pTexture2D);
 	return true;
@@ -290,18 +301,38 @@ bool DX11GraphicInstanceImpl::BuildAllDX()
 {
 	CHECK_GRAPHIC_CONTEXT;
 
-	DXGraphic::EnumD3DAdapters(nullptr, [this](void *userdata, ComPtr<IDXGIFactory1> factory, ComPtr<IDXGIAdapter1> adapter, const DXGI_ADAPTER_DESC &desc,
-						   const char *version) {
-		if (desc.VendorId == m_destGraphic.vendorId && desc.DeviceId == m_destGraphic.deviceId) {
-			m_pDX11Factory = factory;
-			m_pAdapter = adapter;
-			return false;
+	std::optional<GraphicCardType> currentType;
+	DXGraphic::EnumD3DAdapters(nullptr, [this, &currentType](void *userdata, ComPtr<IDXGIFactory1> factory, ComPtr<IDXGIAdapter1> adapter,
+								 const DXGI_ADAPTER_DESC &desc, const char *version) {
+		if (m_destGraphic.vendorId || m_destGraphic.deviceId) {
+			if (desc.VendorId == m_destGraphic.vendorId && desc.DeviceId == m_destGraphic.deviceId) {
+				m_pDX11Factory = factory;
+				m_pAdapter = adapter;
+				return false;
+			}
+		} else {
+			GraphicCardType newType = DXGraphic::CheckAdapterType(desc);
+			if (!currentType.has_value() || g_mapGraphicOrder[newType] < g_mapGraphicOrder[currentType.value()]) {
+				currentType = newType;
+				m_pDX11Factory = factory;
+				m_pAdapter = adapter;
+			}
 		}
+
 		return true;
 	});
 
 	if (!m_pAdapter)
 		return false;
+
+	DXGI_ADAPTER_DESC descAdapter;
+	m_pAdapter->GetDesc(&descAdapter);
+
+#ifdef _DEBUG
+	OutputDebugStringW(L"Select default device: ");
+	OutputDebugStringW(descAdapter.Description);
+	OutputDebugStringW(L"\n");
+#endif
 
 	D3D_FEATURE_LEVEL levelUsed = D3D_FEATURE_LEVEL_9_3;
 	HRESULT hr = D3D11CreateDevice(m_pAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, D3D11_CREATE_DEVICE_BGRA_SUPPORT, featureLevels.data(),
@@ -320,6 +351,12 @@ bool DX11GraphicInstanceImpl::BuildAllDX()
 
 	for (auto &item : m_listObject)
 		item->BuildDX();
+
+	for (auto &item : m_pGraphicCallbacks) {
+		auto cb = item.lock();
+		if (cb)
+			cb->OnBuildSuccessed(descAdapter);
+	}
 
 	m_bBuildSuccessed = true;
 	return true;
@@ -630,13 +667,7 @@ void DX11GraphicInstanceImpl::HandleDXHResult(HRESULT hr, std::source_location l
 			}
 
 			ReleaseAllDX();
-			if (BuildAllDX()) {
-				for (auto &item : m_pGraphicCallbacks) {
-					auto cb = item.lock();
-					if (cb)
-						cb->OnBuildSuccessed();
-				}
-			}
+			BuildAllDX();
 		}
 	}
 }

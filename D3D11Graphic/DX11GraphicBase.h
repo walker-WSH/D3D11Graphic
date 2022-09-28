@@ -7,6 +7,7 @@
 #include <dxgi.h>
 #include <ComPtr.hpp>
 #include <source_location>
+#include <optional>
 #include <DX11GraphicDefine.h>
 
 static void CheckDXError(HRESULT hr, std::source_location location = std::source_location::current())

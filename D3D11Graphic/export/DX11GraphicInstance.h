@@ -9,6 +9,7 @@ class IDX11GraphicInstance {
 public:
 	virtual ~IDX11GraphicInstance() = default;
 
+	// graphic : Select graphic automatically if it's null. NVIDIA > AMD > INTEL > BAISC > ANY
 	virtual bool InitializeGraphic(const ST_GraphicCardInfo *graphic = nullptr) = 0;
 	virtual void UnInitializeGraphic() = 0;
 

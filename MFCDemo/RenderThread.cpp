@@ -38,7 +38,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		return 1;
 
 	while (!self->m_bExit) {
-		Sleep(20);
+		Sleep(50);
 
 		{
 			AUTO_GRAPHIC_CONTEXT(pGraphic);
@@ -194,7 +194,7 @@ bool InitGraphic(HWND hWnd)
 
 	AUTO_GRAPHIC_CONTEXT(pGraphic);
 
-	bool bOK = pGraphic->InitializeGraphic(&listGraphic->at(0));
+	bool bOK = pGraphic->InitializeGraphic(nullptr);
 	assert(bOK);
 
 	//------------------------------------------------------------------
