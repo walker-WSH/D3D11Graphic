@@ -513,7 +513,7 @@ void DX11GraphicInstanceImpl::SetPSConstBuffer(shader_handle hdl, void *psBuffer
 	}
 }
 
-void DX11GraphicInstanceImpl::FillRectangle(shader_handle hdl)
+void DX11GraphicInstanceImpl::DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TOPOLOGY type)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -524,7 +524,7 @@ void DX11GraphicInstanceImpl::FillRectangle(shader_handle hdl)
 
 	ApplyShader(shader);
 
-	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	m_pDeviceContext->IASetPrimitiveTopology(type);
 	m_pDeviceContext->Draw(shader->m_shaderInfo.vertexCount, 0);
 }
 

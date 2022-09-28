@@ -52,7 +52,7 @@ public:
 	virtual void SetVertexBuffer(shader_handle hdl, void *buffer, size_t size);
 	virtual void SetVSConstBuffer(shader_handle hdl, void *vsBuffer, size_t vsSize);
 	virtual void SetPSConstBuffer(shader_handle hdl, void *psBuffer, size_t psSize);
-	virtual void FillRectangle(shader_handle hdl);
+	virtual void DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TOPOLOGY type);
 	virtual void DrawTexture(shader_handle hdl, const std::vector<texture_handle> &textures);
 	virtual void RenderEnd();
 

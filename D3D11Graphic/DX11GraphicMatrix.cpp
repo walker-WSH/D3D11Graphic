@@ -76,7 +76,7 @@ GRAPHIC_API void TransposeMatrixWVP(SIZE canvas, SIZE texture, RECT destPos, flo
 	memmove(&(outputMatrix[0][0]), &(wvpMatrix.m[0][0]), sizeof(float) * 16);
 }
 
-GRAPHIC_API void TextureVertexBuffer(SIZE texture, bool flipH, bool flipV, ST_TextureVertex outputVertex[4])
+GRAPHIC_API void VertexList_RectTriangle(SIZE texture, bool flipH, bool flipV, ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT])
 {
 	float left = 0;
 	float right = left + (float)texture.cx;
@@ -98,4 +98,23 @@ GRAPHIC_API void TextureVertexBuffer(SIZE texture, bool flipH, bool flipV, ST_Te
 	outputVertex[1] = {right, top, 0, 1.f, rightUV, topUV};
 	outputVertex[2] = {left, bottom, 0, 1.f, leftUV, bottomUV};
 	outputVertex[3] = {right, bottom, 0, 1.f, rightUV, bottomUV};
+}
+
+GRAPHIC_API void VertexList_RectLine(SIZE texture, ST_TextureVertex outputVertex[RECT_LINE_VERTEX_COUNT])
+{
+	float left = 0;
+	float right = left + (float)texture.cx;
+	float top = 0;
+	float bottom = top + (float)texture.cy;
+
+	float leftUV = 0.f;
+	float rightUV = 1.f;
+	float topUV = 0.f;
+	float bottomUV = 1.f;
+
+	outputVertex[0] = {left, top, 0, 1.f, leftUV, topUV};
+	outputVertex[1] = {right, top, 0, 1.f, rightUV, topUV};
+	outputVertex[2] = {right, bottom, 0, 1.f, rightUV, bottomUV};
+	outputVertex[3] = {left, bottom, 0, 1.f, leftUV, bottomUV};
+	outputVertex[4] = {left, top, 0, 1.f, leftUV, topUV};
 }

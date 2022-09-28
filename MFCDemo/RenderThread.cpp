@@ -4,7 +4,6 @@
 #include <assert.h>
 #include <vector>
 
-#define TEXTURE_VERTEX_COUNT 4
 float matrixWVP[4][4];
 
 IDX11GraphicInstance *pGraphic = nullptr;
@@ -12,6 +11,7 @@ std::vector<DX11GraphicObject *> graphicList;
 
 shader_handle texShader = nullptr;
 shader_handle rectShader = nullptr;
+shader_handle borderShader = nullptr;
 texture_handle texGirl = nullptr;
 texture_handle texShared = nullptr;
 texture_handle texAlpha = nullptr;
@@ -22,6 +22,7 @@ void UnInitGraphic();
 
 void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest);
 void RenderRect(SIZE canvas, RECT drawDest);
+void RenderBorder(SIZE canvas, RECT drawDest);
 
 unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 {
@@ -35,7 +36,9 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 		RECT rc;
 		::GetClientRect(self->m_hWnd, &rc);
+
 		SIZE canvasSize(rc.right - rc.left, rc.bottom - rc.top);
+		pGraphic->SetDisplaySize(display, canvasSize.cx, canvasSize.cy);
 
 		RECT texDestRect;
 		texDestRect.left = 50;
@@ -62,16 +65,15 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		rectFill.bottom = rectFill.top + 30;
 
 		AUTO_GRAPHIC_CONTEXT(pGraphic);
-		pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.3f, 0.3f, 1.0f));
-
-		if (texShared)
-			RenderTexture(std::vector<texture_handle>{texShared}, canvasSize, tex3DestRect);
-
-		RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize, texDestRect);
-		RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize, tex2DestRect);
-		RenderRect(canvasSize, rectFill);
-
-		pGraphic->RenderEnd();
+		if (pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.3f, 0.3f, 1.0f))) {
+			if (texShared)
+				RenderTexture(std::vector<texture_handle>{texShared}, canvasSize, tex3DestRect);
+			RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize, texDestRect);
+			RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize, tex2DestRect);
+			RenderRect(canvasSize, rectFill);
+			RenderBorder(canvasSize, tex2DestRect);
+			pGraphic->RenderEnd();
+		}
 	}
 
 	UnInitGraphic();
@@ -89,7 +91,7 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 	TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
-	TextureVertexBuffer(texSize, false, false, outputVertex);
+	VertexList_RectTriangle(texSize, false, false, outputVertex);
 
 	pGraphic->SetVertexBuffer(texShader, outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(texShader, &(matrixWVP[0][0]), sizeof(matrixWVP));
@@ -101,11 +103,10 @@ void RenderRect(SIZE canvas, RECT drawDest)
 	AUTO_GRAPHIC_CONTEXT(pGraphic);
 
 	SIZE texSize(drawDest.right - drawDest.left, drawDest.bottom - drawDest.top);
-
 	TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
-	TextureVertexBuffer(texSize, false, false, outputVertex);
+	VertexList_RectTriangle(texSize, false, false, outputVertex);
 
 	ST_Color fillColor;
 	fillColor.red = 1.0;
@@ -114,7 +115,28 @@ void RenderRect(SIZE canvas, RECT drawDest)
 	pGraphic->SetVertexBuffer(rectShader, outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(rectShader, &(matrixWVP[0][0]), sizeof(matrixWVP));
 	pGraphic->SetPSConstBuffer(rectShader, &fillColor, sizeof(fillColor));
-	pGraphic->FillRectangle(rectShader);
+	pGraphic->DrawTopplogy(rectShader, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+}
+
+void RenderBorder(SIZE canvas, RECT drawDest)
+{
+	AUTO_GRAPHIC_CONTEXT(pGraphic);
+
+	SIZE texSize(drawDest.right - drawDest.left, drawDest.bottom - drawDest.top);
+	TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
+
+	ST_TextureVertex outputVertex[RECT_LINE_VERTEX_COUNT];
+	VertexList_RectLine(texSize, outputVertex);
+
+	ST_Color fillColor;
+	fillColor.red = 1.0;
+	fillColor.green = 1.0;
+	fillColor.alpha = 1.0;
+
+	pGraphic->SetVertexBuffer(borderShader, outputVertex, sizeof(outputVertex));
+	pGraphic->SetVSConstBuffer(borderShader, &(matrixWVP[0][0]), sizeof(matrixWVP));
+	pGraphic->SetPSConstBuffer(borderShader, &fillColor, sizeof(fillColor));
+	pGraphic->DrawTopplogy(borderShader, D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 }
 
 void InitGraphic(HWND hWnd)
@@ -149,6 +171,16 @@ void InitGraphic(HWND hWnd)
 	rectShader = pGraphic->CreateShader(shaderInfo);
 	assert(rectShader);
 	graphicList.push_back(rectShader);
+
+	shaderInfo.vsFile = L"rectVS.cso";
+	shaderInfo.psFile = L"rectPS.cso";
+	shaderInfo.vsBufferSize = sizeof(matrixWVP);
+	shaderInfo.psBufferSize = sizeof(float) * 4;
+	shaderInfo.vertexCount = RECT_LINE_VERTEX_COUNT;
+	shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
+	borderShader = pGraphic->CreateShader(shaderInfo);
+	assert(borderShader);
+	graphicList.push_back(borderShader);
 
 	//------------------------------------------------------------------
 	display = pGraphic->CreateDisplay(hWnd);
