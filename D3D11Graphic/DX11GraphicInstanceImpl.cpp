@@ -462,11 +462,6 @@ bool DX11GraphicInstanceImpl::GetResource(const std::vector<texture_handle> &tex
 			return false;
 		}
 
-		if (TextureType::CanvasTarget == tex->m_textureInfo.usage) {
-			assert(false);
-			return false;
-		}
-
 		if (!tex->IsBuilt() || !tex->m_pTextureResView)
 			return false;
 

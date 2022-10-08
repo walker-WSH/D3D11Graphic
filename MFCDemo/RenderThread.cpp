@@ -20,6 +20,7 @@ display_handle display = nullptr;
 texture_handle texGirl = nullptr;
 texture_handle texShared = nullptr;
 texture_handle texAlpha = nullptr;
+texture_handle texCanvas = nullptr;
 
 bool InitGraphic(HWND hWnd);
 void UnInitGraphic();
@@ -77,6 +78,12 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 				continue;
 		}
 
+		if (pGraphic->RenderBegin_Canvas(texCanvas, ST_Color(1.0f, 1.0f, 1.0f, 1.0f))) {
+			auto info = pGraphic->GetTextureInfo(texCanvas);
+			RenderRect(SIZE(info.width, info.height), RECT(0, 0, info.width / 2, info.height / 2), ST_Color(1.0, 0, 0, 1.0));
+			pGraphic->RenderEnd();
+		}
+
 		if (pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.3f, 0.3f, 1.0f))) {
 			if (texShared)
 				RenderTexture(std::vector<texture_handle>{texShared}, canvasSize, tex3DestRect);
@@ -88,6 +95,9 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			RenderBorderWithSize(canvasSize, tex2DestRect, 4, ST_Color(1.0, 0, 0, 1.0));
 
 			RenderRect(canvasSize, rectFill, ST_Color(1.0, 1.0, 0, 1.0));
+
+			// 画布也可以直接当作resource进行渲染
+			RenderTexture(std::vector<texture_handle>{texCanvas}, canvasSize, RECT(10, 500, 410, 700));
 
 			pGraphic->RenderEnd();
 		}
@@ -254,8 +264,8 @@ bool InitGraphic(HWND hWnd)
 
 	//------------------------------- test texutres --------------------
 	ST_TextureInfo info;
-	info.width = 201;
-	info.height = 201;
+	info.width = 400;
+	info.height = 400;
 	info.format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	info.usage = TextureType::ReadTexture;
 	texture_handle tex1 = pGraphic->CreateTexture(info);
@@ -265,6 +275,11 @@ bool InitGraphic(HWND hWnd)
 
 	info.usage = TextureType::CanvasTarget;
 	texture_handle tex3 = pGraphic->CreateTexture(info);
+
+	info.usage = TextureType::CanvasTarget;
+	texCanvas = pGraphic->CreateTexture(info);
+	assert(texCanvas);
+	graphicList.push_back(texCanvas);
 
 	pGraphic->ReleaseGraphicObject(tex1);
 	pGraphic->ReleaseGraphicObject(tex2);

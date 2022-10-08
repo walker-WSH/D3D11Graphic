@@ -161,6 +161,9 @@ bool DX11Texture2D::InitTargetTexture()
 		return false;
 	}
 
+	if (!InitResourceView())
+		return false;
+
 	return true;
 }
 
