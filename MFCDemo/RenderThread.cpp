@@ -1,5 +1,4 @@
-﻿
-#include "pch.h"
+﻿#include "pch.h"
 #include "MFCDemoDlg.h"
 #include <assert.h>
 #include <vector>
