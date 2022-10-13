@@ -7,9 +7,9 @@ static uint32_t vendoridIntel = 0x8086;
 static uint32_t vendoridNvidia = 0x10DE;
 static uint32_t vendoridAMD = 0x1002;
 
-std::vector<std::wstring> wstrINTEL = {L"INTEL"};
-std::vector<std::wstring> wstrNVIDIA = {L"NVIDIA"};
-std::vector<std::wstring> wstrAMD = {L"RADEON", L"AMD"};
+std::vector<std::wstring> wstrIntelName = {L"INTEL"};
+std::vector<std::wstring> wstrNvidiaName = {L"NVIDIA"};
+std::vector<std::wstring> wstrAMDName = {L"RADEON", L"AMD"};
 
 void EnumD3DAdapters(void *userdata,
 		     std::function<bool(void *, ComPtr<IDXGIFactory1>, ComPtr<IDXGIAdapter1>, const DXGI_ADAPTER_DESC &, const char *)> callback)
@@ -59,13 +59,13 @@ enum GraphicCardType CheckAdapterType(const DXGI_ADAPTER_DESC &desc)
 	std::wstring wstr(desc.Description);
 	transform(wstr.begin(), wstr.end(), wstr.begin(), ::toupper);
 
-	if (MatchString(wstr, wstrNVIDIA) || vendoridNvidia == desc.VendorId)
+	if (MatchString(wstr, wstrNvidiaName) || vendoridNvidia == desc.VendorId)
 		return GraphicCardType::nvidia;
 
-	if (MatchString(wstr, wstrAMD) || vendoridAMD == desc.VendorId)
+	if (MatchString(wstr, wstrAMDName) || vendoridAMD == desc.VendorId)
 		return GraphicCardType::amd;
 
-	if (MatchString(wstr, wstrINTEL) || vendoridIntel == desc.VendorId)
+	if (MatchString(wstr, wstrIntelName) || vendoridIntel == desc.VendorId)
 		return GraphicCardType::intel;
 
 	return GraphicCardType::any;
