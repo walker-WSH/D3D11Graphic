@@ -7,6 +7,7 @@ static uint32_t vendoridIntel = 0x8086;
 static uint32_t vendoridNvidia = 0x10DE;
 static uint32_t vendoridAMD = 0x1002;
 
+std::vector<std::wstring> wstrBasicName = {L"MICROSOFT"};
 std::vector<std::wstring> wstrIntelName = {L"INTEL"};
 std::vector<std::wstring> wstrNvidiaName = {L"NVIDIA"};
 std::vector<std::wstring> wstrAMDName = {L"RADEON", L"AMD"};
@@ -53,11 +54,11 @@ bool MatchString(const std::wstring &desc, const std::vector<std::wstring> &keyL
 
 enum GraphicCardType CheckAdapterType(const DXGI_ADAPTER_DESC &desc)
 {
-	if (desc.VendorId == vendoridMicrosoft && desc.DeviceId == 0x8c)
-		return GraphicCardType::msbasic;
-
 	std::wstring wstr(desc.Description);
 	transform(wstr.begin(), wstr.end(), wstr.begin(), ::toupper);
+
+	if ((desc.VendorId == vendoridMicrosoft && desc.DeviceId == 0x8c) || MatchString(wstr, wstrBasicName))
+		return GraphicCardType::msbasic;
 
 	if (MatchString(wstr, wstrNvidiaName) || vendoridNvidia == desc.VendorId)
 		return GraphicCardType::nvidia;
