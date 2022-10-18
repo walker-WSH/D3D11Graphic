@@ -17,6 +17,8 @@ bool DX11GraphicInstanceImpl::InitializeGraphic(const ST_GraphicCardInfo *graphi
 {
 	CHECK_GRAPHIC_CONTEXT;
 
+	CoInitializeEx(0, COINIT_MULTITHREADED);
+
 	if (graphic)
 		m_destGraphic = *graphic;
 	else
@@ -34,6 +36,8 @@ void DX11GraphicInstanceImpl::UnInitializeGraphic()
 	assert(m_listObject.empty());
 	for (auto &item : m_listObject)
 		delete item;
+
+	CoUninitialize();
 }
 
 void DX11GraphicInstanceImpl::RegisterCallback(std::weak_ptr<DX11GraphicCallback> cb)
