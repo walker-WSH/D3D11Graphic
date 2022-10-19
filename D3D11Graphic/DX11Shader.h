@@ -6,7 +6,7 @@ class DX11Shader : public DX11GraphicBase {
 	friend class DX11GraphicInstanceImpl;
 
 public:
-	DX11Shader(DX11GraphicInstanceImpl &graphic, const ST_ShaderInfo* info);
+	DX11Shader(DX11GraphicInstanceImpl &graphic, const ST_ShaderInfo *info);
 
 	virtual bool BuildDX();
 	virtual void ReleaseDX();
