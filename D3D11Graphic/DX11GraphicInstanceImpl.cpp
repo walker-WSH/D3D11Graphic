@@ -345,7 +345,7 @@ bool DX11GraphicInstanceImpl::BuildAllDX()
 	OutputDebugStringW(L"\n");
 #endif
 
-	D3D_FEATURE_LEVEL levelUsed = D3D_FEATURE_LEVEL_9_3;
+	D3D_FEATURE_LEVEL levelUsed = D3D_FEATURE_LEVEL_10_0;
 	HRESULT hr = D3D11CreateDevice(m_pAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr,
 				       D3D11_CREATE_DEVICE_BGRA_SUPPORT, featureLevels.data(),
 				       (uint32_t)featureLevels.size(), D3D11_SDK_VERSION,
