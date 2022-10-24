@@ -73,6 +73,7 @@ public:
 class DX11GraphicCallback {
 public:
 	virtual ~DX11GraphicCallback() = default;
+
 	virtual void OnD3D11Error(HRESULT hr) = 0;
 	virtual void OnDeviceRemoved() = 0;
 	virtual void OnBuildSuccessed(const DXGI_ADAPTER_DESC &desc) = 0;

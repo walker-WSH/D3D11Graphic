@@ -12,9 +12,6 @@
     <Filter Include="DX11Instance">
       <UniqueIdentifier>{3bd543be-52f4-4f5d-81a5-a37ad3f124b4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="shader">
-      <UniqueIdentifier>{ec537707-65b5-4cf7-b50d-4756a632f034}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -29,17 +26,8 @@
     <ClCompile Include="DX11GraphicInstanceContext.cpp">
       <Filter>DX11Instance</Filter>
     </ClCompile>
-    <ClCompile Include="WindowsVersion.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="EnumAdapter.cpp">
       <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="DX11Shader.cpp">
-      <Filter>shader</Filter>
-    </ClCompile>
-    <ClCompile Include="DX11ShaderTexture.cpp">
-      <Filter>shader</Filter>
     </ClCompile>
     <ClCompile Include="DX11Texture2D.cpp">
       <Filter>source</Filter>
@@ -52,6 +40,12 @@
     </ClCompile>
     <ClCompile Include="DX11GraphicMatrix.cpp">
       <Filter>DX11Instance</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11Shader.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11ShaderTexture.cpp">
+      <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -67,17 +61,8 @@
     <ClInclude Include="export\DX11GraphicAPI.h">
       <Filter>DX11Instance</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsVersion.h">
-      <Filter>source</Filter>
-    </ClInclude>
     <ClInclude Include="EnumAdapter.h">
       <Filter>source</Filter>
-    </ClInclude>
-    <ClInclude Include="DX11Shader.h">
-      <Filter>shader</Filter>
-    </ClInclude>
-    <ClInclude Include="DX11ShaderTexture.h">
-      <Filter>shader</Filter>
     </ClInclude>
     <ClInclude Include="DX11Texture2D.h">
       <Filter>source</Filter>
@@ -93,6 +78,12 @@
     </ClInclude>
     <ClInclude Include="export\DX11GraphicDefine.h">
       <Filter>DX11Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11Shader.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11ShaderTexture.h">
+      <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
