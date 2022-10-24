@@ -79,24 +79,30 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 		if (pGraphic->RenderBegin_Canvas(texCanvas, ST_Color(1.0f, 1.0f, 1.0f, 1.0f))) {
 			auto info = pGraphic->GetTextureInfo(texCanvas);
-			RenderRect(SIZE(info.width, info.height), RECT(0, 0, info.width / 2, info.height / 2), ST_Color(1.0, 0, 0, 1.0));
+			RenderRect(SIZE(info.width, info.height),
+				   RECT(0, 0, info.width / 2, info.height / 2),
+				   ST_Color(1.0, 0, 0, 1.0));
 			pGraphic->RenderEnd();
 		}
 
 		if (pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.3f, 0.3f, 1.0f))) {
 			if (texShared)
-				RenderTexture(std::vector<texture_handle>{texShared}, canvasSize, tex3DestRect);
+				RenderTexture(std::vector<texture_handle>{texShared}, canvasSize,
+					      tex3DestRect);
 
-			RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize, texDestRect);
+			RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize,
+				      texDestRect);
 			RenderBorder(canvasSize, texDestRect, ST_Color(1.0, 0, 0, 1.0));
 
-			RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize, tex2DestRect);
+			RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize,
+				      tex2DestRect);
 			RenderBorderWithSize(canvasSize, tex2DestRect, 4, ST_Color(1.0, 0, 0, 1.0));
 
 			RenderRect(canvasSize, rectFill, ST_Color(1.0, 1.0, 0, 1.0));
 
 			// 画布也可以直接当作resource进行渲染
-			RenderTexture(std::vector<texture_handle>{texCanvas}, canvasSize, RECT(10, 500, 410, 700));
+			RenderTexture(std::vector<texture_handle>{texCanvas}, canvasSize,
+				      RECT(10, 500, 410, 700));
 
 			pGraphic->RenderEnd();
 		}

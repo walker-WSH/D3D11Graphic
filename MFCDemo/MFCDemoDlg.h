@@ -13,11 +13,10 @@
 #define WINDOW_HEIGHT 1080
 
 // CMFCDemoDlg 对话框
-class CMFCDemoDlg : public CDialogEx
-{
-// 构造
+class CMFCDemoDlg : public CDialogEx {
+	// 构造
 public:
-	CMFCDemoDlg(CWnd* pParent = nullptr);	// 标准构造函数
+	CMFCDemoDlg(CWnd *pParent = nullptr); // 标准构造函数
 	virtual ~CMFCDemoDlg();
 
 // 对话框数据
@@ -25,11 +24,10 @@ public:
 	enum { IDD = IDD_MFCDEMO_DIALOG };
 #endif
 
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
+protected:
+	virtual void DoDataExchange(CDataExchange *pDX); // DDX/DDV 支持
 
-
-// 实现
+	// 实现
 protected:
 	HICON m_hIcon;
 

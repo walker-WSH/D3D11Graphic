@@ -1,3 +1,2 @@
-MFCDemo\
 D3D11Graphic\dxsdk\
 D3D11Graphic\dllmain.cpp
