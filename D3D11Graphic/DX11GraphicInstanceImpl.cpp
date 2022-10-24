@@ -140,7 +140,8 @@ ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle tex)
 	if (!obj || !obj->IsBuilt())
 		return ST_TextureInfo();
 
-	return ST_TextureInfo(obj->m_descTexture.Width, obj->m_descTexture.Height, obj->m_descTexture.Format, obj->m_textureInfo.usage);
+	return ST_TextureInfo(obj->m_descTexture.Width, obj->m_descTexture.Height,
+			      obj->m_descTexture.Format, obj->m_textureInfo.usage);
 }
 
 bool DX11GraphicInstanceImpl::CopyTexture(texture_handle dest, texture_handle src)
@@ -179,7 +180,8 @@ bool DX11GraphicInstanceImpl::CopyTexture(texture_handle dest, texture_handle sr
 	return true;
 }
 
-bool DX11GraphicInstanceImpl::MapTexture(texture_handle tex, bool isRead, D3D11_MAPPED_SUBRESOURCE *mapData)
+bool DX11GraphicInstanceImpl::MapTexture(texture_handle tex, bool isRead,
+					 D3D11_MAPPED_SUBRESOURCE *mapData)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -306,17 +308,22 @@ bool DX11GraphicInstanceImpl::BuildAllDX()
 	CHECK_GRAPHIC_CONTEXT;
 
 	std::optional<GraphicCardType> currentType;
-	DXGraphic::EnumD3DAdapters(nullptr, [this, &currentType](void *userdata, ComPtr<IDXGIFactory1> factory, ComPtr<IDXGIAdapter1> adapter,
-								 const DXGI_ADAPTER_DESC &desc, const char *version) {
+	DXGraphic::EnumD3DAdapters(nullptr, [this, &currentType](void *userdata,
+								 ComPtr<IDXGIFactory1> factory,
+								 ComPtr<IDXGIAdapter1> adapter,
+								 const DXGI_ADAPTER_DESC &desc,
+								 const char *version) {
 		if (m_destGraphic.vendorId || m_destGraphic.deviceId) {
-			if (desc.VendorId == m_destGraphic.vendorId && desc.DeviceId == m_destGraphic.deviceId) {
+			if (desc.VendorId == m_destGraphic.vendorId &&
+			    desc.DeviceId == m_destGraphic.deviceId) {
 				m_pDX11Factory = factory;
 				m_pAdapter = adapter;
 				return false;
 			}
 		} else {
 			GraphicCardType newType = DXGraphic::CheckAdapterType(desc);
-			if (!currentType.has_value() || g_mapGraphicOrder[newType] < g_mapGraphicOrder[currentType.value()]) {
+			if (!currentType.has_value() ||
+			    g_mapGraphicOrder[newType] < g_mapGraphicOrder[currentType.value()]) {
 				currentType = newType;
 				m_pDX11Factory = factory;
 				m_pAdapter = adapter;
@@ -339,8 +346,11 @@ bool DX11GraphicInstanceImpl::BuildAllDX()
 #endif
 
 	D3D_FEATURE_LEVEL levelUsed = D3D_FEATURE_LEVEL_9_3;
-	HRESULT hr = D3D11CreateDevice(m_pAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, D3D11_CREATE_DEVICE_BGRA_SUPPORT, featureLevels.data(),
-				       (uint32_t)featureLevels.size(), D3D11_SDK_VERSION, m_pDX11Device.Assign(), &levelUsed, m_pDeviceContext.Assign());
+	HRESULT hr = D3D11CreateDevice(m_pAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr,
+				       D3D11_CREATE_DEVICE_BGRA_SUPPORT, featureLevels.data(),
+				       (uint32_t)featureLevels.size(), D3D11_SDK_VERSION,
+				       m_pDX11Device.Assign(), &levelUsed,
+				       m_pDeviceContext.Assign());
 
 	if (FAILED(hr)) {
 		CheckDXError(hr);
@@ -380,7 +390,8 @@ bool DX11GraphicInstanceImpl::InitBlendState()
 	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-	HRESULT hr = m_pDX11Device->CreateBlendState(&blendStateDescription, m_pBlendState.Assign());
+	HRESULT hr =
+		m_pDX11Device->CreateBlendState(&blendStateDescription, m_pBlendState.Assign());
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		assert(false);
@@ -414,7 +425,8 @@ bool DX11GraphicInstanceImpl::InitSamplerState()
 	return true;
 }
 
-void DX11GraphicInstanceImpl::SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width, uint32_t height, ST_Color bkClr)
+void DX11GraphicInstanceImpl::SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width,
+					      uint32_t height, ST_Color bkClr)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -440,7 +452,8 @@ void DX11GraphicInstanceImpl::SetRenderTarget(ComPtr<ID3D11RenderTargetView> tar
 	m_pCurrentRenderTarget = target;
 }
 
-void DX11GraphicInstanceImpl::UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, void *data, size_t size)
+void DX11GraphicInstanceImpl::UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, void *data,
+						 size_t size)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -452,7 +465,8 @@ void DX11GraphicInstanceImpl::UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, vo
 		m_pDeviceContext->UpdateSubresource(buffer, 0, nullptr, data, 0, 0);
 }
 
-bool DX11GraphicInstanceImpl::GetResource(const std::vector<texture_handle> &textures, std::vector<ID3D11ShaderResourceView *> &resources)
+bool DX11GraphicInstanceImpl::GetResource(const std::vector<texture_handle> &textures,
+					  std::vector<ID3D11ShaderResourceView *> &resources)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -521,7 +535,8 @@ bool DX11GraphicInstanceImpl::RenderBegin_Canvas(texture_handle hdl, ST_Color bk
 	if (!obj->IsBuilt())
 		return false;
 
-	SetRenderTarget(obj->m_pRenderTargetView, obj->m_descTexture.Width, obj->m_descTexture.Height, bkClr);
+	SetRenderTarget(obj->m_pRenderTargetView, obj->m_descTexture.Width,
+			obj->m_descTexture.Height, bkClr);
 	m_pCurrentSwapChain = nullptr;
 
 	return true;
@@ -566,7 +581,8 @@ void DX11GraphicInstanceImpl::SetVertexBuffer(shader_handle hdl, void *buffer, s
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
 	assert(shader);
 	if (shader && shader->IsBuilt()) {
-		assert((shader->m_shaderInfo.vertexCount * shader->m_shaderInfo.perVertexSize) == size);
+		assert((shader->m_shaderInfo.vertexCount * shader->m_shaderInfo.perVertexSize) ==
+		       size);
 		UpdateShaderBuffer(shader->m_pVertexBuffer, buffer, size);
 	}
 }
@@ -610,7 +626,8 @@ void DX11GraphicInstanceImpl::DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TO
 	m_pDeviceContext->Draw(shader->m_shaderInfo.vertexCount, 0);
 }
 
-void DX11GraphicInstanceImpl::DrawTexture(shader_handle hdl, const std::vector<texture_handle> &textures)
+void DX11GraphicInstanceImpl::DrawTexture(shader_handle hdl,
+					  const std::vector<texture_handle> &textures)
 {
 	CHECK_GRAPHIC_CONTEXT;
 

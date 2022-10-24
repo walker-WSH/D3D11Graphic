@@ -4,7 +4,8 @@
 
 using get_file_version_info_size_wt = DWORD(WINAPI *)(LPCWSTR md, LPDWORD unused);
 using get_file_version_info_wt = BOOL(WINAPI *)(LPCWSTR md, DWORD unused, DWORD len, LPVOID data);
-using ver_query_value_wt = BOOL(WINAPI *)(LPVOID data, LPCWSTR subblock, LPVOID *buf, PUINT sizeout);
+using ver_query_value_wt = BOOL(WINAPI *)(LPVOID data, LPCWSTR subblock, LPVOID *buf,
+					  PUINT sizeout);
 
 bool RTCWindowVersion::SupportMonitorDuplicate()
 {
@@ -12,7 +13,8 @@ bool RTCWindowVersion::SupportMonitorDuplicate()
 	return s_Ins.SupportMonitorDuplicateInner();
 }
 
-bool InitFun(get_file_version_info_size_wt &pFunc1, get_file_version_info_wt &pFunc2, ver_query_value_wt &pFunc3);
+bool InitFun(get_file_version_info_size_wt &pFunc1, get_file_version_info_wt &pFunc2,
+	     ver_query_value_wt &pFunc3);
 VS_FIXEDFILEINFO RTCWindowVersion::GetDllVersion(const wchar_t *pDllName)
 {
 	LPVOID data = nullptr;
@@ -69,7 +71,8 @@ RTCWindowVersion::~RTCWindowVersion()
 		FreeLibrary(m_hLibrary);
 }
 
-bool InitFun(get_file_version_info_size_wt &pFunc1, get_file_version_info_wt &pFunc2, ver_query_value_wt &pFunc3)
+bool InitFun(get_file_version_info_size_wt &pFunc1, get_file_version_info_wt &pFunc2,
+	     ver_query_value_wt &pFunc3)
 {
 	HMODULE ver = GetModuleHandleW(L"version");
 	if (!ver)

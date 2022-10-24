@@ -79,11 +79,14 @@ protected:
 	bool BuildAllDX();
 	bool InitBlendState();
 	bool InitSamplerState();
-	void HandleDXHResult(HRESULT hr, std::source_location location = std::source_location::current());
+	void HandleDXHResult(HRESULT hr,
+			     std::source_location location = std::source_location::current());
 
-	void SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width, uint32_t height, ST_Color bkClr);
+	void SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width, uint32_t height,
+			     ST_Color bkClr);
 	void UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, void *data, size_t size);
-	bool GetResource(const std::vector<texture_handle> &textures, std::vector<ID3D11ShaderResourceView *> &resources);
+	bool GetResource(const std::vector<texture_handle> &textures,
+			 std::vector<ID3D11ShaderResourceView *> &resources);
 	void ApplyShader(DX11Shader *shader);
 
 private:

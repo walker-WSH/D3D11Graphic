@@ -15,7 +15,10 @@ public:
 
 	virtual bool BuildDX();
 	virtual void ReleaseDX();
-	virtual bool IsBuilt() { return m_pSwapChain && m_pSwapBackTexture2D && m_pRenderTargetView; }
+	virtual bool IsBuilt()
+	{
+		return m_pSwapChain && m_pSwapBackTexture2D && m_pRenderTargetView;
+	}
 
 private:
 	HRESULT InitSwapChain();

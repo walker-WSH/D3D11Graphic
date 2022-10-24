@@ -56,7 +56,8 @@ D3DXMATRIX GetOrthoMatrix(SIZE canvas)
 	return orthoMatrix;
 }
 
-GRAPHIC_API void TransposeMatrixWVP(SIZE canvas, SIZE texture, RECT destPos, float outputMatrix[4][4])
+GRAPHIC_API void TransposeMatrixWVP(SIZE canvas, SIZE texture, RECT destPos,
+				    float outputMatrix[4][4])
 {
 	float destCX = float(destPos.right - destPos.left);
 	float destCY = float(destPos.bottom - destPos.top);
@@ -67,7 +68,8 @@ GRAPHIC_API void TransposeMatrixWVP(SIZE canvas, SIZE texture, RECT destPos, flo
 	float scaleX = destCX / srcCX;
 	float scaleY = destCY / srcCY;
 
-	D3DXMATRIX worldMatrix = GetWorldMatrix(scaleX, scaleY, (float)destPos.left, (float)destPos.top);
+	D3DXMATRIX worldMatrix =
+		GetWorldMatrix(scaleX, scaleY, (float)destPos.left, (float)destPos.top);
 	D3DXMATRIX orthoMatrix = GetOrthoMatrix(canvas);
 
 	D3DXMATRIX wvpMatrix = worldMatrix * orthoMatrix;
@@ -76,7 +78,8 @@ GRAPHIC_API void TransposeMatrixWVP(SIZE canvas, SIZE texture, RECT destPos, flo
 	memmove(&(outputMatrix[0][0]), &(wvpMatrix.m[0][0]), sizeof(float) * 16);
 }
 
-GRAPHIC_API void VertexList_RectTriangle(SIZE texture, bool flipH, bool flipV, ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT])
+GRAPHIC_API void VertexList_RectTriangle(SIZE texture, bool flipH, bool flipV,
+					 ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT])
 {
 	float left = 0;
 	float right = left + (float)texture.cx;
@@ -100,7 +103,8 @@ GRAPHIC_API void VertexList_RectTriangle(SIZE texture, bool flipH, bool flipV, S
 	outputVertex[3] = {right, bottom, 0, 1.f, rightUV, bottomUV};
 }
 
-GRAPHIC_API void VertexList_RectLine(SIZE texture, ST_TextureVertex outputVertex[RECT_LINE_VERTEX_COUNT])
+GRAPHIC_API void VertexList_RectLine(SIZE texture,
+				     ST_TextureVertex outputVertex[RECT_LINE_VERTEX_COUNT])
 {
 	float left = 0;
 	float right = left + (float)texture.cx;

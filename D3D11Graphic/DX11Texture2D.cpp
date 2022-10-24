@@ -3,18 +3,21 @@
 #include <d3dcompiler.h>
 #include <dxsdk/include/D3DX11tex.h>
 
-DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, const ST_TextureInfo &info) : DX11GraphicBase(graphic), m_textureInfo(info)
+DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, const ST_TextureInfo &info)
+	: DX11GraphicBase(graphic), m_textureInfo(info)
 {
 	BuildDX();
 }
 
-DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, HANDLE handle) : DX11GraphicBase(graphic), m_hSharedHandle(handle)
+DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, HANDLE handle)
+	: DX11GraphicBase(graphic), m_hSharedHandle(handle)
 {
 	m_textureInfo.usage = TextureType::SharedHandle;
 	BuildDX();
 }
 
-DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, const WCHAR *fullPath) : DX11GraphicBase(graphic), m_strImagePath(fullPath)
+DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, const WCHAR *fullPath)
+	: DX11GraphicBase(graphic), m_strImagePath(fullPath)
 {
 	m_textureInfo.usage = TextureType::StaticImageFile;
 	BuildDX();
@@ -154,7 +157,8 @@ bool DX11Texture2D::InitTargetTexture()
 		return false;
 	}
 
-	hr = m_graphic.DXDevice()->CreateRenderTargetView(m_pTexture2D, nullptr, m_pRenderTargetView.Assign());
+	hr = m_graphic.DXDevice()->CreateRenderTargetView(m_pTexture2D, nullptr,
+							  m_pRenderTargetView.Assign());
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		assert(false);
@@ -169,7 +173,8 @@ bool DX11Texture2D::InitTargetTexture()
 
 bool DX11Texture2D::InitSharedTexture()
 {
-	HRESULT hr = m_graphic.DXDevice()->OpenSharedResource((HANDLE)m_hSharedHandle, __uuidof(ID3D11Texture2D), (void **)m_pTexture2D.Assign());
+	HRESULT hr = m_graphic.DXDevice()->OpenSharedResource(
+		(HANDLE)m_hSharedHandle, __uuidof(ID3D11Texture2D), (void **)m_pTexture2D.Assign());
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		return false;
@@ -183,7 +188,9 @@ bool DX11Texture2D::InitSharedTexture()
 
 bool DX11Texture2D::InitImageTexture()
 {
-	HRESULT hr = D3DX11CreateShaderResourceViewFromFile(m_graphic.DXDevice(), m_strImagePath.c_str(), NULL, NULL, m_pTextureResView.Assign(), NULL);
+	HRESULT hr = D3DX11CreateShaderResourceViewFromFile(m_graphic.DXDevice(),
+							    m_strImagePath.c_str(), NULL, NULL,
+							    m_pTextureResView.Assign(), NULL);
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		assert(false);
@@ -218,7 +225,8 @@ bool DX11Texture2D::InitResourceView()
 	viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	viewDesc.Texture2D.MipLevels = 1;
 
-	HRESULT hr = m_graphic.DXDevice()->CreateShaderResourceView(m_pTexture2D, &viewDesc, m_pTextureResView.Assign());
+	HRESULT hr = m_graphic.DXDevice()->CreateShaderResourceView(m_pTexture2D, &viewDesc,
+								    m_pTextureResView.Assign());
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		assert(false);

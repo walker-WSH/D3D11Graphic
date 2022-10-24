@@ -13,7 +13,9 @@ std::vector<std::wstring> wstrNvidiaName = {L"NVIDIA"};
 std::vector<std::wstring> wstrAMDName = {L"RADEON", L"AMD"};
 
 void EnumD3DAdapters(void *userdata,
-		     std::function<bool(void *, ComPtr<IDXGIFactory1>, ComPtr<IDXGIAdapter1>, const DXGI_ADAPTER_DESC &, const char *)> callback)
+		     std::function<bool(void *, ComPtr<IDXGIFactory1>, ComPtr<IDXGIAdapter1>,
+					const DXGI_ADAPTER_DESC &, const char *)>
+			     callback)
 {
 	ComPtr<IDXGIFactory1> factory;
 	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&factory));
@@ -33,7 +35,8 @@ void EnumD3DAdapters(void *userdata,
 		LARGE_INTEGER versionNum;
 		hr = adapter->CheckInterfaceSupport(__uuidof(IDXGIDevice), &versionNum);
 		if (SUCCEEDED(hr)) {
-			snprintf(versionStr, MAX_PATH, "%d.%d.%d.%d", HIWORD(versionNum.HighPart), LOWORD(versionNum.HighPart), HIWORD(versionNum.LowPart),
+			snprintf(versionStr, MAX_PATH, "%d.%d.%d.%d", HIWORD(versionNum.HighPart),
+				 LOWORD(versionNum.HighPart), HIWORD(versionNum.LowPart),
 				 LOWORD(versionNum.LowPart));
 		}
 
@@ -57,7 +60,8 @@ enum GraphicCardType CheckAdapterType(const DXGI_ADAPTER_DESC &desc)
 	std::wstring wstr(desc.Description);
 	transform(wstr.begin(), wstr.end(), wstr.begin(), ::toupper);
 
-	if ((desc.VendorId == vendoridMicrosoft && desc.DeviceId == 0x8c) || MatchString(wstr, wstrBasicName))
+	if ((desc.VendorId == vendoridMicrosoft && desc.DeviceId == 0x8c) ||
+	    MatchString(wstr, wstrBasicName))
 		return GraphicCardType::msbasic;
 
 	if (MatchString(wstr, wstrNvidiaName) || vendoridNvidia == desc.VendorId)

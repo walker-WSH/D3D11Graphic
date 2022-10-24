@@ -1,7 +1,8 @@
 #include "DX11SwapChain.h"
 #include "DX11GraphicInstanceImpl.h"
 
-DX11SwapChain::DX11SwapChain(DX11GraphicInstanceImpl &graphic, HWND hWnd) : DX11GraphicBase(graphic), m_hWnd(hWnd)
+DX11SwapChain::DX11SwapChain(DX11GraphicInstanceImpl &graphic, HWND hWnd)
+	: DX11GraphicBase(graphic), m_hWnd(hWnd)
 {
 	RECT rc;
 	GetClientRect(hWnd, &rc);
@@ -58,7 +59,8 @@ HRESULT DX11SwapChain::TestResizeSwapChain()
 		m_pRenderTargetView = nullptr;
 		m_pSwapBackTexture2D = nullptr;
 
-		HRESULT hr = m_pSwapChain->ResizeBuffers(1, m_dwWidth, m_dwHeight, SWAPCHAIN_FORMAT, 0);
+		HRESULT hr =
+			m_pSwapChain->ResizeBuffers(1, m_dwWidth, m_dwHeight, SWAPCHAIN_FORMAT, 0);
 		if (FAILED(hr)) {
 			CheckDXError(hr);
 			return hr;
@@ -89,7 +91,8 @@ HRESULT DX11SwapChain::InitSwapChain()
 	sd.BufferDesc.RefreshRate.Numerator = 60;
 	sd.BufferDesc.RefreshRate.Denominator = 1;
 
-	HRESULT hr = m_graphic.DXFactory()->CreateSwapChain(m_graphic.DXDevice(), &sd, m_pSwapChain.Assign());
+	HRESULT hr = m_graphic.DXFactory()->CreateSwapChain(m_graphic.DXDevice(), &sd,
+							    m_pSwapChain.Assign());
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		assert(false);
@@ -101,14 +104,17 @@ HRESULT DX11SwapChain::InitSwapChain()
 
 HRESULT DX11SwapChain::CreateTargetView()
 {
-	HRESULT hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void **>(m_pSwapBackTexture2D.Assign()));
+	HRESULT hr =
+		m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D),
+					reinterpret_cast<void **>(m_pSwapBackTexture2D.Assign()));
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		assert(false);
 		return hr;
 	}
 
-	hr = m_graphic.DXDevice()->CreateRenderTargetView(m_pSwapBackTexture2D, nullptr, m_pRenderTargetView.Assign());
+	hr = m_graphic.DXDevice()->CreateRenderTargetView(m_pSwapBackTexture2D, nullptr,
+							  m_pRenderTargetView.Assign());
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		assert(false);

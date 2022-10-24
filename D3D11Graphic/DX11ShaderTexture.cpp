@@ -1,6 +1,7 @@
 #include "DX11ShaderTexture.h"
 
-DX11ShaderTexture::DX11ShaderTexture(DX11GraphicInstanceImpl &graphic, const ST_ShaderInfo *info) : DX11Shader(graphic, info)
+DX11ShaderTexture::DX11ShaderTexture(DX11GraphicInstanceImpl &graphic, const ST_ShaderInfo *info)
+	: DX11Shader(graphic, info)
 {
 	BuildDX();
 }

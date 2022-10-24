@@ -4,7 +4,8 @@ static thread_local std::stack<DX11GraphicInstanceImpl *> g_stackContexts;
 
 class AutoGraphicContext::impl {
 public:
-	impl(IDX11GraphicInstance *graphic, const std::source_location &location) : m_Location(location)
+	impl(IDX11GraphicInstance *graphic, const std::source_location &location)
+		: m_Location(location)
 	{
 		m_pGraphic = dynamic_cast<DX11GraphicInstanceImpl *>(graphic);
 		m_pGraphic->EnterContext(m_Location);
@@ -17,7 +18,8 @@ private:
 	DX11GraphicInstanceImpl *m_pGraphic = nullptr;
 };
 
-AutoGraphicContext::AutoGraphicContext(IDX11GraphicInstance *graphic, const std::source_location &location)
+AutoGraphicContext::AutoGraphicContext(IDX11GraphicInstance *graphic,
+				       const std::source_location &location)
 {
 	self = new impl(graphic, location);
 }

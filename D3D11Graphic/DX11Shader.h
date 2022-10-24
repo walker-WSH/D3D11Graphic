@@ -10,7 +10,10 @@ public:
 
 	virtual bool BuildDX();
 	virtual void ReleaseDX();
-	virtual bool IsBuilt() { return m_pVertexShader && m_pPixelShader && m_pInputLayout && m_pVertexBuffer; }
+	virtual bool IsBuilt()
+	{
+		return m_pVertexShader && m_pPixelShader && m_pInputLayout && m_pVertexBuffer;
+	}
 
 protected:
 	virtual std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() = 0;
