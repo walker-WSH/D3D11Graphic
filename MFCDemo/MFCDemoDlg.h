@@ -9,8 +9,8 @@
 
 #include <DX11GraphicAPI.h>
 
-#define WINDOW_WIDTH 1920
-#define WINDOW_HEIGHT 1080
+#define WINDOW_WIDTH 1080
+#define WINDOW_HEIGHT 720
 
 // CMFCDemoDlg 对话框
 class CMFCDemoDlg : public CDialogEx {
