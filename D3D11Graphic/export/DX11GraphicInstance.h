@@ -2,7 +2,6 @@
 #include <dxgi.h>
 #include <Windows.h>
 #include <memory>
-#include <DX11VideoFrame.hpp>
 #include <DX11GraphicDefine.h>
 
 class IDX11GraphicInstance {
@@ -31,8 +30,7 @@ public:
 	virtual texture_handle CreateTexture(const ST_TextureInfo &info) = 0;
 	virtual ST_TextureInfo GetTextureInfo(texture_handle tex) = 0;
 	virtual bool CopyTexture(texture_handle dest, texture_handle src) = 0;
-	virtual bool MapTexture(texture_handle tex, bool isRead,
-				D3D11_MAPPED_SUBRESOURCE *mapData) = 0;
+	virtual bool MapTexture(texture_handle tex, bool isRead, D3D11_MAPPED_SUBRESOURCE *) = 0;
 	virtual void UnmapTexture(texture_handle tex) = 0;
 
 	//--------------------------------------------------------------------------------------------
@@ -42,7 +40,6 @@ public:
 	virtual void SetVSConstBuffer(shader_handle hdl, void *vsBuffer, size_t vsSize) = 0;
 	virtual void SetPSConstBuffer(shader_handle hdl, void *psBuffer, size_t psSize) = 0;
 	virtual void DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TOPOLOGY type) = 0;
-	virtual void DrawTexture(shader_handle hdl,
-				 const std::vector<texture_handle> &textures) = 0;
+	virtual void DrawTexture(shader_handle hdl, const std::vector<texture_handle> &) = 0;
 	virtual void RenderEnd() = 0;
 };
