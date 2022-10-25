@@ -19,4 +19,6 @@ extern uint8_t *i420Y;
 extern uint8_t *i420U;
 extern uint8_t *i420V;
 
+extern AVFrame *frame;
+
 bool initVideo();

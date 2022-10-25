@@ -94,5 +94,8 @@
     <FxCompile Include="..\D3D11Graphic\HLSL\rectVS.hlsl">
       <Filter>render\HLSL</Filter>
     </FxCompile>
+    <FxCompile Include="..\D3D11Graphic\HLSL\convertToRGB_PS.hlsl">
+      <Filter>render\HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

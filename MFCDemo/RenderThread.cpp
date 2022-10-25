@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "MFCDemoDlg.h"
 #include "decode_video.h"
+#include "convert_video.h"
 #include <assert.h>
 #include <vector>
 #include <map>
@@ -9,6 +10,7 @@ enum class ShaderType {
 	shaderTexture = 0,
 	shaderFillRect,
 	shaderBorderRect,
+	yuv420ToRGB,
 };
 
 float matrixWVP[4][4];
@@ -23,6 +25,8 @@ texture_handle texAlpha = nullptr;
 texture_handle texImg = nullptr;
 texture_handle texCanvas = nullptr;
 
+FormatConvert_YUVToRGB i420Convert;
+
 bool InitGraphic(HWND hWnd);
 void UnInitGraphic();
 
@@ -30,6 +34,7 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 void RenderRect(SIZE canvas, RECT drawDest, ST_Color clr);
 void RenderBorder(SIZE canvas, RECT drawDest, ST_Color clr);
 void RenderBorderWithSize(SIZE canvas, RECT drawDest, long borderSize, ST_Color clr);
+void YUV2RGB(SIZE canvas, RECT drawDest);
 
 unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 {
@@ -40,6 +45,14 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		return 1;
 
 	initVideo();
+
+	{
+		AUTO_GRAPHIC_CONTEXT(pGraphic);
+
+		i420Convert.InitConvertion(frame, video_range_type::VIDEO_RANGE_PARTIAL,
+					   video_colorspace::VIDEO_CS_709);
+		i420Convert.UpdateVideo(frame);
+	}
 
 	while (!self->m_bExit) {
 		Sleep(50);
@@ -111,6 +124,8 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			RenderTexture(std::vector<texture_handle>{texCanvas}, canvasSize,
 				      RECT(10, 500, 410, 700));
 
+			YUV2RGB(canvasSize, tex2DestRect);
+
 			pGraphic->RenderEnd();
 		}
 	}
@@ -135,6 +150,27 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 
 	pGraphic->SetVertexBuffer(shaders[type], outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(shaders[type], &(matrixWVP[0][0]), sizeof(matrixWVP));
+	pGraphic->DrawTexture(shaders[type], texs);
+}
+
+void YUV2RGB(SIZE canvas, RECT drawDest)
+{
+	AUTO_GRAPHIC_CONTEXT(pGraphic);
+
+	std::vector<texture_handle> texs = i420Convert.GetTextures();
+	ShaderType type = ShaderType::yuv420ToRGB;
+	SIZE texSize((LONG)i420Convert.GetPSBuffer()->width,
+		     (LONG)i420Convert.GetPSBuffer()->height);
+
+	TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
+
+	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
+	VertexList_RectTriangle(texSize, false, false, outputVertex);
+
+	pGraphic->SetVertexBuffer(shaders[type], outputVertex, sizeof(outputVertex));
+	pGraphic->SetVSConstBuffer(shaders[type], &(matrixWVP[0][0]), sizeof(matrixWVP));
+	pGraphic->SetPSConstBuffer(shaders[type], (void *)i420Convert.GetPSBuffer(),
+				   sizeof(ST_PSConstBuffer));
 	pGraphic->DrawTexture(shaders[type], texs);
 }
 
@@ -241,6 +277,17 @@ bool InitGraphic(HWND hWnd)
 	assert(rectShader);
 	graphicList.push_back(rectShader);
 	shaders[ShaderType::shaderFillRect] = rectShader;
+
+	shaderInfo.vsFile = L"defaultVS.cso";
+	shaderInfo.psFile = L"convertToRGB_PS.cso";
+	shaderInfo.vsBufferSize = sizeof(matrixWVP);
+	shaderInfo.psBufferSize = sizeof(ST_PSConstBuffer);
+	shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
+	shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
+	shader_handle i420Shader = pGraphic->CreateShader(shaderInfo);
+	assert(i420Shader);
+	graphicList.push_back(i420Shader);
+	shaders[ShaderType::yuv420ToRGB] = i420Shader;
 
 	shaderInfo.vsFile = L"rectVS.cso";
 	shaderInfo.psFile = L"rectPS.cso";

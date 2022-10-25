@@ -3,8 +3,9 @@
 
 extern IDX11GraphicInstance *pGraphic;
 
-void FormatConvert_YUVToRGB::InitParams(const AVFrame *av_frame, enum video_range_type color_range,
-					enum video_colorspace color_space)
+void FormatConvert_YUVToRGB::InitConvertion(const AVFrame *av_frame,
+					    enum video_range_type color_range,
+					    enum video_colorspace color_space)
 {
 	InitPlanarTexture(av_frame);
 	InitMatrix(color_range, color_space);
@@ -54,7 +55,7 @@ void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
 			if (mapData.RowPitch == av_frame->linesize[i]) {
 				memmove(dest, src, stride * item.height);
 			} else {
-				for (size_t i = 0; i < item.height; i++) {
+				for (size_t j = 0; j < item.height; j++) {
 					memmove(dest, src, stride);
 					dest += mapData.RowPitch;
 					src += av_frame->linesize[i];
@@ -64,6 +65,18 @@ void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
 			pGraphic->UnmapTexture(item.texture);
 		}
 	}
+}
+
+std::vector<texture_handle> FormatConvert_YUVToRGB::GetTextures()
+{
+	std::vector<texture_handle> ret;
+
+	for (auto &item : m_aVideoPlanes) {
+		if (item.texture)
+			ret.push_back(item.texture);
+	}
+
+	return ret;
 }
 
 bool FormatConvert_YUVToRGB::InitPlanarTexture(const AVFrame *av_frame)
