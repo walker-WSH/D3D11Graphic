@@ -73,6 +73,42 @@ void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
 			pGraphic->UnmapTexture(item.texture);
 		}
 	}
+
+#if 0
+	FILE *fp = 0;
+	fopen_s(&fp, "d:/test.yuv", "wb+");
+
+	if (!fp)
+		return;
+
+	int total2 = 0;
+	for (size_t i = 0; i < MAX_VIDEO_PLANES; i++) {
+		auto &item = m_aVideoPlanes[i];
+		if (!item.texture)
+			break;
+
+		ST_TextureInfo info = pGraphic->GetTextureInfo(item.texture);
+		info.usage = TextureType::ReadTexture;
+		int total = 0;
+
+		auto tex = pGraphic->CreateTexture(info);
+		pGraphic->CopyTexture(tex, item.texture);
+		D3D11_MAPPED_SUBRESOURCE mapData;
+		if (pGraphic->MapTexture(tex, true, &mapData)) {
+			for (size_t i = 0; i < item.height; i++) {
+				total += item.width;
+				fwrite((char *)mapData.pData + i * mapData.RowPitch, item.width, 1,
+				       fp);
+			}
+			pGraphic->UnmapTexture(tex);
+			assert(total == item.width * item.height);
+			total2 += total;
+		}
+		pGraphic->ReleaseGraphicObject(tex);
+	}
+
+	fclose(fp);
+#endif
 }
 
 std::vector<texture_handle> FormatConvert_YUVToRGB::GetTextures()
