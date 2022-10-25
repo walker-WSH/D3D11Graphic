@@ -124,7 +124,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			RenderTexture(std::vector<texture_handle>{texCanvas}, canvasSize,
 				      RECT(10, 500, 410, 700));
 
-			YUV2RGB(canvasSize, tex2DestRect);
+			YUV2RGB(canvasSize, rc);
 
 			pGraphic->RenderEnd();
 		}
