@@ -357,5 +357,7 @@ void UnInitGraphic()
 		pGraphic->ReleaseGraphicObject(item);
 
 	graphicList.clear();
+	i420Convert.UninitConvertion();
+
 	pGraphic->UnInitializeGraphic();
 }

@@ -35,6 +35,8 @@ public:
 	virtual ~FormatConvert_YUVToRGB() = default;
 
 	void InitConvertion(const AVFrame *av_frame, enum video_range_type, enum video_colorspace);
+	void UninitConvertion();
+
 	void UpdateVideo(const AVFrame *av_frame);
 
 	const ST_PSConstBuffer *GetPSBuffer() { return &m_stPSConstBuffer; }

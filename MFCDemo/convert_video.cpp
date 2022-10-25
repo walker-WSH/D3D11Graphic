@@ -39,6 +39,14 @@ void FormatConvert_YUVToRGB::InitConvertion(const AVFrame *av_frame,
 	m_stPSConstBuffer.color_range_max.z = color_range_max[2];
 }
 
+void FormatConvert_YUVToRGB::UninitConvertion()
+{
+	for (auto &item : m_aVideoPlanes) {
+		pGraphic->ReleaseGraphicObject(item.texture);
+		item.texture = 0;
+	}
+}
+
 void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
 {
 	for (size_t i = 0; i < min(MAX_VIDEO_PLANES, AV_NUM_DATA_POINTERS); i++) {
