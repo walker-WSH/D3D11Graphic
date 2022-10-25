@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "MFCDemoDlg.h"
+#include "decode_video.h"
 #include <assert.h>
 #include <vector>
 #include <map>
@@ -37,6 +38,8 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 	if (!InitGraphic(self->m_hWnd))
 		return 1;
+
+	initVideo();
 
 	while (!self->m_bExit) {
 		Sleep(50);
