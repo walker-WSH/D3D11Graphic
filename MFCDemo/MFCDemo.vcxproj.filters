@@ -39,6 +39,12 @@
     <ClInclude Include="decode_video.h">
       <Filter>render</Filter>
     </ClInclude>
+    <ClInclude Include="convert_video.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="convert_video_color.h">
+      <Filter>render</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RenderThread.cpp">
@@ -54,6 +60,9 @@
       <Filter>头文件</Filter>
     </ClCompile>
     <ClCompile Include="decode_video.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="convert_video.cpp">
       <Filter>render</Filter>
     </ClCompile>
   </ItemGroup>

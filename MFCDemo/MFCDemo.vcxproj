@@ -227,6 +227,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="convert_video.h" />
+    <ClInclude Include="convert_video_color.h" />
     <ClInclude Include="decode_video.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MFCDemo.h" />
@@ -236,6 +238,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="convert_video.cpp" />
     <ClCompile Include="decode_video.cpp" />
     <ClCompile Include="MFCDemo.cpp" />
     <ClCompile Include="MFCDemoDlg.cpp" />
