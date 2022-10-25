@@ -19,6 +19,7 @@ display_handle display = nullptr;
 texture_handle texGirl = nullptr;
 texture_handle texShared = nullptr;
 texture_handle texAlpha = nullptr;
+texture_handle texImg = nullptr;
 texture_handle texCanvas = nullptr;
 
 bool InitGraphic(HWND hWnd);
@@ -53,22 +54,16 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		texDestRect.bottom = texDestRect.top + 400;
 
 		RECT tex2DestRect;
-		tex2DestRect.left = texDestRect.right + 100;
-		tex2DestRect.top = 100;
+		tex2DestRect.left = texDestRect.right + 30;
+		tex2DestRect.top = 50;
 		tex2DestRect.right = tex2DestRect.left + 400;
 		tex2DestRect.bottom = tex2DestRect.top + 300;
 
 		RECT tex3DestRect;
-		tex3DestRect.left = 20;
+		tex3DestRect.left = tex2DestRect.right + 30;
 		tex3DestRect.top = 50;
-		tex3DestRect.right = rc.right - 20;
-		tex3DestRect.bottom = rc.bottom - 20;
-
-		RECT rectFill;
-		rectFill.left = 20;
-		rectFill.top = 10;
-		rectFill.right = rc.right - 20;
-		rectFill.bottom = rectFill.top + 30;
+		tex3DestRect.right = tex3DestRect.left + 500;
+		tex3DestRect.bottom = tex3DestRect.top + 500;
 
 		AUTO_GRAPHIC_CONTEXT(pGraphic);
 
@@ -86,19 +81,28 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		}
 
 		if (pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.3f, 0.3f, 1.0f))) {
-			if (texShared)
+			if (texShared) {
+				// 渲染共享纹理
 				RenderTexture(std::vector<texture_handle>{texShared}, canvasSize,
-					      tex3DestRect);
+					      RECT(20, 50, rc.right - 20, rc.bottom - 20));
+			}
 
 			RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize,
 				      texDestRect);
+			// 利用linestrip画矩形边框
 			RenderBorder(canvasSize, texDestRect, ST_Color(1.0, 0, 0, 1.0));
 
 			RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize,
 				      tex2DestRect);
+			// 利用填充矩形画指定厚度的矩形边框
 			RenderBorderWithSize(canvasSize, tex2DestRect, 4, ST_Color(1.0, 0, 0, 1.0));
 
-			RenderRect(canvasSize, rectFill, ST_Color(1.0, 1.0, 0, 1.0));
+			RenderTexture(std::vector<texture_handle>{texImg}, canvasSize,
+				      tex3DestRect);
+
+			// 填充纯色矩形区域
+			RenderRect(canvasSize, RECT(20, 10, rc.right - 20, 30),
+				   ST_Color(0, 0, 1.0, 1.0));
 
 			// 画布也可以直接当作resource进行渲染
 			RenderTexture(std::vector<texture_handle>{texCanvas}, canvasSize,
@@ -256,12 +260,13 @@ bool InitGraphic(HWND hWnd)
 
 	//------------------------------------------------------------------
 	texGirl = pGraphic->OpenImageTexture(L"testGirl.png");
-	assert(texGirl);
 	graphicList.push_back(texGirl);
 
 	texAlpha = pGraphic->OpenImageTexture(L"testAlpha.png");
-	assert(texAlpha);
 	graphicList.push_back(texAlpha);
+
+	texImg = pGraphic->OpenImageTexture(L"test.jpg");
+	graphicList.push_back(texImg);
 
 	texShared = pGraphic->OpenSharedTexture((HANDLE)0X0000000040003282);
 	if (texShared)
