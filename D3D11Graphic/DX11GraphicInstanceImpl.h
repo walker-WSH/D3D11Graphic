@@ -55,9 +55,9 @@ public:
 
 	virtual bool RenderBegin_Canvas(texture_handle hdl, ST_Color bkClr);
 	virtual bool RenderBegin_Display(display_handle hdl, ST_Color bkClr);
-	virtual void SetVertexBuffer(shader_handle hdl, void *buffer, size_t size);
-	virtual void SetVSConstBuffer(shader_handle hdl, void *vsBuffer, size_t vsSize);
-	virtual void SetPSConstBuffer(shader_handle hdl, void *psBuffer, size_t psSize);
+	virtual void SetVertexBuffer(shader_handle hdl, const void *buffer, size_t size);
+	virtual void SetVSConstBuffer(shader_handle hdl, const void *vsBuffer, size_t vsSize);
+	virtual void SetPSConstBuffer(shader_handle hdl, const void *psBuffer, size_t psSize);
 	virtual void DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TOPOLOGY type);
 	virtual void DrawTexture(shader_handle hdl, const std::vector<texture_handle> &textures);
 	virtual void RenderEnd();
@@ -84,7 +84,7 @@ protected:
 
 	void SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width, uint32_t height,
 			     ST_Color bkClr);
-	void UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, void *data, size_t size);
+	void UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, const void *data, size_t size);
 	bool GetResource(const std::vector<texture_handle> &textures,
 			 std::vector<ID3D11ShaderResourceView *> &resources);
 	void ApplyShader(DX11Shader *shader);

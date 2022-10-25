@@ -452,7 +452,7 @@ void DX11GraphicInstanceImpl::SetRenderTarget(ComPtr<ID3D11RenderTargetView> tar
 	m_pCurrentRenderTarget = target;
 }
 
-void DX11GraphicInstanceImpl::UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, void *data,
+void DX11GraphicInstanceImpl::UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, const void *data,
 						 size_t size)
 {
 	CHECK_GRAPHIC_CONTEXT;
@@ -574,7 +574,7 @@ bool DX11GraphicInstanceImpl::RenderBegin_Display(display_handle hdl, ST_Color b
 	return true;
 }
 
-void DX11GraphicInstanceImpl::SetVertexBuffer(shader_handle hdl, void *buffer, size_t size)
+void DX11GraphicInstanceImpl::SetVertexBuffer(shader_handle hdl, const void *buffer, size_t size)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -587,7 +587,8 @@ void DX11GraphicInstanceImpl::SetVertexBuffer(shader_handle hdl, void *buffer, s
 	}
 }
 
-void DX11GraphicInstanceImpl::SetVSConstBuffer(shader_handle hdl, void *vsBuffer, size_t vsSize)
+void DX11GraphicInstanceImpl::SetVSConstBuffer(shader_handle hdl, const void *vsBuffer,
+					       size_t vsSize)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -599,7 +600,8 @@ void DX11GraphicInstanceImpl::SetVSConstBuffer(shader_handle hdl, void *vsBuffer
 	}
 }
 
-void DX11GraphicInstanceImpl::SetPSConstBuffer(shader_handle hdl, void *psBuffer, size_t psSize)
+void DX11GraphicInstanceImpl::SetPSConstBuffer(shader_handle hdl, const void *psBuffer,
+					       size_t psSize)
 {
 	CHECK_GRAPHIC_CONTEXT;
 

@@ -36,9 +36,9 @@ public:
 	//--------------------------------------------------------------------------------------------
 	virtual bool RenderBegin_Canvas(texture_handle hdl, ST_Color bkClr) = 0;
 	virtual bool RenderBegin_Display(display_handle hdl, ST_Color bkClr) = 0;
-	virtual void SetVertexBuffer(shader_handle hdl, void *buffer, size_t size) = 0;
-	virtual void SetVSConstBuffer(shader_handle hdl, void *vsBuffer, size_t vsSize) = 0;
-	virtual void SetPSConstBuffer(shader_handle hdl, void *psBuffer, size_t psSize) = 0;
+	virtual void SetVertexBuffer(shader_handle hdl, const void *buffer, size_t size) = 0;
+	virtual void SetVSConstBuffer(shader_handle hdl, const void *vsBuffer, size_t vsSize) = 0;
+	virtual void SetPSConstBuffer(shader_handle hdl, const void *psBuffer, size_t psSize) = 0;
 	virtual void DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TOPOLOGY type) = 0;
 	virtual void DrawTexture(shader_handle hdl, const std::vector<texture_handle> &) = 0;
 	virtual void RenderEnd() = 0;

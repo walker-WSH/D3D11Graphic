@@ -49,7 +49,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 	{
 		AUTO_GRAPHIC_CONTEXT(pGraphic);
 
-		i420Convert.InitConvertion(frame, video_range_type::VIDEO_RANGE_PARTIAL,
+		i420Convert.InitConvertion(frame, video_range_type::VIDEO_RANGE_FULL,
 					   video_colorspace::VIDEO_CS_709);
 		i420Convert.UpdateVideo(frame);
 	}
@@ -158,6 +158,8 @@ void YUV2RGB(SIZE canvas, RECT drawDest)
 	AUTO_GRAPHIC_CONTEXT(pGraphic);
 
 	std::vector<texture_handle> texs = i420Convert.GetTextures();
+	const ST_PSConstBuffer *psBuf = i420Convert.GetPSBuffer();
+
 	ShaderType type = ShaderType::yuv420ToRGB;
 	SIZE texSize((LONG)i420Convert.GetPSBuffer()->width,
 		     (LONG)i420Convert.GetPSBuffer()->height);
@@ -169,8 +171,7 @@ void YUV2RGB(SIZE canvas, RECT drawDest)
 
 	pGraphic->SetVertexBuffer(shaders[type], outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(shaders[type], &(matrixWVP[0][0]), sizeof(matrixWVP));
-	pGraphic->SetPSConstBuffer(shaders[type], (void *)i420Convert.GetPSBuffer(),
-				   sizeof(ST_PSConstBuffer));
+	pGraphic->SetPSConstBuffer(shaders[type], psBuf, sizeof(ST_PSConstBuffer));
 	pGraphic->DrawTexture(shaders[type], texs);
 }
 
