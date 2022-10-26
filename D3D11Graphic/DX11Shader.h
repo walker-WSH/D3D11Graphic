@@ -8,6 +8,7 @@ class DX11Shader : public DX11GraphicBase {
 public:
 	DX11Shader(DX11GraphicInstanceImpl &graphic, const ST_ShaderInfo *info);
 
+	virtual const char *GetName() { return "shader"; }
 	virtual bool BuildDX();
 	virtual void ReleaseDX();
 	virtual bool IsBuilt()

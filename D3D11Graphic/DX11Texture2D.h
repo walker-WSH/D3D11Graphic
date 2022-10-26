@@ -10,6 +10,7 @@ public:
 	DX11Texture2D(DX11GraphicInstanceImpl &graphic, HANDLE handle);
 	DX11Texture2D(DX11GraphicInstanceImpl &graphic, const WCHAR *fullPath);
 
+	virtual const char *GetName() { return "texture"; }
 	virtual bool BuildDX();
 	virtual void ReleaseDX();
 	virtual bool IsBuilt() { return m_pTexture2D; }

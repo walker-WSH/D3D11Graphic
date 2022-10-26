@@ -40,8 +40,10 @@ void DX11GraphicInstanceImpl::UnInitializeGraphic()
 	ReleaseAllDX();
 
 	assert(m_listObject.empty());
-	for (auto &item : m_listObject)
+	for (auto &item : m_listObject) {
+		OutputDebugStringA(item->GetName());
 		delete item;
+	}
 
 	CoUninitialize();
 }

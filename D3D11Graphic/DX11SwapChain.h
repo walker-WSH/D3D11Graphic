@@ -13,6 +13,7 @@ public:
 	void SetDisplaySize(uint32_t width, uint32_t height);
 	HRESULT TestResizeSwapChain();
 
+	virtual const char *GetName() { return "swapchain"; }
 	virtual bool BuildDX();
 	virtual void ReleaseDX();
 	virtual bool IsBuilt()

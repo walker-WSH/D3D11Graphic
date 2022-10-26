@@ -33,6 +33,7 @@ public:
 	DX11GraphicBase(DX11GraphicInstanceImpl &graphic);
 	virtual ~DX11GraphicBase();
 
+	virtual const char *GetName() = 0;
 	virtual bool BuildDX() = 0;
 	virtual void ReleaseDX() = 0;
 
