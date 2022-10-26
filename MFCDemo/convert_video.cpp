@@ -18,7 +18,7 @@ bool FormatConvert_YUVToRGB::InitConvertion()
 {
 	UninitConvertion();
 
-	if (!InitPlanarTexture()) {
+	if (!InitPlane()) {
 		UninitConvertion();
 		return false;
 	}
@@ -149,7 +149,7 @@ std::vector<texture_handle> FormatConvert_YUVToRGB::GetTextures()
 	return ret;
 }
 
-bool FormatConvert_YUVToRGB::InitPlanarTexture()
+bool FormatConvert_YUVToRGB::InitPlane()
 {
 	for (auto &item : video_plane_list)
 		item = video_plane_info();

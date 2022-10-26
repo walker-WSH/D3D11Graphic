@@ -44,7 +44,7 @@ public:
 	std::vector<texture_handle> GetTextures();
 
 private:
-	bool InitPlanarTexture();
+	bool InitPlane();
 	void InitMatrix(enum video_range_type color_range, enum video_colorspace color_space);
 
 	void SetPlanarI420();
