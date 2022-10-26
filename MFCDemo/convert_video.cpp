@@ -101,9 +101,9 @@ void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
 		}
 	}
 
-#if 1
+#if 0
 	FILE *fp = 0;
-	fopen_s(&fp, "d:/test.yuv", "wb+");
+	fopen_s(&fp, "test.yuv", "wb+");
 
 	if (!fp)
 		return;
