@@ -39,10 +39,10 @@
     <ClInclude Include="decode_video.h">
       <Filter>render</Filter>
     </ClInclude>
-    <ClInclude Include="convert_video.h">
+    <ClInclude Include="convert_video_color.h">
       <Filter>render</Filter>
     </ClInclude>
-    <ClInclude Include="convert_video_color.h">
+    <ClInclude Include="convert_video_yuv2rgb.h">
       <Filter>render</Filter>
     </ClInclude>
   </ItemGroup>
@@ -62,7 +62,7 @@
     <ClCompile Include="decode_video.cpp">
       <Filter>render</Filter>
     </ClCompile>
-    <ClCompile Include="convert_video.cpp">
+    <ClCompile Include="convert_video_yuv2rgb.cpp">
       <Filter>render</Filter>
     </ClCompile>
   </ItemGroup>

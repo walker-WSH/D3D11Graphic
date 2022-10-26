@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "MFCDemoDlg.h"
 #include "decode_video.h"
-#include "convert_video.h"
+#include "convert_video_yuv2rgb.h"
 #include <assert.h>
 #include <vector>
 #include <memory>

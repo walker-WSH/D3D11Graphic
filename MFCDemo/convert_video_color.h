@@ -14,14 +14,14 @@ enum class video_colorspace {
 	VIDEO_CS_709,
 };
 
-struct camera_format_info {
+struct convert_format_info {
 	enum video_colorspace const color_space;
 	std::array<float, 3> float_range_min;
 	std::array<float, 3> float_range_max;
 	std::array<std::array<float, 16>, 2> matrix;
 };
 
-const std::array<camera_format_info, 2> format_info = {{
+const std::array<convert_format_info, 2> format_info = {{
 	{video_colorspace::VIDEO_CS_601,
 	 {16.0f / 255.0f, 16.0f / 255.0f, 16.0f / 255.0f},
 	 {235.0f / 255.0f, 240.0f / 255.0f, 240.0f / 255.0f},
