@@ -17,7 +17,7 @@ AVFrame *frame = nullptr;
 bool readVideo()
 {
 	FILE *fp = nullptr;
-	fopen_s(&fp, "1080p.i420", "wb+");
+	fopen_s(&fp, "1080p.i420", "rb+");
 	if (!fp) {
 		assert(false);
 		return false;
