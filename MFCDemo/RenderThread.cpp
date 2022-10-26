@@ -116,7 +116,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 				RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize,
 					      renderRegion[1]);
 				RenderBorderWithSize(
-					canvasSize, renderRegion[1], 4,
+					canvasSize, renderRegion[1], border_thickness,
 					ST_Color(1.0, 0, 0,
 						 1.0)); // 利用填充矩形画指定厚度的矩形边框
 
