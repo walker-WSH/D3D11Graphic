@@ -6,7 +6,6 @@ extern IDX11GraphicInstance *pGraphic;
 FormatConvert_YUVToRGB::FormatConvert_YUVToRGB(video_convert_params params)
 	: original_video_info(params)
 {
-	InitConvertion();
 }
 
 FormatConvert_YUVToRGB::~FormatConvert_YUVToRGB()

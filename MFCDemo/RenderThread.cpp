@@ -38,6 +38,10 @@ void RenderBorder(SIZE canvas, RECT drawDest, ST_Color clr);
 void RenderBorderWithSize(SIZE canvas, RECT drawDest, long borderSize, ST_Color clr);
 void YUV2RGB(SIZE canvas, RECT drawDest);
 
+const auto border_thickness = 4;
+std::vector<RECT> renderRegion;
+void InitRenderRect(RECT rc, int numH, int numV);
+
 unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 {
 	CMFCDemoDlg *self = reinterpret_cast<CMFCDemoDlg *>(pParam);
@@ -70,23 +74,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		SIZE canvasSize(rc.right - rc.left, rc.bottom - rc.top);
 		pGraphic->SetDisplaySize(display, canvasSize.cx, canvasSize.cy);
 
-		RECT texDestRect;
-		texDestRect.left = 50;
-		texDestRect.top = 50;
-		texDestRect.right = texDestRect.left + 250;
-		texDestRect.bottom = texDestRect.top + 400;
-
-		RECT tex2DestRect;
-		tex2DestRect.left = texDestRect.right + 30;
-		tex2DestRect.top = 50;
-		tex2DestRect.right = tex2DestRect.left + 400;
-		tex2DestRect.bottom = tex2DestRect.top + 300;
-
-		RECT tex3DestRect;
-		tex3DestRect.left = tex2DestRect.right + 30;
-		tex3DestRect.top = 50;
-		tex3DestRect.right = tex3DestRect.left + 500;
-		tex3DestRect.bottom = tex3DestRect.top + 500;
+		InitRenderRect(rc, 3, 2);
 
 		AUTO_GRAPHIC_CONTEXT(pGraphic);
 
@@ -104,39 +92,43 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		}
 
 		if (pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.3f, 0.3f, 1.0f))) {
-			if (texShared) {
-				// 渲染共享纹理
-				RenderTexture(std::vector<texture_handle>{texShared}, canvasSize,
-					      RECT(20, 50, rc.right - 20, rc.bottom - 20));
-			}
-
-			RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize,
-				      texDestRect);
-			// 利用linestrip画矩形边框
-			RenderBorder(canvasSize, texDestRect, ST_Color(1.0, 0, 0, 1.0));
-
-			RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize,
-				      tex2DestRect);
-			// 利用填充矩形画指定厚度的矩形边框
-			RenderBorderWithSize(canvasSize, tex2DestRect, 4, ST_Color(1.0, 0, 0, 1.0));
-
-			RenderTexture(std::vector<texture_handle>{texImg}, canvasSize,
-				      tex3DestRect);
-
-			// 填充纯色矩形区域
-			RenderRect(canvasSize, RECT(20, 10, rc.right - 20, 30),
-				   ST_Color(0, 0, 1.0, 1.0));
-
-			// 画布也可以直接当作resource进行渲染
-			RenderTexture(std::vector<texture_handle>{texCanvas}, canvasSize,
-				      RECT(10, 500, 410, 700));
-
 			RECT rcLeft = rc;
 			rcLeft.right = rcLeft.left + (rc.right - rc.left) / 2;
+			RenderTexture(std::vector<texture_handle>{texImg2}, canvasSize, rcLeft);
+
 			RECT rcRight = rc;
 			rcRight.left = (rc.right - rc.left) / 2;
-			RenderTexture(std::vector<texture_handle>{texImg2}, canvasSize, rcLeft);
 			YUV2RGB(canvasSize, rcRight);
+
+			if (0) {
+				if (texShared) {
+					// 渲染共享纹理
+					RenderTexture(std::vector<texture_handle>{texShared},
+						      canvasSize,
+						      RECT(20, 50, rc.right - 20, rc.bottom - 20));
+				}
+
+				RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize,
+					      renderRegion[0]);
+				// 利用linestrip画矩形边框
+				RenderBorder(canvasSize, renderRegion[0], ST_Color(1.0, 0, 0, 1.0));
+
+				RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize,
+					      renderRegion[1]);
+				// 利用填充矩形画指定厚度的矩形边框
+				RenderBorderWithSize(canvasSize, renderRegion[1], 4,
+						     ST_Color(1.0, 0, 0, 1.0));
+
+				RenderTexture(std::vector<texture_handle>{texImg}, canvasSize,
+					      renderRegion[2]);
+
+				// 填充纯色矩形区域
+				RenderRect(canvasSize, renderRegion[3], ST_Color(0, 0, 1.0, 1.0));
+
+				// 画布也可以直接当作resource进行渲染
+				RenderTexture(std::vector<texture_handle>{texCanvas}, canvasSize,
+					      renderRegion[4]);
+			}
 
 			pGraphic->RenderEnd();
 		}
@@ -377,4 +369,32 @@ void UnInitGraphic()
 	i420Convert.reset();
 
 	pGraphic->UnInitializeGraphic();
+}
+
+void InitRenderRect(RECT rc, int numH, int numV)
+{
+	renderRegion.clear();
+
+	int width = rc.right - rc.left;
+	int height = rc.bottom - rc.top;
+
+	int cx = width / numH;
+	int cy = height / numV;
+
+	for (int j = 0; j < numV; j++) {
+		for (int i = 0; i < numH; i++) {
+			RECT temp;
+			temp.left = cx * i;
+			temp.top = cy * j;
+			temp.right = temp.left + cx;
+			temp.bottom = temp.top + cy;
+
+			temp.left += border_thickness;
+			temp.top += border_thickness;
+			temp.right -= border_thickness;
+			temp.bottom -= border_thickness;
+
+			renderRegion.push_back(temp);
+		}
+	}
 }
