@@ -60,10 +60,8 @@ bool FormatConvert_YUVToRGB::InitConvertion()
 void FormatConvert_YUVToRGB::UninitConvertion()
 {
 	for (auto &item : video_plane_list) {
-		if (!item.texture)
-			break;
-
-		pGraphic->ReleaseGraphicObject(item.texture);
+		if (item.texture)
+			pGraphic->ReleaseGraphicObject(item.texture);
 	}
 
 	video_plane_list.clear();
@@ -71,9 +69,12 @@ void FormatConvert_YUVToRGB::UninitConvertion()
 
 void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
 {
-	assert(av_frame->width == original_video_info.width);
-	assert(av_frame->height == original_video_info.height);
-	assert(av_frame->format == original_video_info.format);
+	if (av_frame->width != original_video_info.width ||
+	    av_frame->height != original_video_info.height ||
+	    av_frame->format != original_video_info.format) {
+		assert(false);
+		return;
+	}
 
 	for (size_t i = 0; i < min(video_plane_list.size(), AV_NUM_DATA_POINTERS); i++) {
 		auto &item = video_plane_list[i];

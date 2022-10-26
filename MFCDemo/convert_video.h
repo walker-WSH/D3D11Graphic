@@ -1,7 +1,6 @@
 #pragma once
-#include <DX11GraphicAPI.h>
-#include <DirectXMath.h>
 #include <assert.h>
+#include "DX11GraphicAPI.h"
 #include "convert_video_color.h"
 
 extern "C" {

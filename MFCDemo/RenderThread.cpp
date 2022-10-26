@@ -131,13 +131,12 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			RenderTexture(std::vector<texture_handle>{texCanvas}, canvasSize,
 				      RECT(10, 500, 410, 700));
 
-			RECT rc1 = rc;
-			rc1.right = rc1.left + (rc.right - rc.left) / 2;
-			YUV2RGB(canvasSize, rc1);
-
-			RECT rc2 = rc;
-			rc2.left = (rc.right - rc.left) / 2;
-			RenderTexture(std::vector<texture_handle>{texImg2}, canvasSize, rc2);
+			RECT rcLeft = rc;
+			rcLeft.right = rcLeft.left + (rc.right - rc.left) / 2;
+			RECT rcRight = rc;
+			rcRight.left = (rc.right - rc.left) / 2;
+			RenderTexture(std::vector<texture_handle>{texImg2}, canvasSize, rcLeft);
+			YUV2RGB(canvasSize, rcRight);
 
 			pGraphic->RenderEnd();
 		}
