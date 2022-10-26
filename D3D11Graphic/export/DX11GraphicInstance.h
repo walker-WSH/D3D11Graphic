@@ -30,7 +30,8 @@ public:
 	virtual texture_handle CreateTexture(const ST_TextureInfo &info) = 0;
 	virtual ST_TextureInfo GetTextureInfo(texture_handle tex) = 0;
 	virtual bool CopyTexture(texture_handle dest, texture_handle src) = 0;
-	virtual bool MapTexture(texture_handle tex, bool isRead, D3D11_MAPPED_SUBRESOURCE *) = 0;
+	virtual bool MapTexture(texture_handle tex, MapTextureType type,
+				D3D11_MAPPED_SUBRESOURCE *) = 0;
 	virtual void UnmapTexture(texture_handle tex) = 0;
 
 	//--------------------------------------------------------------------------------------------

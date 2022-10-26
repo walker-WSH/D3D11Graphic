@@ -55,7 +55,7 @@ void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
 			break;
 
 		D3D11_MAPPED_SUBRESOURCE mapData;
-		if (pGraphic->MapTexture(item.texture, false, &mapData)) {
+		if (pGraphic->MapTexture(item.texture, MapTextureType::MapWrite, &mapData)) {
 			uint32_t stride = min(mapData.RowPitch, (uint32_t)av_frame->linesize[i]);
 			uint8_t *src = av_frame->data[i];
 			uint8_t *dest = (uint8_t *)mapData.pData;
@@ -94,7 +94,7 @@ void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
 		auto tex = pGraphic->CreateTexture(info);
 		pGraphic->CopyTexture(tex, item.texture);
 		D3D11_MAPPED_SUBRESOURCE mapData;
-		if (pGraphic->MapTexture(tex, true, &mapData)) {
+		if (pGraphic->MapTexture(tex, MapTextureType::MapRead, &mapData)) {
 			for (size_t i = 0; i < item.height; i++) {
 				total += item.width;
 				fwrite((char *)mapData.pData + i * mapData.RowPitch, item.width, 1,

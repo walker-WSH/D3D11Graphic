@@ -21,6 +21,11 @@ enum class TextureType {
 	StaticImageFile,
 };
 
+enum class MapTextureType {
+	MapRead = 0,
+	MapWrite,
+};
+
 struct ST_TextureInfo {
 	uint32_t width = 0;
 	uint32_t height = 0;

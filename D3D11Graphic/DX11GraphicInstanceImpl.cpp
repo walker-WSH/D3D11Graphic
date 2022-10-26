@@ -2,6 +2,12 @@
 
 HMODULE DX11GraphicInstanceImpl::s_hDllModule = nullptr;
 
+#define CHECK_GRAPHIC_OBJECT_ALIVE(hdl)                                                 \
+	if (!IsGraphicObjectAlive(hdl)) {                                               \
+		OutputDebugStringA("Using deleted object, cash must happen later! \n"); \
+		assert(false);                                                          \
+	}
+
 DX11GraphicInstanceImpl::DX11GraphicInstanceImpl()
 {
 	InitializeCriticalSection(&m_lockOperation);
@@ -78,6 +84,12 @@ void DX11GraphicInstanceImpl::ReleaseGraphicObject(DX11GraphicObject *&hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
+	if (!IsGraphicObjectAlive(hdl)) {
+		OutputDebugStringA("You are trying to release a deleted object! \n");
+		assert(false);
+		return;
+	}
+
 	auto obj = dynamic_cast<DX11GraphicBase *>(hdl);
 	assert(obj);
 	if (obj)
@@ -131,11 +143,13 @@ texture_handle DX11GraphicInstanceImpl::CreateTexture(const ST_TextureInfo &info
 	return tex;
 }
 
-ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle tex)
+ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
-	auto obj = dynamic_cast<DX11Texture2D *>(tex);
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+
+	auto obj = dynamic_cast<DX11Texture2D *>(hdl);
 	assert(obj);
 	if (!obj || !obj->IsBuilt())
 		return ST_TextureInfo();
@@ -147,6 +161,9 @@ ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle tex)
 bool DX11GraphicInstanceImpl::CopyTexture(texture_handle dest, texture_handle src)
 {
 	CHECK_GRAPHIC_CONTEXT;
+
+	CHECK_GRAPHIC_OBJECT_ALIVE(dest);
+	CHECK_GRAPHIC_OBJECT_ALIVE(src);
 
 	if (!m_bBuildSuccessed)
 		return false;
@@ -180,21 +197,24 @@ bool DX11GraphicInstanceImpl::CopyTexture(texture_handle dest, texture_handle sr
 	return true;
 }
 
-bool DX11GraphicInstanceImpl::MapTexture(texture_handle tex, bool isRead,
+bool DX11GraphicInstanceImpl::MapTexture(texture_handle hdl, MapTextureType type,
 					 D3D11_MAPPED_SUBRESOURCE *mapData)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+
 	if (!m_bBuildSuccessed)
 		return false;
 
-	auto obj = dynamic_cast<DX11Texture2D *>(tex);
+	auto obj = dynamic_cast<DX11Texture2D *>(hdl);
 	assert(obj);
 	if (!obj || !obj->IsBuilt())
 		return false;
 
-	D3D11_MAP type = isRead ? D3D11_MAP_READ : D3D11_MAP_WRITE_DISCARD;
-	HRESULT hr = m_pDeviceContext->Map(obj->m_pTexture2D, 0, type, 0, mapData);
+	D3D11_MAP method = (type == MapTextureType::MapRead) ? D3D11_MAP_READ
+							     : D3D11_MAP_WRITE_DISCARD;
+	HRESULT hr = m_pDeviceContext->Map(obj->m_pTexture2D, 0, method, 0, mapData);
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		assert(false);
@@ -204,11 +224,13 @@ bool DX11GraphicInstanceImpl::MapTexture(texture_handle tex, bool isRead,
 	return true;
 }
 
-void DX11GraphicInstanceImpl::UnmapTexture(texture_handle tex)
+void DX11GraphicInstanceImpl::UnmapTexture(texture_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
-	auto obj = dynamic_cast<DX11Texture2D *>(tex);
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+
+	auto obj = dynamic_cast<DX11Texture2D *>(hdl);
 	assert(obj);
 	if (!obj || !obj->IsBuilt()) {
 		assert(false);
@@ -234,6 +256,8 @@ display_handle DX11GraphicInstanceImpl::CreateDisplay(HWND hWnd)
 
 void DX11GraphicInstanceImpl::SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height)
 {
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+
 	auto obj = dynamic_cast<DX11SwapChain *>(hdl);
 	assert(obj);
 	if (obj)
@@ -518,6 +542,7 @@ bool DX11GraphicInstanceImpl::RenderBegin_Canvas(texture_handle hdl, ST_Color bk
 {
 	CHECK_GRAPHIC_CONTEXT;
 
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
 	assert(!m_pCurrentRenderTarget && !m_pCurrentSwapChain);
 
 	if (!m_bBuildSuccessed) {
@@ -545,6 +570,8 @@ bool DX11GraphicInstanceImpl::RenderBegin_Canvas(texture_handle hdl, ST_Color bk
 bool DX11GraphicInstanceImpl::RenderBegin_Display(display_handle hdl, ST_Color bkClr)
 {
 	CHECK_GRAPHIC_CONTEXT;
+
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
 
 	assert(!m_pCurrentRenderTarget && !m_pCurrentSwapChain);
 
@@ -578,6 +605,8 @@ void DX11GraphicInstanceImpl::SetVertexBuffer(shader_handle hdl, const void *buf
 {
 	CHECK_GRAPHIC_CONTEXT;
 
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
 	assert(shader);
 	if (shader && shader->IsBuilt()) {
@@ -592,6 +621,8 @@ void DX11GraphicInstanceImpl::SetVSConstBuffer(shader_handle hdl, const void *vs
 {
 	CHECK_GRAPHIC_CONTEXT;
 
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
 	assert(shader);
 	if (shader && shader->IsBuilt()) {
@@ -605,6 +636,8 @@ void DX11GraphicInstanceImpl::SetPSConstBuffer(shader_handle hdl, const void *ps
 {
 	CHECK_GRAPHIC_CONTEXT;
 
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
 	assert(shader);
 	if (shader && shader->IsBuilt()) {
@@ -616,6 +649,8 @@ void DX11GraphicInstanceImpl::SetPSConstBuffer(shader_handle hdl, const void *ps
 void DX11GraphicInstanceImpl::DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TOPOLOGY type)
 {
 	CHECK_GRAPHIC_CONTEXT;
+
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
 	assert(shader);
@@ -632,6 +667,8 @@ void DX11GraphicInstanceImpl::DrawTexture(shader_handle hdl,
 					  const std::vector<texture_handle> &textures)
 {
 	CHECK_GRAPHIC_CONTEXT;
+
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
 	assert(shader);
@@ -688,4 +725,15 @@ void DX11GraphicInstanceImpl::HandleDXHResult(HRESULT hr, std::source_location l
 			BuildAllDX();
 		}
 	}
+}
+
+bool DX11GraphicInstanceImpl::IsGraphicObjectAlive(DX11GraphicObject *obj)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	auto itr = find(m_listObject.begin(), m_listObject.end(), obj);
+	if (itr != m_listObject.end())
+		return true;
+
+	return false;
 }

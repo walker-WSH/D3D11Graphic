@@ -50,7 +50,8 @@ public:
 	virtual texture_handle CreateTexture(const ST_TextureInfo &info);
 	virtual ST_TextureInfo GetTextureInfo(texture_handle tex);
 	virtual bool CopyTexture(texture_handle dest, texture_handle src);
-	virtual bool MapTexture(texture_handle tex, bool isRead, D3D11_MAPPED_SUBRESOURCE *mapData);
+	virtual bool MapTexture(texture_handle tex, MapTextureType type,
+				D3D11_MAPPED_SUBRESOURCE *mapData);
 	virtual void UnmapTexture(texture_handle tex);
 
 	virtual bool RenderBegin_Canvas(texture_handle hdl, ST_Color bkClr);
@@ -88,6 +89,8 @@ protected:
 	bool GetResource(const std::vector<texture_handle> &textures,
 			 std::vector<ID3D11ShaderResourceView *> &resources);
 	void ApplyShader(DX11Shader *shader);
+
+	bool IsGraphicObjectAlive(DX11GraphicObject *obj);
 
 private:
 	ST_GraphicCardInfo m_destGraphic;
