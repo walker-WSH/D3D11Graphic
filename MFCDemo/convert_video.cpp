@@ -59,8 +59,10 @@ bool FormatConvert_YUVToRGB::InitConvertion()
 void FormatConvert_YUVToRGB::UninitConvertion()
 {
 	for (auto &item : video_plane_list) {
-		if (item.texture)
+		if (item.texture) {
+			AUTO_GRAPHIC_CONTEXT(pGraphic);
 			pGraphic->ReleaseGraphicObject(item.texture);
+		}
 	}
 
 	video_plane_list.clear();
@@ -80,6 +82,8 @@ void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
 		assert(item.texture);
 		if (!item.texture)
 			break;
+
+		AUTO_GRAPHIC_CONTEXT(pGraphic);
 
 		D3D11_MAPPED_SUBRESOURCE mapData;
 		if (pGraphic->MapTexture(item.texture, MapTextureType::MapWrite, &mapData)) {
@@ -112,6 +116,8 @@ void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
 	for (auto &item : video_plane_list) {
 		if (!item.texture)
 			break;
+		
+		AUTO_GRAPHIC_CONTEXT(pGraphic);
 
 		ST_TextureInfo info = pGraphic->GetTextureInfo(item.texture);
 		info.usage = TextureType::ReadTexture;
@@ -179,6 +185,8 @@ bool FormatConvert_YUVToRGB::InitPlane()
 			info.height = item.height;
 			info.format = item.format;
 			info.usage = TextureType::WriteTexture;
+
+			AUTO_GRAPHIC_CONTEXT(pGraphic);
 
 			item.texture = pGraphic->CreateTexture(info);
 			if (!item.texture) {

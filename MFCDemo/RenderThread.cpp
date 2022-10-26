@@ -100,34 +100,35 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			rcRight.left = (rc.right - rc.left) / 2;
 			YUV2RGB(canvasSize, rcRight);
 
-			if (0) {
+			if (1) {
 				if (texShared) {
-					// 渲染共享纹理
 					RenderTexture(std::vector<texture_handle>{texShared},
 						      canvasSize,
-						      RECT(20, 50, rc.right - 20, rc.bottom - 20));
+						      RECT(20, 50, rc.right - 20,
+							   rc.bottom - 20)); // 渲染共享纹理
 				}
 
 				RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize,
 					      renderRegion[0]);
-				// 利用linestrip画矩形边框
-				RenderBorder(canvasSize, renderRegion[0], ST_Color(1.0, 0, 0, 1.0));
+				RenderBorder(canvasSize, renderRegion[0],
+					     ST_Color(1.0, 0, 0, 1.0)); // 利用linestrip画矩形边框
 
 				RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize,
 					      renderRegion[1]);
-				// 利用填充矩形画指定厚度的矩形边框
-				RenderBorderWithSize(canvasSize, renderRegion[1], 4,
-						     ST_Color(1.0, 0, 0, 1.0));
+				RenderBorderWithSize(
+					canvasSize, renderRegion[1], 4,
+					ST_Color(1.0, 0, 0,
+						 1.0)); // 利用填充矩形画指定厚度的矩形边框
 
 				RenderTexture(std::vector<texture_handle>{texImg}, canvasSize,
 					      renderRegion[2]);
 
-				// 填充纯色矩形区域
-				RenderRect(canvasSize, renderRegion[3], ST_Color(0, 0, 1.0, 1.0));
+				RenderRect(canvasSize, renderRegion[3],
+					   ST_Color(0, 0, 1.0, 1.0)); // 填充纯色矩形区域
 
-				// 画布也可以直接当作resource进行渲染
-				RenderTexture(std::vector<texture_handle>{texCanvas}, canvasSize,
-					      renderRegion[4]);
+				RenderTexture(
+					std::vector<texture_handle>{texCanvas}, canvasSize,
+					renderRegion[4]); // 画布也可以直接当作resource进行渲染
 			}
 
 			pGraphic->RenderEnd();
