@@ -24,6 +24,7 @@ texture_handle texGirl = nullptr;
 texture_handle texShared = nullptr;
 texture_handle texAlpha = nullptr;
 texture_handle texImg = nullptr;
+texture_handle texImg2 = nullptr;
 texture_handle texCanvas = nullptr;
 
 std::shared_ptr<FormatConvert_YUVToRGB> i420Convert;
@@ -49,7 +50,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 	{
 		AUTO_GRAPHIC_CONTEXT(pGraphic);
-		
+
 		video_convert_params params;
 		params.width = frame->width;
 		params.height = frame->height;
@@ -130,7 +131,13 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			RenderTexture(std::vector<texture_handle>{texCanvas}, canvasSize,
 				      RECT(10, 500, 410, 700));
 
-			YUV2RGB(canvasSize, rc);
+			RECT rc1 = rc;
+			rc1.right = rc1.left + (rc.right - rc.left) / 2;
+			YUV2RGB(canvasSize, rc1);
+
+			RECT rc2 = rc;
+			rc2.left = (rc.right - rc.left) / 2;
+			RenderTexture(std::vector<texture_handle>{texImg2}, canvasSize, rc2);
 
 			pGraphic->RenderEnd();
 		}
@@ -323,6 +330,9 @@ bool InitGraphic(HWND hWnd)
 
 	texImg = pGraphic->OpenImageTexture(L"test.jpg");
 	graphicList.push_back(texImg);
+
+	texImg2 = pGraphic->OpenImageTexture(L"test.png");
+	graphicList.push_back(texImg2);
 
 	texShared = pGraphic->OpenSharedTexture((HANDLE)0X0000000040003282);
 	if (texShared)
