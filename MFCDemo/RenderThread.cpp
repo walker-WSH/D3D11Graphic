@@ -4,6 +4,7 @@
 #include "convert_video.h"
 #include <assert.h>
 #include <vector>
+#include <memory>
 #include <map>
 
 enum class ShaderType {
@@ -25,7 +26,7 @@ texture_handle texAlpha = nullptr;
 texture_handle texImg = nullptr;
 texture_handle texCanvas = nullptr;
 
-FormatConvert_YUVToRGB i420Convert;
+std::shared_ptr<FormatConvert_YUVToRGB> i420Convert;
 
 bool InitGraphic(HWND hWnd);
 void UnInitGraphic();
@@ -48,10 +49,15 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 	{
 		AUTO_GRAPHIC_CONTEXT(pGraphic);
+		
+		video_convert_params params;
+		params.width = frame->width;
+		params.height = frame->height;
+		params.format = (AVPixelFormat)frame->format;
 
-		i420Convert.InitConvertion(frame, video_range_type::VIDEO_RANGE_FULL,
-					   video_colorspace::VIDEO_CS_709);
-		i420Convert.UpdateVideo(frame);
+		i420Convert = std::make_shared<FormatConvert_YUVToRGB>(params);
+		i420Convert->InitConvertion();
+		i420Convert->UpdateVideo(frame);
 	}
 
 	while (!self->m_bExit) {
@@ -157,12 +163,11 @@ void YUV2RGB(SIZE canvas, RECT drawDest)
 {
 	AUTO_GRAPHIC_CONTEXT(pGraphic);
 
-	std::vector<texture_handle> texs = i420Convert.GetTextures();
-	const ST_PSConstBuffer *psBuf = i420Convert.GetPSBuffer();
+	std::vector<texture_handle> texs = i420Convert->GetTextures();
+	const torgb_const_buffer *psBuf = i420Convert->GetPSBuffer();
 
 	ShaderType type = ShaderType::yuv420ToRGB;
-	SIZE texSize((LONG)i420Convert.GetPSBuffer()->width,
-		     (LONG)i420Convert.GetPSBuffer()->height);
+	SIZE texSize((LONG)psBuf->width, (LONG)psBuf->height);
 
 	TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
 
@@ -171,7 +176,7 @@ void YUV2RGB(SIZE canvas, RECT drawDest)
 
 	pGraphic->SetVertexBuffer(shaders[type], outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(shaders[type], &(matrixWVP[0][0]), sizeof(matrixWVP));
-	pGraphic->SetPSConstBuffer(shaders[type], psBuf, sizeof(ST_PSConstBuffer));
+	pGraphic->SetPSConstBuffer(shaders[type], psBuf, sizeof(torgb_const_buffer));
 	pGraphic->DrawTexture(shaders[type], texs);
 }
 
@@ -282,7 +287,7 @@ bool InitGraphic(HWND hWnd)
 	shaderInfo.vsFile = L"defaultVS.cso";
 	shaderInfo.psFile = L"convertToRGB_PS.cso";
 	shaderInfo.vsBufferSize = sizeof(matrixWVP);
-	shaderInfo.psBufferSize = sizeof(ST_PSConstBuffer);
+	shaderInfo.psBufferSize = sizeof(torgb_const_buffer);
 	shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
 	shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
 	shader_handle i420Shader = pGraphic->CreateShader(shaderInfo);
@@ -358,7 +363,9 @@ void UnInitGraphic()
 		pGraphic->ReleaseGraphicObject(item);
 
 	graphicList.clear();
-	i420Convert.UninitConvertion();
+
+	i420Convert->UninitConvertion();
+	i420Convert.reset();
 
 	pGraphic->UnInitializeGraphic();
 }

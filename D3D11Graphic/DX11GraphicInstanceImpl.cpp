@@ -256,8 +256,6 @@ display_handle DX11GraphicInstanceImpl::CreateDisplay(HWND hWnd)
 
 void DX11GraphicInstanceImpl::SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height)
 {
-	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
-
 	auto obj = dynamic_cast<DX11SwapChain *>(hdl);
 	assert(obj);
 	if (obj)

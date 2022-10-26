@@ -2,15 +2,14 @@
 #include <DX11GraphicAPI.h>
 #include <DirectXMath.h>
 #include <array>
+#include <vector>
 
 enum class video_range_type {
-	VIDEO_RANGE_DEFAULT,
-	VIDEO_RANGE_PARTIAL,
 	VIDEO_RANGE_FULL,
+	VIDEO_RANGE_PARTIAL,
 };
 
 enum class video_colorspace {
-	VIDEO_CS_DEFAULT,
 	VIDEO_CS_601,
 	VIDEO_CS_709,
 };
