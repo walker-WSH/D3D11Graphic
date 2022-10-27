@@ -10,7 +10,6 @@
 #define BORDER_THICKNESS 3
 
 std::vector<DX11GraphicObject *> graphicList;
-std::vector<RECT> renderRegion;
 display_handle display = nullptr;
 texture_handle texCanvas = nullptr;
 texture_handle texGirl = nullptr;
@@ -19,9 +18,20 @@ texture_handle texAlpha = nullptr;
 texture_handle texImg = nullptr;
 texture_handle texImg2 = nullptr;
 
+CPoint posLBDown = {0, 0};
+std::vector<RECT> renderRegion;
+
 bool InitGraphic(HWND hWnd);
 void UnInitGraphic();
+
 void InitRenderRect(RECT rc, int numH, int numV);
+int GetSelectRegionIndex();
+
+void CMFCDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	posLBDown = point;
+	CDialogEx::OnLButtonDown(nFlags, point);
+}
 
 unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 {
@@ -91,8 +101,6 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 				RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize,
 					      renderRegion[0]);
-				RenderBorderWithSize(canvasSize, renderRegion[0], BORDER_THICKNESS,
-						     ST_Color(1.0, 1.0, 0, 1.0));
 
 				RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize,
 					      renderRegion[1]);
@@ -106,6 +114,13 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 				RenderTexture(
 					std::vector<texture_handle>{texCanvas}, canvasSize,
 					renderRegion[4]); // 画布也可以直接当作resource进行渲染
+			}
+
+			int index = GetSelectRegionIndex();
+			if (index >= 0) {
+				RenderBorderWithSize(canvasSize, renderRegion[index],
+						     BORDER_THICKNESS,
+						     ST_Color(1.0, 0.7, 0.1, 1.0));
 			}
 
 			pGraphic->RenderEnd();
@@ -258,4 +273,17 @@ void InitRenderRect(RECT rc, int numH, int numV)
 			renderRegion.push_back(temp);
 		}
 	}
+}
+
+int GetSelectRegionIndex()
+{
+	for (size_t i = 0; i < renderRegion.size(); i++) {
+		const auto &rc = renderRegion[i];
+		if (posLBDown.x > rc.left && posLBDown.x < rc.right && posLBDown.y > rc.top &&
+		    posLBDown.y < rc.bottom) {
+			return (int)i;
+		}
+	}
+
+	return -1;
 }

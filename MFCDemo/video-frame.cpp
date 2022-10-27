@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <assert.h>
 #include "video-frame.h"
 
 int width = 1920;
