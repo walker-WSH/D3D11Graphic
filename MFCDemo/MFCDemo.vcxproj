@@ -227,19 +227,19 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="convert_video_color.h" />
-    <ClInclude Include="convert_video_yuv2rgb.h" />
-    <ClInclude Include="decode_video.h" />
+    <ClInclude Include="convert-video-color.h" />
+    <ClInclude Include="convert-video-yuv2rgb.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MFCDemo.h" />
     <ClInclude Include="MFCDemoDlg.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="render-interface-wrapper.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="video-frame.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="convert_video_yuv2rgb.cpp" />
-    <ClCompile Include="decode_video.cpp" />
+    <ClCompile Include="convert-video-yuv2rgb.cpp" />
     <ClCompile Include="MFCDemo.cpp" />
     <ClCompile Include="MFCDemoDlg.cpp" />
     <ClCompile Include="pch.cpp">
@@ -248,7 +248,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="render-interface-wrapper.cpp" />
     <ClCompile Include="RenderThread.cpp" />
+    <ClCompile Include="video-frame.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MFCDemo.rc" />

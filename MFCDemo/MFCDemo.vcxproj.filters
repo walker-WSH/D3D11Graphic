@@ -36,13 +36,16 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="decode_video.h">
+    <ClInclude Include="convert-video-color.h">
       <Filter>render</Filter>
     </ClInclude>
-    <ClInclude Include="convert_video_color.h">
+    <ClInclude Include="convert-video-yuv2rgb.h">
       <Filter>render</Filter>
     </ClInclude>
-    <ClInclude Include="convert_video_yuv2rgb.h">
+    <ClInclude Include="render-interface-wrapper.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="video-frame.h">
       <Filter>render</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,10 +62,13 @@
     <ClCompile Include="MFCDemoDlg.cpp">
       <Filter>头文件</Filter>
     </ClCompile>
-    <ClCompile Include="decode_video.cpp">
+    <ClCompile Include="convert-video-yuv2rgb.cpp">
       <Filter>render</Filter>
     </ClCompile>
-    <ClCompile Include="convert_video_yuv2rgb.cpp">
+    <ClCompile Include="render-interface-wrapper.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="video-frame.cpp">
       <Filter>render</Filter>
     </ClCompile>
   </ItemGroup>

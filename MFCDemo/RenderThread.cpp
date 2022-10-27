@@ -1,45 +1,26 @@
 ﻿#include "pch.h"
 #include "MFCDemoDlg.h"
-#include "decode_video.h"
-#include "convert_video_yuv2rgb.h"
+#include "video-frame.h"
+#include "render-interface-wrapper.h"
 #include <assert.h>
 #include <vector>
 #include <memory>
 #include <map>
 
-enum class ShaderType {
-	shaderTexture = 0,
-	shaderFillRect,
-	shaderBorderRect,
-	yuv420ToRGB,
-};
+#define BORDER_THICKNESS 3
 
-float matrixWVP[4][4];
-
-IDX11GraphicInstance *pGraphic = nullptr;
 std::vector<DX11GraphicObject *> graphicList;
-std::map<ShaderType, shader_handle> shaders;
+std::vector<RECT> renderRegion;
 display_handle display = nullptr;
+texture_handle texCanvas = nullptr;
 texture_handle texGirl = nullptr;
 texture_handle texShared = nullptr;
 texture_handle texAlpha = nullptr;
 texture_handle texImg = nullptr;
 texture_handle texImg2 = nullptr;
-texture_handle texCanvas = nullptr;
-
-std::shared_ptr<FormatConvert_YUVToRGB> i420Convert;
 
 bool InitGraphic(HWND hWnd);
 void UnInitGraphic();
-
-void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest);
-void RenderRect(SIZE canvas, RECT drawDest, ST_Color clr);
-void RenderBorder(SIZE canvas, RECT drawDest, ST_Color clr);
-void RenderBorderWithSize(SIZE canvas, RECT drawDest, long borderSize, ST_Color clr);
-void YUV2RGB(SIZE canvas, RECT drawDest);
-
-const auto border_thickness = 4;
-std::vector<RECT> renderRegion;
 void InitRenderRect(RECT rc, int numH, int numV);
 
 unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
@@ -50,9 +31,9 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 	if (!InitGraphic(self->m_hWnd))
 		return 1;
 
-	initVideo();
-
 	{
+		initVideo();
+
 		AUTO_GRAPHIC_CONTEXT(pGraphic);
 
 		video_convert_params params;
@@ -60,9 +41,9 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		params.height = frame->height;
 		params.format = (AVPixelFormat)frame->format;
 
-		i420Convert = std::make_shared<FormatConvert_YUVToRGB>(params);
-		i420Convert->InitConvertion();
-		i420Convert->UpdateVideo(frame);
+		pI4202RGB = std::make_shared<FormatConvert_YUVToRGB>(params);
+		pI4202RGB->InitConvertion();
+		pI4202RGB->UpdateVideo(frame);
 	}
 
 	while (!self->m_bExit) {
@@ -85,9 +66,9 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 		if (pGraphic->RenderBegin_Canvas(texCanvas, ST_Color(1.0f, 1.0f, 1.0f, 1.0f))) {
 			auto info = pGraphic->GetTextureInfo(texCanvas);
-			RenderRect(SIZE(info.width, info.height),
-				   RECT(0, 0, info.width / 2, info.height / 2),
-				   ST_Color(1.0, 0, 0, 1.0));
+			FillRect(SIZE(info.width, info.height),
+				 RECT(0, 0, info.width / 2, info.height / 2),
+				 ST_Color(1.0, 0, 0, 1.0));
 			pGraphic->RenderEnd();
 		}
 
@@ -98,7 +79,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 			RECT rcRight = rc;
 			rcRight.left = (rc.right - rc.left) / 2;
-			YUV2RGB(canvasSize, rcRight);
+			YUV_To_RGB(canvasSize, rcRight);
 
 			if (1) {
 				if (texShared) {
@@ -108,23 +89,19 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 							   rc.bottom - 20)); // 渲染共享纹理
 				}
 
-				RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize,
-					      renderRegion[0]);
-				RenderBorder(canvasSize, renderRegion[0],
-					     ST_Color(1.0, 0, 0, 1.0)); // 利用linestrip画矩形边框
-
 				RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize,
+					      renderRegion[0]);
+				RenderBorderWithSize(canvasSize, renderRegion[0], BORDER_THICKNESS,
+						     ST_Color(1.0, 1.0, 0, 1.0));
+
+				RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize,
 					      renderRegion[1]);
-				RenderBorderWithSize(
-					canvasSize, renderRegion[1], border_thickness,
-					ST_Color(1.0, 0, 0,
-						 1.0)); // 利用填充矩形画指定厚度的矩形边框
 
 				RenderTexture(std::vector<texture_handle>{texImg}, canvasSize,
 					      renderRegion[2]);
 
-				RenderRect(canvasSize, renderRegion[3],
-					   ST_Color(0, 0, 1.0, 1.0)); // 填充纯色矩形区域
+				FillRect(canvasSize, renderRegion[3],
+					 ST_Color(0, 0, 1.0, 1.0)); // 填充纯色矩形区域
 
 				RenderTexture(
 					std::vector<texture_handle>{texCanvas}, canvasSize,
@@ -136,114 +113,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 	}
 
 	UnInitGraphic();
-
 	return 0;
-}
-
-void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
-{
-	AUTO_GRAPHIC_CONTEXT(pGraphic);
-
-	ShaderType type = ShaderType::shaderTexture;
-	ST_TextureInfo texInfo = pGraphic->GetTextureInfo(texs.at(0));
-	SIZE texSize(texInfo.width, texInfo.height);
-
-	TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
-
-	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
-	VertexList_RectTriangle(texSize, false, false, outputVertex);
-
-	pGraphic->SetVertexBuffer(shaders[type], outputVertex, sizeof(outputVertex));
-	pGraphic->SetVSConstBuffer(shaders[type], &(matrixWVP[0][0]), sizeof(matrixWVP));
-	pGraphic->DrawTexture(shaders[type], texs);
-}
-
-void YUV2RGB(SIZE canvas, RECT drawDest)
-{
-	AUTO_GRAPHIC_CONTEXT(pGraphic);
-
-	std::vector<texture_handle> texs = i420Convert->GetTextures();
-	const torgb_const_buffer *psBuf = i420Convert->GetPSBuffer();
-
-	ShaderType type = ShaderType::yuv420ToRGB;
-	SIZE texSize((LONG)psBuf->width, (LONG)psBuf->height);
-
-	TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
-
-	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
-	VertexList_RectTriangle(texSize, false, false, outputVertex);
-
-	pGraphic->SetVertexBuffer(shaders[type], outputVertex, sizeof(outputVertex));
-	pGraphic->SetVSConstBuffer(shaders[type], &(matrixWVP[0][0]), sizeof(matrixWVP));
-	pGraphic->SetPSConstBuffer(shaders[type], psBuf, sizeof(torgb_const_buffer));
-	pGraphic->DrawTexture(shaders[type], texs);
-}
-
-void RenderRect(SIZE canvas, RECT drawDest, ST_Color clr)
-{
-	AUTO_GRAPHIC_CONTEXT(pGraphic);
-
-	ShaderType type = ShaderType::shaderFillRect;
-	SIZE texSize(drawDest.right - drawDest.left, drawDest.bottom - drawDest.top);
-	TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
-
-	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
-	VertexList_RectTriangle(texSize, false, false, outputVertex);
-
-	pGraphic->SetVertexBuffer(shaders[type], outputVertex, sizeof(outputVertex));
-	pGraphic->SetVSConstBuffer(shaders[type], &(matrixWVP[0][0]), sizeof(matrixWVP));
-	pGraphic->SetPSConstBuffer(shaders[type], &clr, sizeof(ST_Color));
-	pGraphic->DrawTopplogy(shaders[type], D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-}
-
-void RenderBorderWithSize(SIZE canvas, RECT drawDest, long borderSize, ST_Color clr)
-{
-	RECT rcLeft;
-	RECT rcRight;
-	RECT rcTop;
-	RECT rcBottom;
-
-	rcLeft.right = drawDest.left;
-	rcLeft.left = drawDest.left - borderSize;
-	rcLeft.top = drawDest.top - borderSize;
-	rcLeft.bottom = drawDest.bottom + borderSize;
-
-	rcRight.left = drawDest.right;
-	rcRight.right = drawDest.right + borderSize;
-	rcRight.top = drawDest.top - borderSize;
-	rcRight.bottom = drawDest.bottom + borderSize;
-
-	rcTop.left = drawDest.left - borderSize;
-	rcTop.right = drawDest.right + borderSize;
-	rcTop.top = drawDest.top - borderSize;
-	rcTop.bottom = drawDest.top;
-
-	rcBottom.left = drawDest.left - borderSize;
-	rcBottom.right = drawDest.right + borderSize;
-	rcBottom.top = drawDest.bottom;
-	rcBottom.bottom = drawDest.bottom + borderSize;
-
-	RenderRect(canvas, rcLeft, clr);
-	RenderRect(canvas, rcRight, clr);
-	RenderRect(canvas, rcTop, clr);
-	RenderRect(canvas, rcBottom, clr);
-}
-
-void RenderBorder(SIZE canvas, RECT drawDest, ST_Color clr)
-{
-	AUTO_GRAPHIC_CONTEXT(pGraphic);
-
-	ShaderType type = ShaderType::shaderBorderRect;
-	SIZE texSize(drawDest.right - drawDest.left, drawDest.bottom - drawDest.top);
-	TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
-
-	ST_TextureVertex outputVertex[RECT_LINE_VERTEX_COUNT];
-	VertexList_RectLine(texSize, outputVertex);
-
-	pGraphic->SetVertexBuffer(shaders[type], outputVertex, sizeof(outputVertex));
-	pGraphic->SetVSConstBuffer(shaders[type], &(matrixWVP[0][0]), sizeof(matrixWVP));
-	pGraphic->SetPSConstBuffer(shaders[type], &clr, sizeof(ST_Color));
-	pGraphic->DrawTopplogy(shaders[type], D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 }
 
 bool InitGraphic(HWND hWnd)
@@ -271,11 +141,10 @@ bool InitGraphic(HWND hWnd)
 	graphicList.push_back(texShader);
 	shaders[ShaderType::shaderTexture] = texShader;
 
-	//------------------------------------------------------------------
 	shaderInfo.vsFile = L"rectVS.cso";
 	shaderInfo.psFile = L"rectPS.cso";
 	shaderInfo.vsBufferSize = sizeof(matrixWVP);
-	shaderInfo.psBufferSize = sizeof(float) * 4;
+	shaderInfo.psBufferSize = sizeof(ST_Color);
 	shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
 	shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
 	shader_handle rectShader = pGraphic->CreateShader(shaderInfo);
@@ -293,17 +162,6 @@ bool InitGraphic(HWND hWnd)
 	assert(i420Shader);
 	graphicList.push_back(i420Shader);
 	shaders[ShaderType::yuv420ToRGB] = i420Shader;
-
-	shaderInfo.vsFile = L"rectVS.cso";
-	shaderInfo.psFile = L"rectPS.cso";
-	shaderInfo.vsBufferSize = sizeof(matrixWVP);
-	shaderInfo.psBufferSize = sizeof(float) * 4;
-	shaderInfo.vertexCount = RECT_LINE_VERTEX_COUNT;
-	shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
-	shader_handle borderShader = pGraphic->CreateShader(shaderInfo);
-	assert(borderShader);
-	graphicList.push_back(borderShader);
-	shaders[ShaderType::shaderBorderRect] = borderShader;
 
 	//------------------------------------------------------------------
 	display = pGraphic->CreateDisplay(hWnd);
@@ -335,22 +193,25 @@ bool InitGraphic(HWND hWnd)
 	info.width = 400;
 	info.height = 400;
 	info.format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	info.usage = TextureType::ReadTexture;
-	texture_handle tex1 = pGraphic->CreateTexture(info);
-
-	info.usage = TextureType::WriteTexture;
-	texture_handle tex2 = pGraphic->CreateTexture(info);
-
-	info.usage = TextureType::CanvasTarget;
-	texture_handle tex3 = pGraphic->CreateTexture(info);
 
 	info.usage = TextureType::CanvasTarget;
 	texCanvas = pGraphic->CreateTexture(info);
 	assert(texCanvas);
 	graphicList.push_back(texCanvas);
 
+	info.usage = TextureType::ReadTexture;
+	texture_handle tex1 = pGraphic->CreateTexture(info);
+	assert(tex1);
 	pGraphic->ReleaseGraphicObject(tex1);
+
+	info.usage = TextureType::WriteTexture;
+	texture_handle tex2 = pGraphic->CreateTexture(info);
+	assert(tex2);
 	pGraphic->ReleaseGraphicObject(tex2);
+
+	info.usage = TextureType::CanvasTarget;
+	texture_handle tex3 = pGraphic->CreateTexture(info);
+	assert(tex3);
 	pGraphic->ReleaseGraphicObject(tex3);
 
 	//------------------------------------------------------------------
@@ -363,11 +224,10 @@ void UnInitGraphic()
 
 	for (auto &item : graphicList)
 		pGraphic->ReleaseGraphicObject(item);
-
 	graphicList.clear();
 
-	i420Convert->UninitConvertion();
-	i420Convert.reset();
+	pI4202RGB->UninitConvertion();
+	pI4202RGB.reset();
 
 	pGraphic->UnInitializeGraphic();
 }
@@ -390,10 +250,10 @@ void InitRenderRect(RECT rc, int numH, int numV)
 			temp.right = temp.left + cx;
 			temp.bottom = temp.top + cy;
 
-			temp.left += border_thickness;
-			temp.top += border_thickness;
-			temp.right -= border_thickness;
-			temp.bottom -= border_thickness;
+			temp.left += BORDER_THICKNESS;
+			temp.top += BORDER_THICKNESS;
+			temp.right -= BORDER_THICKNESS;
+			temp.bottom -= BORDER_THICKNESS;
 
 			renderRegion.push_back(temp);
 		}

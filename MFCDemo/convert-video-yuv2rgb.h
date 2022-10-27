@@ -1,7 +1,7 @@
 #pragma once
 #include <assert.h>
 #include "DX11GraphicAPI.h"
-#include "convert_video_color.h"
+#include "convert-video-color.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
