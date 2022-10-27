@@ -59,8 +59,8 @@ private:
 	};
 
 	std::array<float, 16> color_matrix{};
-	std::array<float, 3> color_range_min{};
-	std::array<float, 3> color_range_max{};
+	std::array<float, 3> color_range_min{0.0f, 0.0f, 0.0f};
+	std::array<float, 3> color_range_max{1.0f, 1.0f, 1.0f};
 
 	video_convert_params original_video_info;
 	torgb_const_buffer ps_const_buffer;

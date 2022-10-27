@@ -16,8 +16,11 @@ enum class video_colorspace {
 
 struct convert_format_info {
 	enum video_colorspace const color_space;
+
 	std::array<float, 3> float_range_min;
 	std::array<float, 3> float_range_max;
+
+	// index.0 is for partial color range while index.1 is for full range
 	std::array<std::array<float, 16>, 2> matrix;
 };
 

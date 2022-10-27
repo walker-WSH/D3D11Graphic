@@ -204,18 +204,21 @@ void FormatConvert_YUVToRGB::InitMatrix(enum video_range_type color_range,
 {
 	bool is_full_range = (color_range == video_range_type::VIDEO_RANGE_FULL);
 	for (size_t i = 0; i < NUM_FORMATS; i++) {
-		if (format_info[i].color_space == color_space) {
-			if (is_full_range) {
-				color_range_min = {0.0f, 0.0f, 0.0f};
-				color_range_max = {1.0f, 1.0f, 1.0f};
-				color_matrix = format_info[i].matrix[1];
-			} else {
-				color_range_min = format_info[i].float_range_min;
-				color_range_max = format_info[i].float_range_max;
-				color_matrix = format_info[i].matrix[0];
-			}
-			return;
+		const convert_format_info &info = format_info[i];
+		if (info.color_space != color_space)
+			continue;
+
+		if (is_full_range) {
+			color_range_min = {0.0f, 0.0f, 0.0f};
+			color_range_max = {1.0f, 1.0f, 1.0f};
+			color_matrix = info.matrix[1];
+		} else {
+			color_range_min = info.float_range_min;
+			color_range_max = info.float_range_max;
+			color_matrix = info.matrix[0];
 		}
+
+		return;
 	}
 
 	assert(false);

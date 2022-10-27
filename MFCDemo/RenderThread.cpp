@@ -120,7 +120,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			if (index >= 0) {
 				RenderBorderWithSize(canvasSize, renderRegion[index],
 						     BORDER_THICKNESS,
-						     ST_Color(1.0, 0.7, 0.1, 1.0));
+						     ST_Color(1.0f, 0.7f, 0.1f, 1.0f));
 			}
 
 			pGraphic->RenderEnd();
