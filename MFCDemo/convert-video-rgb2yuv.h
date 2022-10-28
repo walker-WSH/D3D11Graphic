@@ -29,7 +29,8 @@ private:
 		uint32_t width = 0;
 		uint32_t height = 0;
 		enum DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
-		texture_handle canvas = 0;
+		texture_handle canvas_tex = 0;
+		texture_handle read_tex = 0;
 
 		shader_handle shader = 0; // does not need to free
 		toyuv_const_buffer ps_const_buffer;

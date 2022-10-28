@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "convert-video-rgb2yuv.h"
+#include "render-interface-wrapper.h"
 
 FormatConvert_RGBToYUV::FormatConvert_RGBToYUV(video_convert_params params)
 	: original_video_info(params)
@@ -31,8 +32,11 @@ void FormatConvert_RGBToYUV::UninitConvertion()
 	AUTO_GRAPHIC_CONTEXT(original_video_info.graphic);
 
 	for (auto &item : video_plane_list) {
-		if (item.canvas)
-			original_video_info.graphic->ReleaseGraphicObject(item.canvas);
+		if (item.canvas_tex)
+			original_video_info.graphic->ReleaseGraphicObject(item.canvas_tex);
+
+		if (item.read_tex)
+			original_video_info.graphic->ReleaseGraphicObject(item.read_tex);
 	}
 
 	video_plane_list.clear();
@@ -49,8 +53,30 @@ void FormatConvert_RGBToYUV::RenderConvertVideo(texture_handle tex)
 		return;
 	}
 
-	for (size_t i = 0; i < video_plane_list.size(); i++) {
-		// TODO
+	std::vector<texture_handle> textures{tex};
+	for (const auto &item : video_plane_list) {
+
+		if (original_video_info.graphic->RenderBegin_Display(item.canvas_tex,
+								     ST_Color(0, 0, 0, 0))) {
+			SIZE canvas(item.width, item.height);
+			SIZE texSize(texInfo.width, texInfo.height);
+			RECT drawDest(0, 0, item.width, item.height);
+			TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
+
+			ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
+			VertexList_RectTriangle(texSize, false, false, outputVertex);
+
+			original_video_info.graphic->SetVertexBuffer(item.shader, outputVertex,
+								     sizeof(outputVertex));
+			original_video_info.graphic->SetVSConstBuffer(
+				item.shader, &(matrixWVP[0][0]), sizeof(matrixWVP));
+			original_video_info.graphic->SetPSConstBuffer(
+				item.shader, &item.ps_const_buffer, sizeof(toyuv_const_buffer));
+
+			original_video_info.graphic->DrawTexture(item.shader, textures);
+
+			original_video_info.graphic->RenderEnd();
+		}
 	}
 }
 
@@ -107,10 +133,17 @@ bool FormatConvert_RGBToYUV::InitPlane()
 			info.width = item.width;
 			info.height = item.height;
 			info.format = item.format;
-			info.usage = TextureType::CanvasTarget;
 
-			item.canvas = original_video_info.graphic->CreateTexture(info);
-			if (!item.canvas) {
+			info.usage = TextureType::CanvasTarget;
+			item.canvas_tex = original_video_info.graphic->CreateTexture(info);
+			if (!item.canvas_tex) {
+				assert(false);
+				return false;
+			}
+
+			info.usage = TextureType::ReadTexture;
+			item.read_tex = original_video_info.graphic->CreateTexture(info);
+			if (!item.read_tex) {
 				assert(false);
 				return false;
 			}
