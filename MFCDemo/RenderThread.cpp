@@ -38,10 +38,10 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 	CMFCDemoDlg *self = reinterpret_cast<CMFCDemoDlg *>(pParam);
 	pGraphic = self->m_pGraphic;
 
+	bool saved = false;
+
 	if (!InitGraphic(self->m_hWnd))
 		return 1;
-
-	FormatConvert_RGBToYUV *toYUV = nullptr;
 
 	{
 		initVideo();
@@ -82,25 +82,30 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 		if (pGraphic->RenderBegin_Canvas(texCanvas, ST_Color(1.0f, 1.0f, 1.0f, 1.0f))) {
 			auto info = pGraphic->GetTextureInfo(texCanvas);
+
+			RenderTexture(std::vector<texture_handle>{texImg},
+				      SIZE(info.width, info.height),
+				      RECT(0, 0, info.width, info.height));
 			FillRectangle(SIZE(info.width, info.height),
 				      RECT(0, 0, info.width / 2, info.height / 2),
 				      ST_Color(1.0, 0, 0, 1.0));
 
-			RenderTexture(std::vector<texture_handle>{texAlpha},
-				      SIZE(info.width, info.height),
-				      RECT(0, 0, info.width, info.height));
 			pGraphic->RenderEnd();
 
-			if (!toYUV) {
+			if (!saved) {
+				saved = true;
+
 				video_convert_params params;
 				params.graphic = pGraphic;
 				params.width = info.width;
 				params.height = info.height;
 				params.format = AV_PIX_FMT_YUV420P;
 
-				toYUV = new FormatConvert_RGBToYUV(params);
+				FormatConvert_RGBToYUV *toYUV = new FormatConvert_RGBToYUV(params);
 				toYUV->InitConvertion();
 				toYUV->RenderConvertVideo(texCanvas);
+				toYUV->UninitConvertion();
+				delete toYUV;
 			}
 		}
 
