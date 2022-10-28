@@ -29,9 +29,8 @@ void FormatConvert_YUVToRGB::UninitConvertion()
 	AUTO_GRAPHIC_CONTEXT(original_video_info.graphic);
 
 	for (auto &item : video_plane_list) {
-		if (item.texture) {
+		if (item.texture)
 			original_video_info.graphic->ReleaseGraphicObject(item.texture);
-		}
 	}
 
 	video_plane_list.clear();

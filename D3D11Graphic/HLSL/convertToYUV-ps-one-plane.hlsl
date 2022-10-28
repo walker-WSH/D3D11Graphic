@@ -4,6 +4,7 @@ Texture2D image0 : register(t0);
 cbuffer PSConstants : register(b0)
 {
 	float4 color_vec;
+	float4 reserve;
 }
 
 struct VertexOut {
@@ -11,14 +12,9 @@ struct VertexOut {
 	float2 uv : TEXCOORD;
 };
 
-float PS_Y(VertexOut pIn) : SV_Target
+float4 PS(VertexOut pIn) : SV_Target
 {
 	float4 rgba = image0.Sample(SampleType, pIn.uv);
 	float y = dot(color_vec.xyz, rgba.xyz) + color_vec.w;
-	return y;
-}
-
-float PS(VertexOut frag_in) : SV_Target
-{
-	return PS_Y(frag_in);
+	return float4(y, 0, 0, 0);
 }

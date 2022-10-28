@@ -31,9 +31,8 @@ void FormatConvert_RGBToYUV::UninitConvertion()
 	AUTO_GRAPHIC_CONTEXT(original_video_info.graphic);
 
 	for (auto &item : video_plane_list) {
-		if (item.texture) {
-			original_video_info.graphic->ReleaseGraphicObject(item.texture);
-		}
+		if (item.canvas)
+			original_video_info.graphic->ReleaseGraphicObject(item.canvas);
 	}
 
 	video_plane_list.clear();
@@ -63,22 +62,22 @@ void FormatConvert_RGBToYUV::InitMatrix(enum video_range_type color_range,
 	VideoMatrixINV(color_matrix);
 
 	// Y plane
-	ps_const_buffer.color_vec0.x = color_matrix[4];
-	ps_const_buffer.color_vec0.y = color_matrix[5];
-	ps_const_buffer.color_vec0.z = color_matrix[6];
-	ps_const_buffer.color_vec0.w = color_matrix[7];
+	color_vec_y.x = color_matrix[4];
+	color_vec_y.y = color_matrix[5];
+	color_vec_y.z = color_matrix[6];
+	color_vec_y.w = color_matrix[7];
 
 	// U plane
-	ps_const_buffer.color_vec1.x = color_matrix[0];
-	ps_const_buffer.color_vec1.y = color_matrix[1];
-	ps_const_buffer.color_vec1.z = color_matrix[2];
-	ps_const_buffer.color_vec1.w = color_matrix[3];
+	color_vec_u.x = color_matrix[0];
+	color_vec_u.y = color_matrix[1];
+	color_vec_u.z = color_matrix[2];
+	color_vec_u.w = color_matrix[3];
 
 	// V plane
-	ps_const_buffer.color_vec2.x = color_matrix[8];
-	ps_const_buffer.color_vec2.y = color_matrix[9];
-	ps_const_buffer.color_vec2.z = color_matrix[10];
-	ps_const_buffer.color_vec2.w = color_matrix[11];
+	color_vec_v.x = color_matrix[8];
+	color_vec_v.y = color_matrix[9];
+	color_vec_v.z = color_matrix[10];
+	color_vec_v.w = color_matrix[11];
 }
 
 bool FormatConvert_RGBToYUV::InitPlane()
@@ -110,8 +109,8 @@ bool FormatConvert_RGBToYUV::InitPlane()
 			info.format = item.format;
 			info.usage = TextureType::CanvasTarget;
 
-			item.texture = original_video_info.graphic->CreateTexture(info);
-			if (!item.texture) {
+			item.canvas = original_video_info.graphic->CreateTexture(info);
+			if (!item.canvas) {
 				assert(false);
 				return false;
 			}
@@ -121,6 +120,7 @@ bool FormatConvert_RGBToYUV::InitPlane()
 	return true;
 }
 
+#include "render-interface-wrapper.h"
 void FormatConvert_RGBToYUV::SetPlanarI420()
 {
 	video_plane_list.push_back(video_plane_info());
@@ -130,14 +130,20 @@ void FormatConvert_RGBToYUV::SetPlanarI420()
 	video_plane_list[0].width = original_video_info.width;
 	video_plane_list[0].height = original_video_info.height;
 	video_plane_list[0].format = DXGI_FORMAT_R8_UNORM;
+	video_plane_list[0].shader = shaders[ShaderType::yuvOnePlane];
+	video_plane_list[0].ps_const_buffer.color_vec0 = color_vec_y;
 
 	video_plane_list[1].width = (original_video_info.width + 1) / 2;
 	video_plane_list[1].height = (original_video_info.height + 1) / 2;
 	video_plane_list[1].format = DXGI_FORMAT_R8_UNORM;
+	video_plane_list[1].shader = shaders[ShaderType::yuvOnePlane];
+	video_plane_list[1].ps_const_buffer.color_vec0 = color_vec_u;
 
 	video_plane_list[2].width = (original_video_info.width + 1) / 2;
 	video_plane_list[2].height = (original_video_info.height + 1) / 2;
 	video_plane_list[2].format = DXGI_FORMAT_R8_UNORM;
+	video_plane_list[2].shader = shaders[ShaderType::yuvOnePlane];
+	video_plane_list[2].ps_const_buffer.color_vec0 = color_vec_v;
 }
 
 void FormatConvert_RGBToYUV::SetPlanarNV12()
@@ -148,8 +154,13 @@ void FormatConvert_RGBToYUV::SetPlanarNV12()
 	video_plane_list[0].width = original_video_info.width;
 	video_plane_list[0].height = original_video_info.height;
 	video_plane_list[0].format = DXGI_FORMAT_R8_UNORM;
+	video_plane_list[0].shader = shaders[ShaderType::yuvOnePlane];
+	video_plane_list[0].ps_const_buffer.color_vec0 = color_vec_y;
 
 	video_plane_list[1].width = (original_video_info.width + 1) / 2;
 	video_plane_list[1].height = (original_video_info.height + 1) / 2;
 	video_plane_list[1].format = DXGI_FORMAT_R8G8_UNORM;
+	video_plane_list[0].shader = shaders[ShaderType::uvPlane];
+	video_plane_list[0].ps_const_buffer.color_vec0 = color_vec_u;
+	video_plane_list[0].ps_const_buffer.color_vec0 = color_vec_v;
 }

@@ -24,7 +24,7 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 	pGraphic->DrawTexture(shaders[type], texs);
 }
 
-void FillRect(SIZE canvas, RECT drawDest, ST_Color clr)
+void FillRectangle(SIZE canvas, RECT drawDest, ST_Color clr)
 {
 	AUTO_GRAPHIC_CONTEXT(pGraphic);
 
@@ -68,10 +68,12 @@ void RenderBorderWithSize(SIZE canvas, RECT drawDest, long borderSize, ST_Color 
 	rcBottom.top = drawDest.bottom;
 	rcBottom.bottom = drawDest.bottom + borderSize;
 
-	FillRect(canvas, rcLeft, clr);
-	FillRect(canvas, rcRight, clr);
-	FillRect(canvas, rcTop, clr);
-	FillRect(canvas, rcBottom, clr);
+	AUTO_GRAPHIC_CONTEXT(pGraphic);
+
+	FillRectangle(canvas, rcLeft, clr);
+	FillRectangle(canvas, rcRight, clr);
+	FillRectangle(canvas, rcTop, clr);
+	FillRectangle(canvas, rcBottom, clr);
 }
 
 void YUV_To_RGB(SIZE canvas, RECT drawDest)

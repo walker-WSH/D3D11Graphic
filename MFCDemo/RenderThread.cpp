@@ -80,7 +80,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 		if (pGraphic->RenderBegin_Canvas(texCanvas, ST_Color(1.0f, 1.0f, 1.0f, 1.0f))) {
 			auto info = pGraphic->GetTextureInfo(texCanvas);
-			FillRect(SIZE(info.width, info.height),
+			FillRectangle(SIZE(info.width, info.height),
 				 RECT(0, 0, info.width / 2, info.height / 2),
 				 ST_Color(1.0, 0, 0, 1.0));
 			pGraphic->RenderEnd();
@@ -112,7 +112,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 				RenderTexture(std::vector<texture_handle>{texImg}, canvasSize,
 					      renderRegion[2]);
 
-				FillRect(canvasSize, renderRegion[3],
+				FillRectangle(canvasSize, renderRegion[3],
 					 ST_Color(0, 0, 1.0, 1.0)); // 填充纯色矩形区域
 
 				RenderTexture(
@@ -181,6 +181,17 @@ bool InitGraphic(HWND hWnd)
 	assert(i420Shader);
 	graphicList.push_back(i420Shader);
 	shaders[ShaderType::yuv420ToRGB] = i420Shader;
+
+	shaderInfo.vsFile = L"defaultVS.cso";
+	shaderInfo.psFile = L"convertToYUV-ps-one-plane.cso";
+	shaderInfo.vsBufferSize = sizeof(matrixWVP);
+	shaderInfo.psBufferSize = sizeof(toyuv_const_buffer);
+	shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
+	shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
+	shader_handle yuvPlaneShader = pGraphic->CreateShader(shaderInfo);
+	assert(yuvPlaneShader);
+	graphicList.push_back(yuvPlaneShader);
+	shaders[ShaderType::yuvOnePlane] = yuvPlaneShader;
 
 	//------------------------------------------------------------------
 	display = pGraphic->CreateDisplay(hWnd);
