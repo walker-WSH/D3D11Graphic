@@ -19,15 +19,15 @@ cbuffer PSConstants : register(b0)
 	int full_range;
 }
 
-const static int VIDEO_FORMAT_I420 = 1; /* three-plane */
-const static int VIDEO_FORMAT_NV12 = 2; /* two-plane, luma and packed chroma */
+const static int VIDEO_FORMAT_I420 = 1;
+const static int VIDEO_FORMAT_NV12 = 2;
 const static int VIDEO_FORMAT_YVYU = 3;
 const static int VIDEO_FORMAT_YUY2 = 4; /* YUYV */
 const static int VIDEO_FORMAT_UYVY = 5;
 const static int VIDEO_FORMAT_RGBA = 6;
 const static int VIDEO_FORMAT_BGRA = 7;
 const static int VIDEO_FORMAT_BGRX = 8;
-const static int VIDEO_FORMAT_Y800 = 9; /* grayscale */
+const static int VIDEO_FORMAT_Y800 = 9;
 const static int VIDEO_FORMAT_I444 = 10;
 const static int VIDEO_FORMAT_BGR3 = 11;
 const static int VIDEO_FORMAT_I422 = 12;
@@ -50,7 +50,7 @@ float3 YUV_to_RGB(float3 yuv)
 	return float3(r, g, b);
 }
 
-//---------------------------------------------------------------------------------------
+//-------------------------------------------------------------------
 float3 ps_planar420_to_rgb(VertexOut pIn)
 {
 	float y = image0.Sample(gSampler, pIn.uv).x;
@@ -216,6 +216,8 @@ float4 ps_y800_to_rgba(VertexOut pIn)
 	return color;
 }
 
+//-------------------------------------------------------------------
+/*
 float4 PS(VertexOut pIn) : SV_Target
 {
 	float4 res_color = float4(0.0, 0.0, 0.0, 0.0);
@@ -265,3 +267,4 @@ float4 PS(VertexOut pIn) : SV_Target
 
 	return res_color;
 }
+*/

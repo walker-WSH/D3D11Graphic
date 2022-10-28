@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "convert-video-yuv2rgb.h"
 
-extern IDX11GraphicInstance *pGraphic;
-
 FormatConvert_YUVToRGB::FormatConvert_YUVToRGB(video_convert_params params)
 	: original_video_info(params)
 {
@@ -23,6 +21,85 @@ bool FormatConvert_YUVToRGB::InitConvertion()
 	}
 
 	InitMatrix(original_video_info.color_range, original_video_info.color_space);
+	return true;
+}
+
+void FormatConvert_YUVToRGB::UninitConvertion()
+{
+	AUTO_GRAPHIC_CONTEXT(original_video_info.graphic);
+
+	for (auto &item : video_plane_list) {
+		if (item.texture) {
+			original_video_info.graphic->ReleaseGraphicObject(item.texture);
+		}
+	}
+
+	video_plane_list.clear();
+}
+
+void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
+{
+	if (av_frame->width != original_video_info.width ||
+	    av_frame->height != original_video_info.height ||
+	    av_frame->format != original_video_info.format) {
+		assert(false);
+		return;
+	}
+
+	AUTO_GRAPHIC_CONTEXT(original_video_info.graphic);
+
+	for (size_t i = 0; i < min(video_plane_list.size(), AV_NUM_DATA_POINTERS); i++) {
+		auto &item = video_plane_list[i];
+		assert(item.texture);
+		if (!item.texture)
+			break;
+
+		D3D11_MAPPED_SUBRESOURCE mapData;
+		if (original_video_info.graphic->MapTexture(item.texture, MapTextureType::MapWrite,
+							    &mapData)) {
+			uint32_t stride = min(mapData.RowPitch, (uint32_t)av_frame->linesize[i]);
+			uint8_t *src = av_frame->data[i];
+			uint8_t *dest = (uint8_t *)mapData.pData;
+
+			if (mapData.RowPitch == av_frame->linesize[i]) {
+				memmove(dest, src, stride * item.height);
+			} else {
+				for (size_t j = 0; j < item.height; j++) {
+					memmove(dest, src, stride);
+					dest += mapData.RowPitch;
+					src += av_frame->linesize[i];
+				}
+			}
+
+			original_video_info.graphic->UnmapTexture(item.texture);
+		}
+	}
+}
+
+torgb_const_buffer *FormatConvert_YUVToRGB::GetPSBuffer()
+{
+	return &ps_const_buffer;
+}
+
+std::vector<texture_handle> FormatConvert_YUVToRGB::GetTextures()
+{
+	std::vector<texture_handle> ret;
+
+	for (auto &item : video_plane_list) {
+		if (item.texture)
+			ret.push_back(item.texture);
+	}
+
+	return ret;
+}
+
+void FormatConvert_YUVToRGB::InitMatrix(enum video_range_type color_range,
+					enum video_colorspace color_space)
+{
+	std::array<float, 16> color_matrix{};
+	std::array<float, 3> color_range_min{0.0f, 0.0f, 0.0f};
+	std::array<float, 3> color_range_max{1.0f, 1.0f, 1.0f};
+	GetVideoMatrix(color_range, color_space, &color_matrix, &color_range_min, &color_range_max);
 
 	ps_const_buffer.width = (float)original_video_info.width;
 	ps_const_buffer.height = (float)original_video_info.height;
@@ -52,107 +129,6 @@ bool FormatConvert_YUVToRGB::InitConvertion()
 	ps_const_buffer.color_range_max.x = color_range_max[0];
 	ps_const_buffer.color_range_max.y = color_range_max[1];
 	ps_const_buffer.color_range_max.z = color_range_max[2];
-
-	return true;
-}
-
-void FormatConvert_YUVToRGB::UninitConvertion()
-{
-	for (auto &item : video_plane_list) {
-		if (item.texture) {
-			AUTO_GRAPHIC_CONTEXT(pGraphic);
-			pGraphic->ReleaseGraphicObject(item.texture);
-		}
-	}
-
-	video_plane_list.clear();
-}
-
-void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
-{
-	if (av_frame->width != original_video_info.width ||
-	    av_frame->height != original_video_info.height ||
-	    av_frame->format != original_video_info.format) {
-		assert(false);
-		return;
-	}
-
-	for (size_t i = 0; i < min(video_plane_list.size(), AV_NUM_DATA_POINTERS); i++) {
-		auto &item = video_plane_list[i];
-		assert(item.texture);
-		if (!item.texture)
-			break;
-
-		AUTO_GRAPHIC_CONTEXT(pGraphic);
-
-		D3D11_MAPPED_SUBRESOURCE mapData;
-		if (pGraphic->MapTexture(item.texture, MapTextureType::MapWrite, &mapData)) {
-			uint32_t stride = min(mapData.RowPitch, (uint32_t)av_frame->linesize[i]);
-			uint8_t *src = av_frame->data[i];
-			uint8_t *dest = (uint8_t *)mapData.pData;
-
-			if (mapData.RowPitch == av_frame->linesize[i]) {
-				memmove(dest, src, stride * item.height);
-			} else {
-				for (size_t j = 0; j < item.height; j++) {
-					memmove(dest, src, stride);
-					dest += mapData.RowPitch;
-					src += av_frame->linesize[i];
-				}
-			}
-
-			pGraphic->UnmapTexture(item.texture);
-		}
-	}
-
-#if 0
-	FILE *fp = 0;
-	fopen_s(&fp, "test.yuv", "wb+");
-
-	if (!fp)
-		return;
-
-	int total2 = 0;
-	for (auto &item : video_plane_list) {
-		if (!item.texture)
-			break;
-		
-		AUTO_GRAPHIC_CONTEXT(pGraphic);
-
-		ST_TextureInfo info = pGraphic->GetTextureInfo(item.texture);
-		info.usage = TextureType::ReadTexture;
-		int total = 0;
-
-		auto tex = pGraphic->CreateTexture(info);
-		pGraphic->CopyTexture(tex, item.texture);
-		D3D11_MAPPED_SUBRESOURCE mapData;
-		if (pGraphic->MapTexture(tex, MapTextureType::MapRead, &mapData)) {
-			for (size_t i = 0; i < item.height; i++) {
-				total += item.width;
-				fwrite((char *)mapData.pData + i * mapData.RowPitch, item.width, 1,
-				       fp);
-			}
-			pGraphic->UnmapTexture(tex);
-			assert(total == item.width * item.height);
-			total2 += total;
-		}
-		pGraphic->ReleaseGraphicObject(tex);
-	}
-
-	fclose(fp);
-#endif
-}
-
-std::vector<texture_handle> FormatConvert_YUVToRGB::GetTextures()
-{
-	std::vector<texture_handle> ret;
-
-	for (auto &item : video_plane_list) {
-		if (item.texture)
-			ret.push_back(item.texture);
-	}
-
-	return ret;
 }
 
 bool FormatConvert_YUVToRGB::InitPlane()
@@ -175,8 +151,11 @@ bool FormatConvert_YUVToRGB::InitPlane()
 		break;
 
 	default:
+		assert(false);
 		return false;
 	}
+
+	AUTO_GRAPHIC_CONTEXT(original_video_info.graphic);
 
 	for (auto &item : video_plane_list) {
 		if (item.width && item.height) {
@@ -186,9 +165,7 @@ bool FormatConvert_YUVToRGB::InitPlane()
 			info.format = item.format;
 			info.usage = TextureType::WriteTexture;
 
-			AUTO_GRAPHIC_CONTEXT(pGraphic);
-
-			item.texture = pGraphic->CreateTexture(info);
+			item.texture = original_video_info.graphic->CreateTexture(info);
 			if (!item.texture) {
 				assert(false);
 				return false;
@@ -197,12 +174,6 @@ bool FormatConvert_YUVToRGB::InitPlane()
 	}
 
 	return true;
-}
-
-void FormatConvert_YUVToRGB::InitMatrix(enum video_range_type color_range,
-					enum video_colorspace color_space)
-{
-	GetVideoMatrix(color_range, color_space, &color_matrix, &color_range_min, &color_range_max);
 }
 
 void FormatConvert_YUVToRGB::SetPlanarI420()

@@ -16,6 +16,9 @@
     <Filter Include="render\HLSL">
       <UniqueIdentifier>{1e7c9d4c-2190-45d6-a973-02c11d68b993}</UniqueIdentifier>
     </Filter>
+    <Filter Include="render\convertion">
+      <UniqueIdentifier>{08cbb433-3207-4173-9405-ad472d4dc1b8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MFCDemo.h">
@@ -36,17 +39,23 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="convert-video-color.h">
-      <Filter>render</Filter>
-    </ClInclude>
-    <ClInclude Include="convert-video-yuv2rgb.h">
-      <Filter>render</Filter>
-    </ClInclude>
     <ClInclude Include="render-interface-wrapper.h">
       <Filter>render</Filter>
     </ClInclude>
     <ClInclude Include="video-frame.h">
       <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="convert-video-color.h">
+      <Filter>render\convertion</Filter>
+    </ClInclude>
+    <ClInclude Include="convert-video-rgb2yuv.h">
+      <Filter>render\convertion</Filter>
+    </ClInclude>
+    <ClInclude Include="convert-video-yuv2rgb.h">
+      <Filter>render\convertion</Filter>
+    </ClInclude>
+    <ClInclude Include="convert-video-define.h">
+      <Filter>render\convertion</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -62,9 +71,6 @@
     <ClCompile Include="MFCDemoDlg.cpp">
       <Filter>头文件</Filter>
     </ClCompile>
-    <ClCompile Include="convert-video-yuv2rgb.cpp">
-      <Filter>render</Filter>
-    </ClCompile>
     <ClCompile Include="render-interface-wrapper.cpp">
       <Filter>render</Filter>
     </ClCompile>
@@ -72,7 +78,13 @@
       <Filter>render</Filter>
     </ClCompile>
     <ClCompile Include="convert-video-color.cpp">
-      <Filter>render</Filter>
+      <Filter>render\convertion</Filter>
+    </ClCompile>
+    <ClCompile Include="convert-video-rgb2yuv.cpp">
+      <Filter>render\convertion</Filter>
+    </ClCompile>
+    <ClCompile Include="convert-video-yuv2rgb.cpp">
+      <Filter>render\convertion</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -83,6 +95,9 @@
   <ItemGroup>
     <None Include="res\MFCDemo.rc2">
       <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\D3D11Graphic\HLSL\convertToRGB-ps-base.hlsli">
+      <Filter>render\HLSL</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -103,7 +118,7 @@
     <FxCompile Include="..\D3D11Graphic\HLSL\rectVS.hlsl">
       <Filter>render\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="..\D3D11Graphic\HLSL\convertToRGB_PS.hlsl">
+    <FxCompile Include="..\D3D11Graphic\HLSL\convertToRGB-ps-i420.hlsl">
       <Filter>render\HLSL</Filter>
     </FxCompile>
   </ItemGroup>

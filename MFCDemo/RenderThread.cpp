@@ -47,6 +47,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		AUTO_GRAPHIC_CONTEXT(pGraphic);
 
 		video_convert_params params;
+		params.graphic = pGraphic;
 		params.width = frame->width;
 		params.height = frame->height;
 		params.format = (AVPixelFormat)frame->format;
@@ -171,7 +172,7 @@ bool InitGraphic(HWND hWnd)
 	shaders[ShaderType::shaderFillRect] = rectShader;
 
 	shaderInfo.vsFile = L"defaultVS.cso";
-	shaderInfo.psFile = L"convertToRGB_PS.cso";
+	shaderInfo.psFile = L"convertToRGB-ps-i420.cso";
 	shaderInfo.vsBufferSize = sizeof(matrixWVP);
 	shaderInfo.psBufferSize = sizeof(torgb_const_buffer);
 	shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
