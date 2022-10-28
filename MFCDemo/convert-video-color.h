@@ -4,6 +4,7 @@
 #include <array>
 #include <vector>
 
+namespace matrix {
 enum class video_range_type {
 	VIDEO_RANGE_FULL,
 	VIDEO_RANGE_PARTIAL,
@@ -46,4 +47,24 @@ const std::array<convert_format_info, 2> format_info = {{
 	    1.000000f}}}},
 }};
 
-#define NUM_FORMATS (sizeof(format_info) / sizeof(format_info[0]))
+/*
+color_matrix: input/output, its for yuv->rgb
+color_range_min: it should be null while getting matrix for rgb->yuv
+color_range_max: it should be null while getting matrix for rgb->yuv
+*/
+bool GetVideoMatrix(enum video_range_type color_range, enum video_colorspace color_space,
+		    std::array<float, 16> *color_matrix, std::array<float, 3> *color_range_min,
+		    std::array<float, 3> *color_range_max);
+
+/*
+color_matrix: input/output, it is returned by GetVideoMatrix
+after handled by this function, color_matrix is for rgb->yuv
+--------------------------------
+00 01 02 03 // for U plane
+10 11 12 13 // for Y plane
+20 21 22 23 // for V plane
+30 31 32 33
+--------------------------------
+*/
+void VideoMatrixINV(std::array<float, 16> &color_matrix);
+}

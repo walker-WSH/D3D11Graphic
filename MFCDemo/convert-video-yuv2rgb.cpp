@@ -202,26 +202,7 @@ bool FormatConvert_YUVToRGB::InitPlane()
 void FormatConvert_YUVToRGB::InitMatrix(enum video_range_type color_range,
 					enum video_colorspace color_space)
 {
-	bool is_full_range = (color_range == video_range_type::VIDEO_RANGE_FULL);
-	for (size_t i = 0; i < NUM_FORMATS; i++) {
-		const convert_format_info &info = format_info[i];
-		if (info.color_space != color_space)
-			continue;
-
-		if (is_full_range) {
-			color_range_min = {0.0f, 0.0f, 0.0f};
-			color_range_max = {1.0f, 1.0f, 1.0f};
-			color_matrix = info.matrix[1];
-		} else {
-			color_range_min = info.float_range_min;
-			color_range_max = info.float_range_max;
-			color_matrix = info.matrix[0];
-		}
-
-		return;
-	}
-
-	assert(false);
+	GetVideoMatrix(color_range, color_space, &color_matrix, &color_range_min, &color_range_max);
 }
 
 void FormatConvert_YUVToRGB::SetPlanarI420()

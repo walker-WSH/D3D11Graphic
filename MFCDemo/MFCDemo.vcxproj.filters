@@ -71,6 +71,9 @@
     <ClCompile Include="video-frame.cpp">
       <Filter>render</Filter>
     </ClCompile>
+    <ClCompile Include="convert-video-color.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MFCDemo.rc">

@@ -239,6 +239,7 @@
     <ClInclude Include="video-frame.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="convert-video-color.cpp" />
     <ClCompile Include="convert-video-yuv2rgb.cpp" />
     <ClCompile Include="MFCDemo.cpp" />
     <ClCompile Include="MFCDemoDlg.cpp" />

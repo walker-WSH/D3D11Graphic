@@ -62,6 +62,9 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		RECT rc;
 		::GetClientRect(self->m_hWnd, &rc);
 
+		rc.right = (rc.right / 2) * 2;
+		rc.bottom = (rc.bottom / 2) * 2;
+
 		SIZE canvasSize(rc.right - rc.left, rc.bottom - rc.top);
 		pGraphic->SetDisplaySize(display, canvasSize.cx, canvasSize.cy);
 

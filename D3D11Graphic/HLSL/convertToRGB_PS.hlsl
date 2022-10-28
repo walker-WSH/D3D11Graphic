@@ -7,16 +7,16 @@ Texture2D image3 : register(t3);
 
 cbuffer PSConstants : register(b0)
 {
-	float width;
-	float height;
-	float width_d2;
-	int full_range;
-
 	float4 color_vec0;
 	float4 color_vec1;
 	float4 color_vec2;
 	float4 color_range_min;
 	float4 color_range_max;
+
+	float width;
+	float height;
+	float width_d2;
+	int full_range;
 }
 
 const static int VIDEO_FORMAT_I420 = 1; /* three-plane */
