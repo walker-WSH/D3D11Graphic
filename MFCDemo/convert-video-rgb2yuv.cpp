@@ -83,7 +83,7 @@ void FormatConvert_RGBToYUV::RenderConvertVideo(texture_handle tex)
 
 	if (1) {
 		FILE *fp = 0;
-		fopen_s(&fp, "d:/ttt.yuv", "wb+");
+		fopen_s(&fp, "d:/1080p.i420", "wb+");
 
 		for (const auto &item : video_plane_list) {
 			D3D11_MAPPED_SUBRESOURCE data;

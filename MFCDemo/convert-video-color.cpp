@@ -5,6 +5,29 @@
 #include <string.h>
 #include "convert-video-color.h"
 
+#define SWAP_VALUE(x, y) \
+	temp = x;        \
+	x = y;           \
+	y = temp;
+
+#define SWAP_MATRIX(mtx, color_matrix)             \
+	SWAP_VALUE(mtx.x.ptr[0], color_matrix[0])  \
+	SWAP_VALUE(mtx.x.ptr[1], color_matrix[1])  \
+	SWAP_VALUE(mtx.x.ptr[2], color_matrix[2])  \
+	SWAP_VALUE(mtx.x.ptr[3], color_matrix[3])  \
+	SWAP_VALUE(mtx.y.ptr[0], color_matrix[4])  \
+	SWAP_VALUE(mtx.y.ptr[1], color_matrix[5])  \
+	SWAP_VALUE(mtx.y.ptr[2], color_matrix[6])  \
+	SWAP_VALUE(mtx.y.ptr[3], color_matrix[7])  \
+	SWAP_VALUE(mtx.z.ptr[0], color_matrix[8])  \
+	SWAP_VALUE(mtx.z.ptr[1], color_matrix[9])  \
+	SWAP_VALUE(mtx.z.ptr[2], color_matrix[10]) \
+	SWAP_VALUE(mtx.z.ptr[3], color_matrix[11]) \
+	SWAP_VALUE(mtx.t.ptr[0], color_matrix[12]) \
+	SWAP_VALUE(mtx.t.ptr[1], color_matrix[13]) \
+	SWAP_VALUE(mtx.t.ptr[2], color_matrix[14]) \
+	SWAP_VALUE(mtx.t.ptr[3], color_matrix[15])
+
 struct vec4 {
 	union {
 		struct {
@@ -135,25 +158,8 @@ void VideoMatrixINV(std::array<float, 16> &color_matrix)
 {
 	struct matrix4 mtx;
 
-	mtx.x.ptr[0] = color_matrix[0];
-	mtx.x.ptr[1] = color_matrix[1];
-	mtx.x.ptr[2] = color_matrix[2];
-	mtx.x.ptr[3] = color_matrix[3];
-
-	mtx.y.ptr[0] = color_matrix[4];
-	mtx.y.ptr[1] = color_matrix[5];
-	mtx.y.ptr[2] = color_matrix[6];
-	mtx.y.ptr[3] = color_matrix[7];
-
-	mtx.z.ptr[0] = color_matrix[8];
-	mtx.z.ptr[1] = color_matrix[9];
-	mtx.z.ptr[2] = color_matrix[10];
-	mtx.z.ptr[3] = color_matrix[11];
-
-	mtx.t.ptr[0] = color_matrix[12];
-	mtx.t.ptr[1] = color_matrix[13];
-	mtx.t.ptr[2] = color_matrix[14];
-	mtx.t.ptr[3] = color_matrix[15];
+	float temp;
+	SWAP_MATRIX(mtx, color_matrix);
 
 	matrix4_inv(&mtx, &mtx);
 
@@ -161,24 +167,6 @@ void VideoMatrixINV(std::array<float, 16> &color_matrix)
 	mtx.x = mtx.y;
 	mtx.y = r_row;
 
-	color_matrix[0] = mtx.x.ptr[0];
-	color_matrix[1] = mtx.x.ptr[1];
-	color_matrix[2] = mtx.x.ptr[2];
-	color_matrix[3] = mtx.x.ptr[3];
-
-	color_matrix[4] = mtx.y.ptr[0];
-	color_matrix[5] = mtx.y.ptr[1];
-	color_matrix[6] = mtx.y.ptr[2];
-	color_matrix[7] = mtx.y.ptr[3];
-
-	color_matrix[8] = mtx.z.ptr[0];
-	color_matrix[9] = mtx.z.ptr[1];
-	color_matrix[10] = mtx.z.ptr[2];
-	color_matrix[11] = mtx.z.ptr[3];
-
-	color_matrix[12] = mtx.t.ptr[0];
-	color_matrix[13] = mtx.t.ptr[1];
-	color_matrix[14] = mtx.t.ptr[2];
-	color_matrix[15] = mtx.t.ptr[3];
+	SWAP_MATRIX(mtx, color_matrix);
 }
 }

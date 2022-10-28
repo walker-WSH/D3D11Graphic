@@ -85,6 +85,10 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			FillRectangle(SIZE(info.width, info.height),
 				      RECT(0, 0, info.width / 2, info.height / 2),
 				      ST_Color(1.0, 0, 0, 1.0));
+
+			RenderTexture(std::vector<texture_handle>{texAlpha},
+				      SIZE(info.width, info.height),
+				      RECT(0, 0, info.width, info.height));
 			pGraphic->RenderEnd();
 
 			if (!toYUV) {

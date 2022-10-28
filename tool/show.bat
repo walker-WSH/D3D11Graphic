@@ -1,0 +1,1 @@
+ffplay -f rawvideo -pixel_format yuv420p -video_size 1920x1080 1080p.i420
