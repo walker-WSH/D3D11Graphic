@@ -16,5 +16,5 @@ float4 PS(VertexOut pIn) : SV_Target
 {
 	float4 rgba = image0.Sample(SampleType, pIn.uv);
 	float y = dot(color_vec.xyz, rgba.xyz) + color_vec.w;
-	return float4(y, 0, 0, 0);
+	return float4(y, 0, 0, 1);
 }
