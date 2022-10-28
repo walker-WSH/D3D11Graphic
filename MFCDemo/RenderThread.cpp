@@ -41,6 +41,8 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 	if (!InitGraphic(self->m_hWnd))
 		return 1;
 
+	FormatConvert_RGBToYUV *toYUV = nullptr;
+
 	{
 		initVideo();
 
@@ -81,9 +83,21 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		if (pGraphic->RenderBegin_Canvas(texCanvas, ST_Color(1.0f, 1.0f, 1.0f, 1.0f))) {
 			auto info = pGraphic->GetTextureInfo(texCanvas);
 			FillRectangle(SIZE(info.width, info.height),
-				 RECT(0, 0, info.width / 2, info.height / 2),
-				 ST_Color(1.0, 0, 0, 1.0));
+				      RECT(0, 0, info.width / 2, info.height / 2),
+				      ST_Color(1.0, 0, 0, 1.0));
 			pGraphic->RenderEnd();
+
+			if (!toYUV) {
+				video_convert_params params;
+				params.graphic = pGraphic;
+				params.width = info.width;
+				params.height = info.height;
+				params.format = AV_PIX_FMT_YUV420P;
+
+				toYUV = new FormatConvert_RGBToYUV(params);
+				toYUV->InitConvertion();
+				toYUV->RenderConvertVideo(texCanvas);
+			}
 		}
 
 		if (pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.3f, 0.3f, 1.0f))) {
@@ -113,7 +127,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 					      renderRegion[2]);
 
 				FillRectangle(canvasSize, renderRegion[3],
-					 ST_Color(0, 0, 1.0, 1.0)); // 填充纯色矩形区域
+					      ST_Color(0, 0, 1.0, 1.0)); // 填充纯色矩形区域
 
 				RenderTexture(
 					std::vector<texture_handle>{texCanvas}, canvasSize,
@@ -220,8 +234,8 @@ bool InitGraphic(HWND hWnd)
 
 	//------------------------------- test texutres --------------------
 	ST_TextureInfo info;
-	info.width = 400;
-	info.height = 400;
+	info.width = 1920;
+	info.height = 1080;
 	info.format = DXGI_FORMAT_B8G8R8A8_UNORM;
 
 	info.usage = TextureType::CanvasTarget;

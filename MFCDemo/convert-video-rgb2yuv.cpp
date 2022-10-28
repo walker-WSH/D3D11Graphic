@@ -55,9 +55,8 @@ void FormatConvert_RGBToYUV::RenderConvertVideo(texture_handle tex)
 
 	std::vector<texture_handle> textures{tex};
 	for (const auto &item : video_plane_list) {
-
-		if (original_video_info.graphic->RenderBegin_Display(item.canvas_tex,
-								     ST_Color(0, 0, 0, 0))) {
+		if (original_video_info.graphic->RenderBegin_Canvas(item.canvas_tex,
+								    ST_Color(0, 0, 0, 0))) {
 			SIZE canvas(item.width, item.height);
 			SIZE texSize(texInfo.width, texInfo.height);
 			RECT drawDest(0, 0, item.width, item.height);
@@ -77,6 +76,27 @@ void FormatConvert_RGBToYUV::RenderConvertVideo(texture_handle tex)
 
 			original_video_info.graphic->RenderEnd();
 		}
+
+		original_video_info.graphic->CopyTexture(item.read_tex, item.canvas_tex);
+	}
+
+	if (1) {
+		FILE *fp = 0;
+		fopen_s(&fp, "d:/ttt.yuv", "wb+");
+
+		for (const auto &item : video_plane_list) {
+			D3D11_MAPPED_SUBRESOURCE data;
+			if (original_video_info.graphic->MapTexture(
+				    item.read_tex, MapTextureType::MapRead, &data)) {
+				for (size_t i = 0; i < item.height; i++)
+					fwrite((char *)data.pData + i * data.RowPitch, item.width,
+					       1, fp);
+
+				original_video_info.graphic->UnmapTexture(item.read_tex);
+			}
+		}
+
+		fclose(fp);
 	}
 }
 
