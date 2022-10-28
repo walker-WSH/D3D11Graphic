@@ -18,12 +18,13 @@ bool FormatConvert_RGBToYUV::InitConvertion()
 {
 	UninitConvertion();
 
+	InitMatrix(original_video_info.color_range, original_video_info.color_space);
+
 	if (!InitPlane()) {
 		UninitConvertion();
 		return false;
 	}
 
-	InitMatrix(original_video_info.color_range, original_video_info.color_space);
 	return true;
 }
 
