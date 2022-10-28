@@ -5,10 +5,12 @@
 #include <string.h>
 #include "convert-video-color.h"
 
-#define SWAP_VALUE(x, y) \
-	temp = x;        \
-	x = y;           \
-	y = temp;
+#define SWAP_VALUE(x, y)       \
+	{                      \
+		auto temp = x; \
+		x = y;         \
+		y = temp;      \
+	}
 
 #define SWAP_MATRIX(mtx, color_matrix)             \
 	SWAP_VALUE(mtx.x.ptr[0], color_matrix[0])  \
@@ -156,9 +158,7 @@ bool GetVideoMatrix(enum video_range_type color_range, enum video_colorspace col
 
 void VideoMatrixINV(std::array<float, 16> &color_matrix)
 {
-	struct matrix4 mtx;
-
-	float temp;
+	struct matrix4 mtx = {0};
 	SWAP_MATRIX(mtx, color_matrix);
 
 	matrix4_inv(&mtx, &mtx);
