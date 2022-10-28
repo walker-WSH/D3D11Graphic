@@ -96,7 +96,7 @@
     <None Include="res\MFCDemo.rc2">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="..\D3D11Graphic\HLSL\convertToRGB-ps-base.hlsli">
+    <None Include="..\D3D11Graphic\HLSL\yuv-to-rgb-base.hlsli">
       <Filter>render\HLSL</Filter>
     </None>
   </ItemGroup>
@@ -106,25 +106,25 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\D3D11Graphic\HLSL\defaultPS.hlsl">
+    <FxCompile Include="..\D3D11Graphic\HLSL\default-ps.hlsl">
       <Filter>render\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="..\D3D11Graphic\HLSL\defaultVS.hlsl">
+    <FxCompile Include="..\D3D11Graphic\HLSL\default-vs.hlsl">
       <Filter>render\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="..\D3D11Graphic\HLSL\rectPS.hlsl">
+    <FxCompile Include="..\D3D11Graphic\HLSL\fill-rect-ps.hlsl">
       <Filter>render\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="..\D3D11Graphic\HLSL\rectVS.hlsl">
+    <FxCompile Include="..\D3D11Graphic\HLSL\fill-rect-vs.hlsl">
       <Filter>render\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="..\D3D11Graphic\HLSL\convertToRGB-ps-i420.hlsl">
+    <FxCompile Include="..\D3D11Graphic\HLSL\i420-to-rgb-ps.hlsl">
       <Filter>render\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="..\D3D11Graphic\HLSL\convertToYUV-ps-uv.hlsl">
+    <FxCompile Include="..\D3D11Graphic\HLSL\rgb-to-uv-ps.hlsl">
       <Filter>render\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="..\D3D11Graphic\HLSL\convertToYUV-ps-one-plane.hlsl">
+    <FxCompile Include="..\D3D11Graphic\HLSL\rgb-to-y-ps.hlsl">
       <Filter>render\HLSL</Filter>
     </FxCompile>
   </ItemGroup>
