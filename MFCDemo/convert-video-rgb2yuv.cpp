@@ -61,6 +61,7 @@ void FormatConvert_RGBToYUV::RenderConvertVideo(texture_handle tex)
 			SIZE canvas(item.width, item.height);
 			SIZE texSize(texInfo.width, texInfo.height);
 			RECT drawDest(0, 0, item.width, item.height);
+			float matrixWVP[4][4];
 			TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
 
 			ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
@@ -68,8 +69,10 @@ void FormatConvert_RGBToYUV::RenderConvertVideo(texture_handle tex)
 
 			original_video_info.graphic->SetVertexBuffer(item.shader, outputVertex,
 								     sizeof(outputVertex));
+
 			original_video_info.graphic->SetVSConstBuffer(
 				item.shader, &(matrixWVP[0][0]), sizeof(matrixWVP));
+
 			original_video_info.graphic->SetPSConstBuffer(
 				item.shader, &item.ps_const_buffer, sizeof(toyuv_const_buffer));
 

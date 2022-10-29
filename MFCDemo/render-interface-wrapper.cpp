@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "render-interface-wrapper.h"
 
-float matrixWVP[4][4];
 IDX11GraphicInstance *pGraphic = nullptr;
 std::map<ShaderType, shader_handle> shaders;
 std::shared_ptr<FormatConvert_YUVToRGB> pI4202RGB = nullptr;
@@ -13,7 +12,7 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 	ShaderType type = ShaderType::shaderTexture;
 	ST_TextureInfo texInfo = pGraphic->GetTextureInfo(texs.at(0));
 	SIZE texSize(texInfo.width, texInfo.height);
-
+	float matrixWVP[4][4];
 	TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
@@ -21,6 +20,7 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 
 	pGraphic->SetVertexBuffer(shaders[type], outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(shaders[type], &(matrixWVP[0][0]), sizeof(matrixWVP));
+
 	pGraphic->DrawTexture(shaders[type], texs);
 }
 
@@ -30,6 +30,7 @@ void FillRectangle(SIZE canvas, RECT drawDest, ST_Color clr)
 
 	ShaderType type = ShaderType::shaderFillRect;
 	SIZE texSize(drawDest.right - drawDest.left, drawDest.bottom - drawDest.top);
+	float matrixWVP[4][4];
 	TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
@@ -38,6 +39,7 @@ void FillRectangle(SIZE canvas, RECT drawDest, ST_Color clr)
 	pGraphic->SetVertexBuffer(shaders[type], outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(shaders[type], &(matrixWVP[0][0]), sizeof(matrixWVP));
 	pGraphic->SetPSConstBuffer(shaders[type], &clr, sizeof(ST_Color));
+
 	pGraphic->DrawTopplogy(shaders[type], D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 
@@ -85,7 +87,7 @@ void YUV_To_RGB(SIZE canvas, RECT drawDest)
 
 	ShaderType type = ShaderType::yuv420ToRGB;
 	SIZE texSize((LONG)psBuf->width, (LONG)psBuf->height);
-
+	float matrixWVP[4][4];
 	TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
@@ -94,5 +96,6 @@ void YUV_To_RGB(SIZE canvas, RECT drawDest)
 	pGraphic->SetVertexBuffer(shaders[type], outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(shaders[type], &(matrixWVP[0][0]), sizeof(matrixWVP));
 	pGraphic->SetPSConstBuffer(shaders[type], psBuf, sizeof(torgb_const_buffer));
+
 	pGraphic->DrawTexture(shaders[type], texs);
 }

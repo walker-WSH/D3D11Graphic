@@ -171,6 +171,7 @@ bool InitGraphic(HWND hWnd)
 	assert(bOK);
 
 	//------------------------------------------------------------------
+	float matrixWVP[4][4];
 	ST_ShaderInfo shaderInfo;
 	shaderInfo.vsFile = L"default-vs.cso";
 	shaderInfo.psFile = L"default-ps.cso";

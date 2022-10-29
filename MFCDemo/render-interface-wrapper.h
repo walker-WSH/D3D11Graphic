@@ -13,7 +13,6 @@ enum class ShaderType {
 	uvPlane,
 };
 
-extern float matrixWVP[4][4];
 extern IDX11GraphicInstance *pGraphic;
 extern std::map<ShaderType, shader_handle> shaders;
 extern std::shared_ptr<FormatConvert_YUVToRGB> pI4202RGB;
