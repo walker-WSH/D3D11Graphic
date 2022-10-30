@@ -234,6 +234,6 @@ void FormatConvert_RGBToYUV::SetPlanarNV12()
 	video_plane_list[1].format = DXGI_FORMAT_R8G8_UNORM;
 	video_plane_list[1].shader = shaders[ShaderType::uvPlane];
 	video_plane_list[1].ps_const_buffer.color_vec0 = color_vec_u;
-	video_plane_list[1].ps_const_buffer.color_vec0 = color_vec_v;
+	video_plane_list[1].ps_const_buffer.color_vec1 = color_vec_v;
 	video_plane_list[1].expect_linesize = video_plane_list[1].width * 2;
 }

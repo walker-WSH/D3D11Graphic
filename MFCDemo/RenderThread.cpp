@@ -86,9 +86,18 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			RenderTexture(std::vector<texture_handle>{texImg},
 				      SIZE(info.width, info.height),
 				      RECT(0, 0, info.width, info.height));
+
 			FillRectangle(SIZE(info.width, info.height),
-				      RECT(0, 0, info.width / 2, info.height / 2),
+				      RECT(0, info.height / 2, info.width / 3, info.height),
 				      ST_Color(1.0, 0, 0, 1.0));
+			FillRectangle(SIZE(info.width, info.height),
+				      RECT(info.width / 3, info.height / 2, info.width / 3 * 2,
+					   info.height),
+				      ST_Color(0, 1.0, 0, 1.0));
+			FillRectangle(SIZE(info.width, info.height),
+				      RECT(info.width / 3 * 2, info.height / 2, info.width,
+					   info.height),
+				      ST_Color(0, 0, 1, 1.0));
 
 			pGraphic->RenderEnd();
 
@@ -99,7 +108,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 				params.graphic = pGraphic;
 				params.width = info.width;
 				params.height = info.height;
-				params.format = AV_PIX_FMT_YUV420P;
+				params.format = AV_PIX_FMT_NV12;
 
 				FormatConvert_RGBToYUV *toYUV = new FormatConvert_RGBToYUV(params);
 				toYUV->InitConvertion();
