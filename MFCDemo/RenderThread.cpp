@@ -82,9 +82,11 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 		if (pGraphic->RenderBegin_Canvas(texCanvas, ST_Color(1.0f, 1.0f, 1.0f, 1.0f))) {
 			auto info = pGraphic->GetTextureInfo(texCanvas);
+
+			auto img = pGraphic->GetTextureInfo(texImg);
 			RenderTexture(std::vector<texture_handle>{texImg},
 				      SIZE(info.width, info.height),
-				      RECT(0, 0, info.width, info.height));
+				      RECT(0, 0, img.width, img.height));
 
 			FillRectangle(SIZE(info.width, info.height),
 				      RECT(0, info.height * 0.9f, info.width / 3, info.height),
