@@ -29,6 +29,10 @@ private:
 		uint32_t width = 0;
 		uint32_t height = 0;
 		enum DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
+
+		uint32_t expect_linesize = 0;
+		uint32_t real_linesize = 0;
+
 		texture_handle canvas_tex = 0;
 		texture_handle read_tex = 0;
 
