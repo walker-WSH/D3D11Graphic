@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "convert-video-yuv2rgb.h"
+#include "render-interface-wrapper.h"
 
 FormatConvert_YUVToRGB::FormatConvert_YUVToRGB(video_convert_params params)
 	: original_video_info(params)
@@ -37,6 +38,28 @@ void FormatConvert_YUVToRGB::UninitConvertion()
 	video_plane_list.clear();
 }
 
+void FormatConvert_YUVToRGB::RenderVideo(const AVFrame *av_frame, SIZE canvas, RECT dest)
+{
+	AUTO_GRAPHIC_CONTEXT(pGraphic);
+
+	UpdateVideo(av_frame);
+
+	std::vector<texture_handle> texs = GetTextures();
+	SIZE resolution((LONG)ps_const_buffer.width, (LONG)ps_const_buffer.height);
+
+	float matrixWVP[4][4];
+	TransposeMatrixWVP(canvas, resolution, dest, matrixWVP);
+
+	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
+	VertexList_RectTriangle(resolution, false, false, outputVertex);
+
+	pGraphic->SetVertexBuffer(convert_shader, outputVertex, sizeof(outputVertex));
+	pGraphic->SetVSConstBuffer(convert_shader, &(matrixWVP[0][0]), sizeof(matrixWVP));
+	pGraphic->SetPSConstBuffer(convert_shader, &ps_const_buffer, sizeof(torgb_const_buffer));
+
+	pGraphic->DrawTexture(convert_shader, texs);
+}
+
 void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
 {
 	if (av_frame->width != original_video_info.width ||
@@ -54,19 +77,19 @@ void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
 		if (!item.texture)
 			break;
 
-		D3D11_MAPPED_SUBRESOURCE mapData;
+		D3D11_MAPPED_SUBRESOURCE data;
 		if (original_video_info.graphic->MapTexture(item.texture, MapTextureType::MapWrite,
-							    &mapData)) {
-			uint32_t stride = min(mapData.RowPitch, (uint32_t)av_frame->linesize[i]);
+							    &data)) {
+			uint32_t stride = min(data.RowPitch, (uint32_t)av_frame->linesize[i]);
 			uint8_t *src = av_frame->data[i];
-			uint8_t *dest = (uint8_t *)mapData.pData;
+			uint8_t *dest = (uint8_t *)data.pData;
 
-			if (mapData.RowPitch == av_frame->linesize[i]) {
-				memmove(dest, src, stride * item.height);
+			if (data.RowPitch == av_frame->linesize[i]) {
+				memmove(dest, src, (size_t)stride * item.height);
 			} else {
 				for (size_t j = 0; j < item.height; j++) {
 					memmove(dest, src, stride);
-					dest += mapData.RowPitch;
+					dest += data.RowPitch;
 					src += av_frame->linesize[i];
 				}
 			}
@@ -74,11 +97,6 @@ void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
 			original_video_info.graphic->UnmapTexture(item.texture);
 		}
 	}
-}
-
-torgb_const_buffer *FormatConvert_YUVToRGB::GetPSBuffer()
-{
-	return &ps_const_buffer;
 }
 
 std::vector<texture_handle> FormatConvert_YUVToRGB::GetTextures()
@@ -178,6 +196,8 @@ bool FormatConvert_YUVToRGB::InitPlane()
 
 void FormatConvert_YUVToRGB::SetPlanarI420()
 {
+	convert_shader = shaders[ShaderType::i420ToRGB];
+
 	video_plane_list.push_back(video_plane_info());
 	video_plane_list.push_back(video_plane_info());
 	video_plane_list.push_back(video_plane_info());
@@ -197,6 +217,8 @@ void FormatConvert_YUVToRGB::SetPlanarI420()
 
 void FormatConvert_YUVToRGB::SetPlanarNV12()
 {
+	convert_shader = shaders[ShaderType::nv12ToRGB];
+
 	video_plane_list.push_back(video_plane_info());
 	video_plane_list.push_back(video_plane_info());
 
@@ -211,6 +233,8 @@ void FormatConvert_YUVToRGB::SetPlanarNV12()
 
 void FormatConvert_YUVToRGB::SetPacked422Info()
 {
+	convert_shader = shaders[ShaderType::yuy2ToRGB];
+
 	video_plane_list.push_back(video_plane_info());
 
 	video_plane_list[0].width = (original_video_info.width + 1) / 2;

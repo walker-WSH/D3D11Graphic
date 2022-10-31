@@ -43,7 +43,7 @@ void FormatConvert_RGBToYUV::UninitConvertion()
 	video_plane_list.clear();
 }
 
-void FormatConvert_RGBToYUV::RenderConvertVideo(texture_handle tex)
+bool FormatConvert_RGBToYUV::ConvertVideo(texture_handle tex)
 {
 	AUTO_GRAPHIC_CONTEXT(original_video_info.graphic);
 
@@ -51,36 +51,39 @@ void FormatConvert_RGBToYUV::RenderConvertVideo(texture_handle tex)
 	if (texInfo.width != original_video_info.width ||
 	    texInfo.height != original_video_info.height) {
 		assert(false);
-		return;
+		return false;
 	}
 
 	std::vector<texture_handle> textures{tex};
 	for (const auto &item : video_plane_list) {
-		if (original_video_info.graphic->RenderBegin_Canvas(item.canvas_tex,
-								    ST_Color(0, 0, 0, 0))) {
-			SIZE canvas(item.width, item.height);
-			SIZE texSize(texInfo.width, texInfo.height);
-			RECT drawDest(0, 0, item.width, item.height);
-			float matrixWVP[4][4];
-			TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
-
-			ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
-			VertexList_RectTriangle(texSize, false, false, outputVertex);
-
-			original_video_info.graphic->SetVertexBuffer(item.shader, outputVertex,
-								     sizeof(outputVertex));
-
-			original_video_info.graphic->SetVSConstBuffer(
-				item.shader, &(matrixWVP[0][0]), sizeof(matrixWVP));
-
-			original_video_info.graphic->SetPSConstBuffer(
-				item.shader, &item.ps_const_buffer, sizeof(toyuv_const_buffer));
-
-			original_video_info.graphic->DrawTexture(item.shader, textures);
-
-			original_video_info.graphic->RenderEnd();
+		if (!original_video_info.graphic->RenderBegin_Canvas(item.canvas_tex,
+								     ST_Color(0, 0, 0, 0))) {
+			assert(false);
+			return false;
 		}
 
+		SIZE canvas(item.width, item.height);
+		SIZE texSize(texInfo.width, texInfo.height);
+		RECT drawDest(0, 0, item.width, item.height);
+		float matrixWVP[4][4];
+		TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
+
+		ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
+		VertexList_RectTriangle(texSize, false, false, outputVertex);
+
+		original_video_info.graphic->SetVertexBuffer(item.shader, outputVertex,
+							     sizeof(outputVertex));
+
+		original_video_info.graphic->SetVSConstBuffer(item.shader, &(matrixWVP[0][0]),
+							      sizeof(matrixWVP));
+
+		original_video_info.graphic->SetPSConstBuffer(item.shader, &item.ps_const_buffer,
+							      sizeof(toyuv_const_buffer));
+
+		original_video_info.graphic->DrawTexture(item.shader, textures);
+		original_video_info.graphic->RenderEnd();
+
+		// copy it to read video
 		original_video_info.graphic->CopyTexture(item.read_tex, item.canvas_tex);
 	}
 
@@ -89,7 +92,7 @@ void FormatConvert_RGBToYUV::RenderConvertVideo(texture_handle tex)
 		fopen_s(&fp, "d:/1080p.i420", "wb+");
 
 		if (!fp)
-			return;
+			return false;
 
 		for (const auto &item : video_plane_list) {
 			D3D11_MAPPED_SUBRESOURCE data;
@@ -97,8 +100,8 @@ void FormatConvert_RGBToYUV::RenderConvertVideo(texture_handle tex)
 				    item.read_tex, MapTextureType::MapRead, &data)) {
 
 				if (item.expect_linesize == data.RowPitch) {
-					fwrite(data.pData, item.expect_linesize * item.height, 1,
-					       fp);
+					fwrite(data.pData,
+					       (size_t)item.expect_linesize * item.height, 1, fp);
 
 				} else {
 					auto linesize = min(item.expect_linesize, data.RowPitch);
@@ -114,6 +117,8 @@ void FormatConvert_RGBToYUV::RenderConvertVideo(texture_handle tex)
 
 		fclose(fp);
 	}
+
+	return true;
 }
 
 void FormatConvert_RGBToYUV::InitMatrix(enum video_range_type color_range,

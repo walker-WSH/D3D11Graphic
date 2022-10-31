@@ -21,6 +21,8 @@ texture_handle texImg2 = nullptr;
 CPoint posLBDown = {0, 0};
 std::vector<RECT> renderRegion;
 
+std::shared_ptr<FormatConvert_YUVToRGB> pI4202RGB = nullptr;
+
 bool InitGraphic(HWND hWnd);
 void UnInitGraphic();
 
@@ -56,7 +58,6 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 		pI4202RGB = std::make_shared<FormatConvert_YUVToRGB>(params);
 		pI4202RGB->InitConvertion();
-		pI4202RGB->UpdateVideo(frame);
 	}
 
 	while (!self->m_bExit) {
@@ -89,14 +90,14 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 				      RECT(0, 0, img.width, img.height));
 
 			FillRectangle(SIZE(info.width, info.height),
-				      RECT(0, info.height * 0.9f, info.width / 3, info.height),
+				      RECT(0, info.height / 10 * 9, info.width / 3, info.height),
 				      ST_Color(1.0, 0, 0, 1.0));
 			FillRectangle(SIZE(info.width, info.height),
-				      RECT(info.width / 3, info.height * 0.9f, info.width / 3 * 2,
+				      RECT(info.width / 3, info.height / 10 * 9, info.width / 3 * 2,
 					   info.height),
 				      ST_Color(0, 1.0, 0, 1.0));
 			FillRectangle(SIZE(info.width, info.height),
-				      RECT(info.width / 3 * 2, info.height * 0.9f, info.width,
+				      RECT(info.width / 3 * 2, info.height / 10 * 9, info.width,
 					   info.height),
 				      ST_Color(0, 0, 1, 1.0));
 
@@ -113,7 +114,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 				FormatConvert_RGBToYUV *toYUV = new FormatConvert_RGBToYUV(params);
 				toYUV->InitConvertion();
-				toYUV->RenderConvertVideo(texCanvas);
+				toYUV->ConvertVideo(texCanvas);
 				toYUV->UninitConvertion();
 				delete toYUV;
 			}
@@ -126,7 +127,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 			RECT rcRight = rc;
 			rcRight.left = (rc.right - rc.left) / 2;
-			YUV_To_RGB(canvasSize, rcRight);
+			pI4202RGB->RenderVideo(frame, canvasSize, rcRight);
 
 			if (1) {
 				if (texShared) {
@@ -214,7 +215,7 @@ bool InitGraphic(HWND hWnd)
 	shader_handle i420Shader = pGraphic->CreateShader(shaderInfo);
 	assert(i420Shader);
 	graphicList.push_back(i420Shader);
-	shaders[ShaderType::yuv420ToRGB] = i420Shader;
+	shaders[ShaderType::i420ToRGB] = i420Shader;
 
 	shaderInfo.vsFile = L"default-vs.cso";
 	shaderInfo.psFile = L"rgb-to-y-ps.cso";

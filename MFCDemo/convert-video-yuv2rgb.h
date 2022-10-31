@@ -23,12 +23,12 @@ public:
 	bool InitConvertion();
 	void UninitConvertion();
 
-	void UpdateVideo(const AVFrame *av_frame);
-
-	torgb_const_buffer *GetPSBuffer();
-	std::vector<texture_handle> GetTextures();
+	void RenderVideo(const AVFrame *av_frame, SIZE canvas, RECT dest);
 
 private:
+	void UpdateVideo(const AVFrame *av_frame);
+	std::vector<texture_handle> GetTextures();
+
 	void InitMatrix(enum video_range_type color_range, enum video_colorspace color_space);
 
 	bool InitPlane();
@@ -45,6 +45,7 @@ private:
 	};
 
 	const video_convert_params original_video_info;
+	shader_handle convert_shader = 0; // does not need to free
 	std::vector<video_plane_info> video_plane_list;
 	torgb_const_buffer ps_const_buffer;
 };

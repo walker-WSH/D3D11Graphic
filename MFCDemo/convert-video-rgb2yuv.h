@@ -15,7 +15,7 @@ public:
 	bool InitConvertion();
 	void UninitConvertion();
 
-	void RenderConvertVideo(texture_handle tex);
+	bool ConvertVideo(texture_handle tex);
 
 private:
 	void InitMatrix(enum video_range_type color_range, enum video_colorspace color_space);
