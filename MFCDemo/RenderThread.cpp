@@ -147,30 +147,57 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 						     ST_Color(1.0f, 0.7f, 0.1f, 1.0f));
 			}
 
-			AVFrame *newFrame = decode_frame();
-			if (newFrame) {
+			if (1) {
+				AVFrame *newFrame = decode_frame();
+				if (newFrame) {
+					if (preFrame) {
+						av_frame_free(&preFrame);
+						preFrame = nullptr;
+					}
+
+					preFrame = newFrame;
+				}
+
 				if (preFrame) {
-					av_frame_free(&preFrame);
-					preFrame = nullptr;
+					if (!pI4202RGB) {
+						video_convert_params params;
+						params.graphic = pGraphic;
+						params.width = preFrame->width;
+						params.height = preFrame->height;
+						params.format = (AVPixelFormat)preFrame->format;
+
+						pI4202RGB =
+							std::make_shared<FormatConvert_YUVToRGB>(
+								params);
+						pI4202RGB->InitConvertion();
+					}
+
+					FILE *fp = 0;
+					fopen_s(&fp, "yuv", "wb+");
+					if (fp) {
+						for (size_t i = 0; i < preFrame->height; i++) {
+							fwrite(preFrame->data[0] +
+								       i * preFrame->linesize[0],
+							       preFrame->width, 1, fp);
+						}
+
+						for (size_t i = 0; i < preFrame->height / 2; i++) {
+							fwrite(preFrame->data[1] +
+								       i * preFrame->linesize[1],
+							       preFrame->width / 2, 1, fp);
+						}
+
+						for (size_t i = 0; i < preFrame->height / 2; i++) {
+							fwrite(preFrame->data[2] +
+								       i * preFrame->linesize[2],
+							       preFrame->width / 2, 1, fp);
+						}
+
+						fclose(fp);
+					}
+
+					pI4202RGB->RenderVideo(preFrame, canvasSize, rc);
 				}
-
-				preFrame = newFrame;
-			}
-
-			if (preFrame) {
-				if (!pI4202RGB) {
-					video_convert_params params;
-					params.graphic = pGraphic;
-					params.width = preFrame->width;
-					params.height = preFrame->height;
-					params.format = (AVPixelFormat)preFrame->format;
-
-					pI4202RGB =
-						std::make_shared<FormatConvert_YUVToRGB>(params);
-					pI4202RGB->InitConvertion();
-				}
-
-				pI4202RGB->RenderVideo(preFrame, canvasSize, rc);
 			}
 
 			pGraphic->RenderEnd();
