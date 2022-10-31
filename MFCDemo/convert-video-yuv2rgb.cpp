@@ -40,7 +40,7 @@ void FormatConvert_YUVToRGB::UninitConvertion()
 
 void FormatConvert_YUVToRGB::RenderVideo(const AVFrame *av_frame, SIZE canvas, RECT dest)
 {
-	AUTO_GRAPHIC_CONTEXT(pGraphic);
+	AUTO_GRAPHIC_CONTEXT(original_video_info.graphic);
 
 	UpdateVideo(av_frame);
 
@@ -53,11 +53,14 @@ void FormatConvert_YUVToRGB::RenderVideo(const AVFrame *av_frame, SIZE canvas, R
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
 	VertexList_RectTriangle(resolution, false, false, outputVertex);
 
-	pGraphic->SetVertexBuffer(convert_shader, outputVertex, sizeof(outputVertex));
-	pGraphic->SetVSConstBuffer(convert_shader, &(matrixWVP[0][0]), sizeof(matrixWVP));
-	pGraphic->SetPSConstBuffer(convert_shader, &ps_const_buffer, sizeof(torgb_const_buffer));
+	original_video_info.graphic->SetVertexBuffer(convert_shader, outputVertex,
+						     sizeof(outputVertex));
+	original_video_info.graphic->SetVSConstBuffer(convert_shader, &(matrixWVP[0][0]),
+						      sizeof(matrixWVP));
+	original_video_info.graphic->SetPSConstBuffer(convert_shader, &ps_const_buffer,
+						      sizeof(torgb_const_buffer));
 
-	pGraphic->DrawTexture(convert_shader, texs);
+	original_video_info.graphic->DrawTexture(convert_shader, texs);
 }
 
 void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
