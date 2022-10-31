@@ -46,12 +46,10 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		return 1;
 
 	AVFrame *preFrame = nullptr;
-	{
-		assert(open_file() == 0);
-	}
+	assert(open_file() == 0);
 
 	while (!self->m_bExit) {
-		Sleep(30);
+		Sleep(20);
 
 		RECT rc;
 		::GetClientRect(self->m_hWnd, &rc);
@@ -165,6 +163,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 						params.width = preFrame->width;
 						params.height = preFrame->height;
 						params.format = (AVPixelFormat)preFrame->format;
+						assert(params.format == AV_PIX_FMT_YUV420P);
 
 						pI4202RGB =
 							std::make_shared<FormatConvert_YUVToRGB>(
@@ -172,28 +171,36 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 						pI4202RGB->InitConvertion();
 					}
 
-					FILE *fp = 0;
-					fopen_s(&fp, "yuv", "wb+");
-					if (fp) {
-						for (size_t i = 0; i < preFrame->height; i++) {
-							fwrite(preFrame->data[0] +
-								       i * preFrame->linesize[0],
-							       preFrame->width, 1, fp);
-						}
+					if (0) {
+						FILE *fp = 0;
+						fopen_s(&fp, "yuv", "wb+");
+						if (fp) {
+							for (size_t i = 0; i < preFrame->height;
+							     i++) {
+								fwrite(preFrame->data[0] +
+									       i * preFrame->linesize
+											       [0],
+								       preFrame->width, 1, fp);
+							}
 
-						for (size_t i = 0; i < preFrame->height / 2; i++) {
-							fwrite(preFrame->data[1] +
-								       i * preFrame->linesize[1],
-							       preFrame->width / 2, 1, fp);
-						}
+							for (size_t i = 0; i < preFrame->height / 2;
+							     i++) {
+								fwrite(preFrame->data[1] +
+									       i * preFrame->linesize
+											       [1],
+								       preFrame->width / 2, 1, fp);
+							}
 
-						for (size_t i = 0; i < preFrame->height / 2; i++) {
-							fwrite(preFrame->data[2] +
-								       i * preFrame->linesize[2],
-							       preFrame->width / 2, 1, fp);
-						}
+							for (size_t i = 0; i < preFrame->height / 2;
+							     i++) {
+								fwrite(preFrame->data[2] +
+									       i * preFrame->linesize
+											       [2],
+								       preFrame->width / 2, 1, fp);
+							}
 
-						fclose(fp);
+							fclose(fp);
+						}
 					}
 
 					pI4202RGB->RenderVideo(preFrame, canvasSize, rc);

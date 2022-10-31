@@ -58,7 +58,6 @@ bool initVideo()
 
 AVFormatContext *input_ctx = NULL;
 AVCodecContext *decoder_ctx = NULL;
-AVCodec *decoder = NULL;
 AVStream *video = NULL;
 int video_stream = 0;
 
@@ -67,7 +66,7 @@ int open_file()
 	int ret;
 
 	/* open the input file */
-	if (avformat_open_input(&input_ctx, "test.mp4", NULL, NULL) != 0) {
+	if (avformat_open_input(&input_ctx, "test.wmv", NULL, NULL) != 0) {
 		return -1;
 	}
 
@@ -76,7 +75,8 @@ int open_file()
 	}
 
 	/* find the video stream information */
-	ret = av_find_best_stream(input_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &decoder, 0);
+	AVCodec *test = NULL;
+	ret = av_find_best_stream(input_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &test, 0);
 	if (ret < 0) {
 		return -1;
 	}
@@ -104,9 +104,18 @@ int open_file()
 AVFrame *decode_frame()
 {
 	AVPacket packet = {0};
-	int ret = av_read_frame(input_ctx, &packet);
-	if (ret < 0) {
-		return nullptr;
+	int ret;
+
+	while (true) {
+		ret = av_read_frame(input_ctx, &packet);
+		if (ret < 0) {
+			return nullptr;
+		}
+
+		if (video_stream = packet.stream_index)
+			break;
+
+		av_packet_unref(&packet);
 	}
 
 	AVFrame *frame = av_frame_alloc();
