@@ -45,19 +45,9 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 	if (!InitGraphic(self->m_hWnd))
 		return 1;
 
+	AVFrame *preFrame = nullptr;
 	{
-		initVideo();
-
-		AUTO_GRAPHIC_CONTEXT(pGraphic);
-
-		video_convert_params params;
-		params.graphic = pGraphic;
-		params.width = frame->width;
-		params.height = frame->height;
-		params.format = (AVPixelFormat)frame->format;
-
-		pI4202RGB = std::make_shared<FormatConvert_YUVToRGB>(params);
-		pI4202RGB->InitConvertion();
+		assert(open_file() == 0);
 	}
 
 	while (!self->m_bExit) {
@@ -125,10 +115,6 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			rcLeft.right = rcLeft.left + (rc.right - rc.left) / 2;
 			RenderTexture(std::vector<texture_handle>{texImg2}, canvasSize, rcLeft);
 
-			RECT rcRight = rc;
-			rcRight.left = (rc.right - rc.left) / 2;
-			pI4202RGB->RenderVideo(frame, canvasSize, rcRight);
-
 			if (1) {
 				if (texShared) {
 					RenderTexture(std::vector<texture_handle>{texShared},
@@ -159,6 +145,32 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 				RenderBorderWithSize(canvasSize, renderRegion[index],
 						     BORDER_THICKNESS,
 						     ST_Color(1.0f, 0.7f, 0.1f, 1.0f));
+			}
+
+			AVFrame *newFrame = decode_frame();
+			if (newFrame) {
+				if (preFrame) {
+					av_frame_free(&preFrame);
+					preFrame = nullptr;
+				}
+
+				preFrame = newFrame;
+			}
+
+			if (preFrame) {
+				if (!pI4202RGB) {
+					video_convert_params params;
+					params.graphic = pGraphic;
+					params.width = preFrame->width;
+					params.height = preFrame->height;
+					params.format = (AVPixelFormat)preFrame->format;
+
+					pI4202RGB =
+						std::make_shared<FormatConvert_YUVToRGB>(params);
+					pI4202RGB->InitConvertion();
+				}
+
+				pI4202RGB->RenderVideo(preFrame, canvasSize, rc);
 			}
 
 			pGraphic->RenderEnd();
