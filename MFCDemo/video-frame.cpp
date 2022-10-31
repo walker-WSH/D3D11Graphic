@@ -67,7 +67,7 @@ int open_file()
 	int ret;
 
 	/* open the input file */
-	if (avformat_open_input(&input_ctx, "test.wmv", NULL, NULL) != 0) {
+	if (avformat_open_input(&input_ctx, "test.mp4", NULL, NULL) != 0) {
 		return -1;
 	}
 
