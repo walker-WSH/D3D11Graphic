@@ -9,7 +9,6 @@
 
 #define BORDER_THICKNESS 3
 
-std::vector<DX11GraphicObject *> graphicList;
 display_handle display = nullptr;
 texture_handle texCanvas = nullptr;
 texture_handle texGirl = nullptr;
@@ -32,7 +31,9 @@ void InitRenderRect(RECT rc, int numH, int numV);
 int GetSelectRegionIndex();
 
 void RenderCustomFormat(SIZE canvasSize, RECT rc);
-void RenderYUYVFormat(SIZE canvasSize, RECT rc);
+
+texture_handle yuyvCanvas = nullptr;
+void RenderYUYVFormat();
 
 void CMFCDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
@@ -73,6 +74,8 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 				continue;
 		}
 
+		RenderYUYVFormat();
+
 		if (pGraphic->RenderBegin_Canvas(texCanvas, ST_Color(1.0f, 1.0f, 1.0f, 1.0f))) {
 			auto info = pGraphic->GetTextureInfo(texCanvas);
 
@@ -93,7 +96,6 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 					   info.height),
 				      ST_Color(0, 0, 1, 1.0));
 
-			RenderYUYVFormat(canvasSize, rc);
 			RenderCustomFormat(canvasSize, rc);
 
 			pGraphic->RenderEnd();
@@ -143,6 +145,9 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 				RenderTexture(
 					std::vector<texture_handle>{texCanvas}, canvasSize,
 					renderRegion[4]); // 画布也可以直接当作resource进行渲染
+
+				RenderTexture(std::vector<texture_handle>{yuyvCanvas}, canvasSize,
+					      renderRegion[5]);
 			}
 
 			int index = GetSelectRegionIndex();
@@ -181,24 +186,17 @@ bool InitGraphic(HWND hWnd)
 	RECT rc;
 	::GetClientRect(hWnd, &rc);
 	pGraphic->SetDisplaySize(display, rc.right - rc.left, rc.bottom - rc.top);
-	graphicList.push_back(display);
 
 	//------------------------------------------------------------------
 	texGirl = pGraphic->OpenImageTexture(L"testGirl.png");
-	graphicList.push_back(texGirl);
 
 	texAlpha = pGraphic->OpenImageTexture(L"testAlpha.png");
-	graphicList.push_back(texAlpha);
 
 	texImg = pGraphic->OpenImageTexture(L"test.jpg");
-	graphicList.push_back(texImg);
 
 	texImg2 = pGraphic->OpenImageTexture(L"test.png");
-	graphicList.push_back(texImg2);
 
 	texShared = pGraphic->OpenSharedTexture((HANDLE)0X0000000040003282);
-	if (texShared)
-		graphicList.push_back(texShared);
 
 	//------------------------------- test texutres --------------------
 	ST_TextureInfo info;
@@ -209,7 +207,6 @@ bool InitGraphic(HWND hWnd)
 	info.usage = TextureType::CanvasTarget;
 	texCanvas = pGraphic->CreateTexture(info);
 	assert(texCanvas);
-	graphicList.push_back(texCanvas);
 
 	info.usage = TextureType::ReadTexture;
 	texture_handle tex1 = pGraphic->CreateTexture(info);
@@ -329,7 +326,7 @@ void RenderCustomFormat(SIZE canvasSize, RECT rc)
 	}
 }
 
-void RenderYUYVFormat(SIZE canvasSize, RECT rc)
+void RenderYUYVFormat()
 {
 	if (!pYUYV_To_RGB) {
 		video_convert_params params;
@@ -340,8 +337,18 @@ void RenderYUYVFormat(SIZE canvasSize, RECT rc)
 
 		pYUYV_To_RGB = std::make_shared<FormatConvert_YUVToRGB>(params);
 		pYUYV_To_RGB->InitConvertion();
+
+		ST_TextureInfo info;
+		info.width = frame_yuy2->width;
+		info.height = frame_yuy2->height;
+		info.format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		info.usage = TextureType::CanvasTarget;
+		yuyvCanvas = pGraphic->CreateTexture(info);
 	}
 
-	pYUYV_To_RGB->RenderVideo(frame_yuy2, canvasSize,
-				  RECT(0, 0, frame_yuy2->width, frame_yuy2->height));
+	if (pGraphic->RenderBegin_Canvas(yuyvCanvas, ST_Color(0, 0, 0, 0))) {
+		pYUYV_To_RGB->RenderVideo(frame_yuy2, SIZE(frame_yuy2->width, frame_yuy2->height),
+					  RECT(0, 0, frame_yuy2->width, frame_yuy2->height));
+		pGraphic->RenderEnd();
+	}
 }
