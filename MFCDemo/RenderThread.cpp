@@ -163,7 +163,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 						params.width = preFrame->width;
 						params.height = preFrame->height;
 						params.format = (AVPixelFormat)preFrame->format;
-						assert(params.format == AV_PIX_FMT_YUV420P);
+						assert(params.format == destFormat);
 
 						pI4202RGB =
 							std::make_shared<FormatConvert_YUVToRGB>(

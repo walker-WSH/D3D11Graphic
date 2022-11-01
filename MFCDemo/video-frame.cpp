@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "video-frame.h"
 
+#if 0
 int width = 1920;
 int height = 1080;
 
@@ -55,11 +56,14 @@ bool initVideo()
 
 	return true;
 }
+#endif
 
-AVFormatContext *input_ctx = NULL;
-AVCodecContext *decoder_ctx = NULL;
-AVStream *video = NULL;
+//------------------------------------------------------------------------------------
+AVFormatContext *input_ctx = nullptr;
+AVCodecContext *decoder_ctx = nullptr;
+AVStream *video = nullptr;
 int video_stream = 0;
+struct SwsContext *sws_ctx = nullptr;
 
 int open_file()
 {
@@ -139,7 +143,30 @@ AVFrame *decode_frame()
 	av_packet_unref(&packet);
 
 	if (got_frame) {
-		return frame;
+		if (!sws_ctx) {
+			sws_ctx = sws_getContext(frame->width, frame->height,
+						 (enum AVPixelFormat)frame->format, frame->width,
+						 frame->height, destFormat, SWS_BICUBIC, NULL, NULL,
+						 NULL);
+			assert(sws_ctx);
+		}
+
+		AVFrame *output = av_frame_alloc();
+		output->format = destFormat;
+		output->width = frame->width;
+		output->height = frame->height;
+
+		int ret = av_frame_get_buffer(output, 1);
+		if (ret < 0) {
+			assert(false);
+			return nullptr;
+		}
+
+		sws_scale(sws_ctx, (const uint8_t *const *)frame->data, frame->linesize, 0,
+			  frame->height, output->data, output->linesize);
+
+		av_frame_free(&frame);
+		return output;
 
 	} else {
 		av_frame_free(&frame);

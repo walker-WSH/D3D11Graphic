@@ -12,7 +12,11 @@ extern "C" {
 #include <libavutil/opt.h>
 #include <libavutil/avassert.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/parseutils.h>
+#include <libswscale/swscale.h>
 }
+
+static enum AVPixelFormat destFormat = AVPixelFormat::AV_PIX_FMT_YUV420P;
 
 int open_file();
 AVFrame *decode_frame();
