@@ -93,6 +93,9 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 					   info.height),
 				      ST_Color(0, 0, 1, 1.0));
 
+			RenderYUYVFormat(canvasSize, rc);
+			RenderCustomFormat(canvasSize, rc);
+
 			pGraphic->RenderEnd();
 
 			if (!saved) {
@@ -148,9 +151,6 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 						     BORDER_THICKNESS,
 						     ST_Color(1.0f, 0.7f, 0.1f, 1.0f));
 			}
-
-			RenderYUYVFormat(canvasSize, rc);
-			RenderCustomFormat(canvasSize, rc);
 
 			pGraphic->RenderEnd();
 		}
