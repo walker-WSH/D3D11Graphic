@@ -65,7 +65,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		SIZE canvasSize(rc.right - rc.left, rc.bottom - rc.top);
 		pGraphic->SetDisplaySize(display, canvasSize.cx, canvasSize.cy);
 
-		InitRenderRect(rc, 3, 2);
+		InitRenderRect(rc, 3, 3);
 
 		AUTO_GRAPHIC_CONTEXT(pGraphic);
 
@@ -117,48 +117,42 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			}
 		}
 
-		if (pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.3f, 0.3f, 1.0f))) {
-			RECT rcLeft = rc;
-			rcLeft.right = rcLeft.left + (rc.right - rc.left) / 2;
-			RenderTexture(std::vector<texture_handle>{texImg2}, canvasSize, rcLeft);
+		if (pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.6f, 0.5f, 1.0f))) {
+			if (texShared) {
+				RenderTexture(std::vector<texture_handle>{texShared}, canvasSize,
+					      RECT(20, 50, rc.right - 20,
+						   rc.bottom - 20)); // 渲染共享纹理
+			}
+
+			RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize,
+				      renderRegion[0]);
+
+			RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize,
+				      renderRegion[1]);
+
+			RenderTexture(std::vector<texture_handle>{texImg}, canvasSize,
+				      renderRegion[2]);
+
+			FillRectangle(canvasSize, renderRegion[3],
+				      ST_Color(0, 0, 1.0, 1.0)); // 填充纯色矩形区域
+
+			RenderTexture(std::vector<texture_handle>{texCanvas}, canvasSize,
+				      renderRegion[4]); // 画布也可以直接当作resource进行渲染
 
 			if (1) {
-				if (texShared) {
-					RenderTexture(std::vector<texture_handle>{texShared},
-						      canvasSize,
-						      RECT(20, 50, rc.right - 20,
-							   rc.bottom - 20)); // 渲染共享纹理
-				}
-
-				RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize,
-					      renderRegion[0]);
-
-				RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize,
-					      renderRegion[1]);
-
-				RenderTexture(std::vector<texture_handle>{texImg}, canvasSize,
-					      renderRegion[2]);
-
-				FillRectangle(canvasSize, renderRegion[3],
-					      ST_Color(0, 0, 1.0, 1.0)); // 填充纯色矩形区域
-
-				RenderTexture(
-					std::vector<texture_handle>{texCanvas}, canvasSize,
-					renderRegion[4]); // 画布也可以直接当作resource进行渲染
-
-				if (1) {
-					// 先把yuv转为RGB纹理 再将rgb纹理缩放渲染到目标区域
-					// 这个方法 清晰度明显好一些
-					RenderTexture(std::vector<texture_handle>{yuyvCanvas},
-						      canvasSize, renderRegion[5]);
-				} else {
-					// 直接将yuv转换并直接缩放渲染到目标区域
-					// 这个方法 清晰度明显低一些
-					// SamplerState无法对存储yuv的纹理进行采样算法处理？
-					pYUYV_To_RGB->RenderVideo(frame_yuy2, canvasSize,
-								  renderRegion[5]);
-				}
+				// 先把yuv转为RGB纹理 再将rgb纹理缩放渲染到目标区域
+				// 这个方法 清晰度明显好一些
+				RenderTexture(std::vector<texture_handle>{yuyvCanvas}, canvasSize,
+					      renderRegion[5]);
+			} else {
+				// 直接将yuv转换并直接缩放渲染到目标区域
+				// 这个方法 清晰度明显低一些
+				// SamplerState无法对存储yuv的纹理进行采样算法处理？
+				pYUYV_To_RGB->RenderVideo(frame_yuy2, canvasSize, renderRegion[5]);
 			}
+
+			RenderTexture(std::vector<texture_handle>{texImg2}, canvasSize,
+				      renderRegion[6]);
 
 			int index = GetSelectRegionIndex();
 			if (index >= 0) {
