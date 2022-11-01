@@ -245,5 +245,5 @@ void FormatConvert_YUVToRGB::SetPacked422Info()
 
 	video_plane_list[0].width = (original_video_info.width + 1) / 2;
 	video_plane_list[0].height = original_video_info.height;
-	video_plane_list[0].format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	video_plane_list[0].format = DXGI_FORMAT_B8G8R8A8_UNORM;
 }
