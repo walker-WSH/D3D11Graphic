@@ -302,26 +302,7 @@ void RenderCustomFormat(SIZE canvasSize, RECT rc)
 			pI420_To_RGB->InitConvertion();
 		}
 
-		int hWndCX = rc.right - rc.left;
-		int hWndCY = rc.bottom - rc.top;
-		float scale;
-		float scale1 = float(preFrame->width) / float(preFrame->height);
-		float scale2 = float(hWndCX) / float(hWndCY);
-		if (scale1 > scale2) {
-			scale = float(hWndCX) / float(preFrame->width);
-		} else {
-			scale = float(hWndCY) / float(preFrame->height);
-		}
-		auto destCX = long(scale * float(preFrame->width));
-		auto destCY = long(scale * float(preFrame->height));
-
-		RECT rcDest;
-		rcDest.left = (hWndCX - destCX) / 2;
-		rcDest.top = (hWndCY - destCY) / 2;
-		rcDest.right = rcDest.left + destCX;
-		rcDest.bottom = rcDest.top + destCY;
-
-		pI420_To_RGB->RenderVideo(preFrame, canvasSize, rcDest);
+		pI420_To_RGB->RenderVideo(preFrame, canvasSize, rc);
 
 		if (0) {
 			FILE *fp = 0;
