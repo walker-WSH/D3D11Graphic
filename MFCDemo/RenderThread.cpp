@@ -146,8 +146,17 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 					std::vector<texture_handle>{texCanvas}, canvasSize,
 					renderRegion[4]); // 画布也可以直接当作resource进行渲染
 
-				RenderTexture(std::vector<texture_handle>{yuyvCanvas}, canvasSize,
-					      renderRegion[5]);
+				if (1) {
+					// 先把yuv转为RGB 再渲染到目标区域
+					// 这个方法 清晰度明显好一些
+					RenderTexture(std::vector<texture_handle>{yuyvCanvas},
+						      canvasSize, renderRegion[5]);
+				} else {
+					// 直接将yuv转换并渲染到目标区域
+					// 这个方法 清晰度明显低一些
+					pYUYV_To_RGB->RenderVideo(frame_yuy2, canvasSize,
+								  renderRegion[5]);
+				}
 			}
 
 			int index = GetSelectRegionIndex();
