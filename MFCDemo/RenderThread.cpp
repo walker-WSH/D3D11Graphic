@@ -147,13 +147,14 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 					renderRegion[4]); // 画布也可以直接当作resource进行渲染
 
 				if (1) {
-					// 先把yuv转为RGB 再渲染到目标区域
+					// 先把yuv转为RGB纹理 再将rgb纹理缩放渲染到目标区域
 					// 这个方法 清晰度明显好一些
 					RenderTexture(std::vector<texture_handle>{yuyvCanvas},
 						      canvasSize, renderRegion[5]);
 				} else {
-					// 直接将yuv转换并渲染到目标区域
+					// 直接将yuv转换并直接缩放渲染到目标区域
 					// 这个方法 清晰度明显低一些
+					// SamplerState无法对存储yuv的纹理进行采样算法处理？
 					pYUYV_To_RGB->RenderVideo(frame_yuy2, canvasSize,
 								  renderRegion[5]);
 				}
