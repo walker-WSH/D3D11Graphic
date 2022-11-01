@@ -18,7 +18,8 @@ public:
 	virtual bool IsGraphicBuilt() = 0;
 	virtual bool ReBuildGraphic() = 0;
 
-	virtual void ReleaseGraphicObject(DX11GraphicObject *&hdl) = 0;
+	virtual void DestroyGraphicObject(DX11GraphicObject *&hdl) = 0;
+	virtual void DestroyAllGraphicObject() = 0;
 
 	virtual display_handle CreateDisplay(HWND hWnd) = 0;
 	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height) = 0;

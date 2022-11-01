@@ -34,10 +34,10 @@ void FormatConvert_RGBToYUV::UninitConvertion()
 
 	for (auto &item : video_plane_list) {
 		if (item.canvas_tex)
-			original_video_info.graphic->ReleaseGraphicObject(item.canvas_tex);
+			original_video_info.graphic->DestroyGraphicObject(item.canvas_tex);
 
 		if (item.read_tex)
-			original_video_info.graphic->ReleaseGraphicObject(item.read_tex);
+			original_video_info.graphic->DestroyGraphicObject(item.read_tex);
 	}
 
 	video_plane_list.clear();

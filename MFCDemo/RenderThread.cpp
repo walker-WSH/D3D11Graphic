@@ -220,17 +220,17 @@ bool InitGraphic(HWND hWnd)
 	info.usage = TextureType::ReadTexture;
 	texture_handle tex1 = pGraphic->CreateTexture(info);
 	assert(tex1);
-	pGraphic->ReleaseGraphicObject(tex1);
+	pGraphic->DestroyGraphicObject(tex1);
 
 	info.usage = TextureType::WriteTexture;
 	texture_handle tex2 = pGraphic->CreateTexture(info);
 	assert(tex2);
-	pGraphic->ReleaseGraphicObject(tex2);
+	pGraphic->DestroyGraphicObject(tex2);
 
 	info.usage = TextureType::CanvasTarget;
 	texture_handle tex3 = pGraphic->CreateTexture(info);
 	assert(tex3);
-	pGraphic->ReleaseGraphicObject(tex3);
+	pGraphic->DestroyGraphicObject(tex3);
 
 	//------------------------------------------------------------------
 	return true;
@@ -239,6 +239,14 @@ bool InitGraphic(HWND hWnd)
 void UnInitGraphic()
 {
 	AUTO_GRAPHIC_CONTEXT(pGraphic);
+
+	pI420_To_RGB->UninitConvertion();
+	pI420_To_RGB.reset();
+
+	pYUYV_To_RGB->UninitConvertion();
+	pYUYV_To_RGB.reset();
+
+	pGraphic->DestroyAllGraphicObject();
 	pGraphic->UnInitializeGraphic();
 }
 

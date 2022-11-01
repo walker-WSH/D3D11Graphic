@@ -39,10 +39,9 @@ void DX11GraphicInstanceImpl::UnInitializeGraphic()
 
 	ReleaseAllDX();
 
-	assert(m_listObject.empty());
-	for (auto &item : m_listObject) {
-		OutputDebugStringA(item->GetName());
-		delete item;
+	if (!m_listObject.empty()) {
+		assert(false && "you should destory all graphic objects");
+		DestroyAllGraphicObject();
 	}
 
 	CoUninitialize();
@@ -82,7 +81,7 @@ bool DX11GraphicInstanceImpl::ReBuildGraphic()
 	return BuildAllDX();
 }
 
-void DX11GraphicInstanceImpl::ReleaseGraphicObject(DX11GraphicObject *&hdl)
+void DX11GraphicInstanceImpl::DestroyGraphicObject(DX11GraphicObject *&hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -99,6 +98,21 @@ void DX11GraphicInstanceImpl::ReleaseGraphicObject(DX11GraphicObject *&hdl)
 
 	delete hdl;
 	hdl = nullptr;
+}
+
+void DX11GraphicInstanceImpl::DestroyAllGraphicObject()
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	auto temp = m_listObject;
+	for (auto &item : temp) {
+		OutputDebugStringA(item->GetName());
+
+		item->ReleaseDX();
+		delete item;
+	}
+
+	m_listObject.clear();
 }
 
 texture_handle DX11GraphicInstanceImpl::OpenSharedTexture(HANDLE hSharedHanle)

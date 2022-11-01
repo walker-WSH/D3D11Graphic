@@ -32,7 +32,7 @@ void FormatConvert_YUVToRGB::UninitConvertion()
 
 	for (auto &item : video_plane_list) {
 		if (item.texture)
-			original_video_info.graphic->ReleaseGraphicObject(item.texture);
+			original_video_info.graphic->DestroyGraphicObject(item.texture);
 	}
 
 	video_plane_list.clear();
