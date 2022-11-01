@@ -149,8 +149,8 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 						     ST_Color(1.0f, 0.7f, 0.1f, 1.0f));
 			}
 
-			RenderCustomFormat(canvasSize, rc);
 			RenderYUYVFormat(canvasSize, rc);
+			RenderCustomFormat(canvasSize, rc);
 
 			pGraphic->RenderEnd();
 		}
