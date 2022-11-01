@@ -4,6 +4,96 @@
 IDX11GraphicInstance *pGraphic = nullptr;
 std::map<ShaderType, shader_handle> shaders;
 
+void InitShader()
+{
+	float matrixWVP[4][4];
+	ST_ShaderInfo shaderInfo;
+
+	{
+		shaderInfo.vsFile = L"default-vs.cso";
+		shaderInfo.psFile = L"default-ps.cso";
+		shaderInfo.vsBufferSize = sizeof(matrixWVP);
+		shaderInfo.psBufferSize = 0;
+		shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
+		shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
+		shader_handle shader = pGraphic->CreateShader(shaderInfo);
+		assert(shader);
+		shaders[ShaderType::shaderTexture] = shader;
+	}
+
+	{
+		shaderInfo.vsFile = L"fill-rect-vs.cso";
+		shaderInfo.psFile = L"fill-rect-ps.cso";
+		shaderInfo.vsBufferSize = sizeof(matrixWVP);
+		shaderInfo.psBufferSize = sizeof(ST_Color);
+		shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
+		shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
+		shader_handle shader = pGraphic->CreateShader(shaderInfo);
+		assert(shader);
+		shaders[ShaderType::shaderFillRect] = shader;
+	}
+
+	{
+		shaderInfo.vsFile = L"default-vs.cso";
+		shaderInfo.psFile = L"rgb-to-y-ps.cso";
+		shaderInfo.vsBufferSize = sizeof(matrixWVP);
+		shaderInfo.psBufferSize = sizeof(toyuv_const_buffer);
+		shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
+		shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
+		shader_handle shader = pGraphic->CreateShader(shaderInfo);
+		assert(shader);
+		shaders[ShaderType::yuvOnePlane] = shader;
+	}
+
+	{
+		shaderInfo.vsFile = L"default-vs.cso";
+		shaderInfo.psFile = L"rgb-to-uv-ps.cso";
+		shaderInfo.vsBufferSize = sizeof(matrixWVP);
+		shaderInfo.psBufferSize = sizeof(toyuv_const_buffer);
+		shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
+		shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
+		shader_handle shader = pGraphic->CreateShader(shaderInfo);
+		assert(shader);
+		shaders[ShaderType::uvPlane] = shader;
+	}
+
+	{
+		shaderInfo.vsFile = L"default-vs.cso";
+		shaderInfo.psFile = L"i420-to-rgb-ps.cso";
+		shaderInfo.vsBufferSize = sizeof(matrixWVP);
+		shaderInfo.psBufferSize = sizeof(torgb_const_buffer);
+		shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
+		shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
+		shader_handle shader = pGraphic->CreateShader(shaderInfo);
+		assert(shader);
+		shaders[ShaderType::i420ToRGB] = shader;
+	}
+
+	{
+		shaderInfo.vsFile = L"default-vs.cso";
+		shaderInfo.psFile = L"nv12-to-rgb-ps.cso";
+		shaderInfo.vsBufferSize = sizeof(matrixWVP);
+		shaderInfo.psBufferSize = sizeof(torgb_const_buffer);
+		shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
+		shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
+		shader_handle shader = pGraphic->CreateShader(shaderInfo);
+		assert(shader);
+		shaders[ShaderType::nv12ToRGB] = shader;
+	}
+
+	{
+		shaderInfo.vsFile = L"default-vs.cso";
+		shaderInfo.psFile = L"yuy2-to-rgb-ps.cso";
+		shaderInfo.vsBufferSize = sizeof(matrixWVP);
+		shaderInfo.psBufferSize = sizeof(torgb_const_buffer);
+		shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
+		shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
+		shader_handle shader = pGraphic->CreateShader(shaderInfo);
+		assert(shader);
+		shaders[ShaderType::yuy2ToRGB] = shader;
+	}
+}
+
 void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 {
 	AUTO_GRAPHIC_CONTEXT(pGraphic);

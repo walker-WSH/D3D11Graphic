@@ -228,62 +228,7 @@ bool InitGraphic(HWND hWnd)
 	assert(bOK);
 
 	//------------------------------------------------------------------
-	float matrixWVP[4][4];
-	ST_ShaderInfo shaderInfo;
-	shaderInfo.vsFile = L"default-vs.cso";
-	shaderInfo.psFile = L"default-ps.cso";
-	shaderInfo.vsBufferSize = sizeof(matrixWVP);
-	shaderInfo.psBufferSize = 0;
-	shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
-	shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
-	shader_handle texShader = pGraphic->CreateShader(shaderInfo);
-	assert(texShader);
-	graphicList.push_back(texShader);
-	shaders[ShaderType::shaderTexture] = texShader;
-
-	shaderInfo.vsFile = L"fill-rect-vs.cso";
-	shaderInfo.psFile = L"fill-rect-ps.cso";
-	shaderInfo.vsBufferSize = sizeof(matrixWVP);
-	shaderInfo.psBufferSize = sizeof(ST_Color);
-	shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
-	shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
-	shader_handle rectShader = pGraphic->CreateShader(shaderInfo);
-	assert(rectShader);
-	graphicList.push_back(rectShader);
-	shaders[ShaderType::shaderFillRect] = rectShader;
-
-	shaderInfo.vsFile = L"default-vs.cso";
-	shaderInfo.psFile = L"i420-to-rgb-ps.cso";
-	shaderInfo.vsBufferSize = sizeof(matrixWVP);
-	shaderInfo.psBufferSize = sizeof(torgb_const_buffer);
-	shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
-	shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
-	shader_handle i420Shader = pGraphic->CreateShader(shaderInfo);
-	assert(i420Shader);
-	graphicList.push_back(i420Shader);
-	shaders[ShaderType::i420ToRGB] = i420Shader;
-
-	shaderInfo.vsFile = L"default-vs.cso";
-	shaderInfo.psFile = L"rgb-to-y-ps.cso";
-	shaderInfo.vsBufferSize = sizeof(matrixWVP);
-	shaderInfo.psBufferSize = sizeof(toyuv_const_buffer);
-	shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
-	shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
-	shader_handle yPlaneShader = pGraphic->CreateShader(shaderInfo);
-	assert(yPlaneShader);
-	graphicList.push_back(yPlaneShader);
-	shaders[ShaderType::yuvOnePlane] = yPlaneShader;
-
-	shaderInfo.vsFile = L"default-vs.cso";
-	shaderInfo.psFile = L"rgb-to-uv-ps.cso";
-	shaderInfo.vsBufferSize = sizeof(matrixWVP);
-	shaderInfo.psBufferSize = sizeof(toyuv_const_buffer);
-	shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
-	shaderInfo.perVertexSize = sizeof(ST_TextureVertex);
-	shader_handle uvPlaneShader = pGraphic->CreateShader(shaderInfo);
-	assert(uvPlaneShader);
-	graphicList.push_back(uvPlaneShader);
-	shaders[ShaderType::uvPlane] = uvPlaneShader;
+	InitShader();
 
 	//------------------------------------------------------------------
 	display = pGraphic->CreateDisplay(hWnd);

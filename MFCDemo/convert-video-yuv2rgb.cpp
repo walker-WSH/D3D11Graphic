@@ -200,6 +200,7 @@ bool FormatConvert_YUVToRGB::InitPlane()
 void FormatConvert_YUVToRGB::SetPlanarI420()
 {
 	convert_shader = shaders[ShaderType::i420ToRGB];
+	assert(convert_shader);
 
 	video_plane_list.push_back(video_plane_info());
 	video_plane_list.push_back(video_plane_info());
@@ -221,6 +222,7 @@ void FormatConvert_YUVToRGB::SetPlanarI420()
 void FormatConvert_YUVToRGB::SetPlanarNV12()
 {
 	convert_shader = shaders[ShaderType::nv12ToRGB];
+	assert(convert_shader);
 
 	video_plane_list.push_back(video_plane_info());
 	video_plane_list.push_back(video_plane_info());
@@ -237,6 +239,7 @@ void FormatConvert_YUVToRGB::SetPlanarNV12()
 void FormatConvert_YUVToRGB::SetPacked422Info()
 {
 	convert_shader = shaders[ShaderType::yuy2ToRGB];
+	assert(convert_shader);
 
 	video_plane_list.push_back(video_plane_info());
 

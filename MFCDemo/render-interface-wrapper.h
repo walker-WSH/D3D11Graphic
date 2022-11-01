@@ -22,6 +22,8 @@ enum class ShaderType {
 extern IDX11GraphicInstance *pGraphic;
 extern std::map<ShaderType, shader_handle> shaders;
 
+void InitShader();
+
 void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest);
 void FillRectangle(SIZE canvas, RECT drawDest, ST_Color clr);
 void RenderBorderWithSize(SIZE canvas, RECT drawDest, long borderSize, ST_Color clr);

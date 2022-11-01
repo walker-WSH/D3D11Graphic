@@ -17,6 +17,8 @@ extern "C" {
 }
 
 static enum AVPixelFormat destFormat = AVPixelFormat::AV_PIX_FMT_YUV420P;
+//static enum AVPixelFormat destFormat = AVPixelFormat::AV_PIX_FMT_NV12;
+//static enum AVPixelFormat destFormat = AVPixelFormat::AV_PIX_FMT_YUYV422;
 
 int open_file();
 AVFrame *decode_frame();

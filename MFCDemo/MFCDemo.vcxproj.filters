@@ -127,5 +127,11 @@
     <FxCompile Include="..\D3D11Graphic\HLSL\rgb-to-y-ps.hlsl">
       <Filter>render\HLSL</Filter>
     </FxCompile>
+    <FxCompile Include="..\D3D11Graphic\HLSL\nv12-to-rgb-ps.hlsl">
+      <Filter>render\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\D3D11Graphic\HLSL\yuy2-to-rgb-ps.hlsl">
+      <Filter>render\HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
