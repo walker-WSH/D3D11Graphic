@@ -21,7 +21,8 @@ texture_handle texImg2 = nullptr;
 CPoint posLBDown = {0, 0};
 std::vector<RECT> renderRegion;
 
-std::shared_ptr<FormatConvert_YUVToRGB> pI4202RGB = nullptr;
+std::shared_ptr<FormatConvert_YUVToRGB> pI420_To_RGB = nullptr;
+std::shared_ptr<FormatConvert_YUVToRGB> pYUYV_To_RGB = nullptr;
 AVFrame *preFrame = nullptr;
 
 bool InitGraphic(HWND hWnd);
@@ -30,7 +31,8 @@ void UnInitGraphic();
 void InitRenderRect(RECT rc, int numH, int numV);
 int GetSelectRegionIndex();
 
-void RenderAVFrame(SIZE canvasSize, RECT rc);
+void RenderCustomFormat(SIZE canvasSize, RECT rc);
+void RenderYUYVFormat(SIZE canvasSize, RECT rc);
 
 void CMFCDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
@@ -147,7 +149,8 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 						     ST_Color(1.0f, 0.7f, 0.1f, 1.0f));
 			}
 
-			RenderAVFrame(canvasSize, rc);
+			RenderCustomFormat(canvasSize, rc);
+			RenderYUYVFormat(canvasSize, rc);
 
 			pGraphic->RenderEnd();
 		}
@@ -230,14 +233,6 @@ bool InitGraphic(HWND hWnd)
 void UnInitGraphic()
 {
 	AUTO_GRAPHIC_CONTEXT(pGraphic);
-
-	for (auto &item : graphicList)
-		pGraphic->ReleaseGraphicObject(item);
-	graphicList.clear();
-
-	pI4202RGB->UninitConvertion();
-	pI4202RGB.reset();
-
 	pGraphic->UnInitializeGraphic();
 }
 
@@ -282,7 +277,7 @@ int GetSelectRegionIndex()
 	return -1;
 }
 
-void RenderAVFrame(SIZE canvasSize, RECT rc)
+void RenderCustomFormat(SIZE canvasSize, RECT rc)
 {
 	AVFrame *newFrame = decode_frame();
 	if (newFrame) {
@@ -295,7 +290,7 @@ void RenderAVFrame(SIZE canvasSize, RECT rc)
 	}
 
 	if (preFrame) {
-		if (!pI4202RGB) {
+		if (!pI420_To_RGB) {
 			video_convert_params params;
 			params.graphic = pGraphic;
 			params.width = preFrame->width;
@@ -303,8 +298,8 @@ void RenderAVFrame(SIZE canvasSize, RECT rc)
 			params.format = (AVPixelFormat)preFrame->format;
 			assert(params.format == destFormat);
 
-			pI4202RGB = std::make_shared<FormatConvert_YUVToRGB>(params);
-			pI4202RGB->InitConvertion();
+			pI420_To_RGB = std::make_shared<FormatConvert_YUVToRGB>(params);
+			pI420_To_RGB->InitConvertion();
 		}
 
 		int hWndCX = rc.right - rc.left;
@@ -317,8 +312,8 @@ void RenderAVFrame(SIZE canvasSize, RECT rc)
 		} else {
 			scale = float(hWndCY) / float(preFrame->height);
 		}
-		long destCX = scale * float(preFrame->width);
-		long destCY = scale * float(preFrame->height);
+		auto destCX = long(scale * float(preFrame->width));
+		auto destCY = long(scale * float(preFrame->height));
 
 		RECT rcDest;
 		rcDest.left = (hWndCX - destCX) / 2;
@@ -326,7 +321,7 @@ void RenderAVFrame(SIZE canvasSize, RECT rc)
 		rcDest.right = rcDest.left + destCX;
 		rcDest.bottom = rcDest.top + destCY;
 
-		pI4202RGB->RenderVideo(preFrame, canvasSize, rcDest);
+		pI420_To_RGB->RenderVideo(preFrame, canvasSize, rcDest);
 
 		if (0) {
 			FILE *fp = 0;
@@ -351,4 +346,21 @@ void RenderAVFrame(SIZE canvasSize, RECT rc)
 			}
 		}
 	}
+}
+
+void RenderYUYVFormat(SIZE canvasSize, RECT rc)
+{
+	if (!pYUYV_To_RGB) {
+		video_convert_params params;
+		params.graphic = pGraphic;
+		params.width = frame_yuy2->width;
+		params.height = frame_yuy2->height;
+		params.format = (AVPixelFormat)frame_yuy2->format;
+
+		pYUYV_To_RGB = std::make_shared<FormatConvert_YUVToRGB>(params);
+		pYUYV_To_RGB->InitConvertion();
+	}
+
+	pYUYV_To_RGB->RenderVideo(frame_yuy2, canvasSize,
+				  RECT(0, 0, frame_yuy2->width, frame_yuy2->height));
 }

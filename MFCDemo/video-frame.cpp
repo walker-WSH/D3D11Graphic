@@ -2,7 +2,7 @@
 #include <assert.h>
 #include "video-frame.h"
 
-#if 0
+#if 1
 int width = 1920;
 int height = 1080;
 
@@ -15,6 +15,7 @@ uint8_t *i420U = new uint8_t[lenU];
 uint8_t *i420V = new uint8_t[lenV];
 
 AVFrame *frame_i420 = nullptr;
+AVFrame *frame_yuy2 = nullptr;
 
 bool readVideo()
 {
@@ -33,26 +34,39 @@ bool readVideo()
 	return true;
 }
 
-bool initVideo()
+bool initVideo_i420()
 {
 	if (!readVideo())
 		return false;
 
 	frame_i420 = av_frame_alloc();
-
 	frame_i420->format = AV_PIX_FMT_YUV420P;
 	frame_i420->width = width;
 	frame_i420->height = height;
 
-	int ret = av_frame_get_buffer(frame_i420, 32);
-	if (ret < 0) {
-		assert(false);
-		return false;
-	}
-
+	av_frame_get_buffer(frame_i420, 32);
 	memmove(frame_i420->data[0], i420Y, lenY);
 	memmove(frame_i420->data[1], i420U, lenU);
 	memmove(frame_i420->data[2], i420V, lenV);
+
+	return true;
+}
+
+bool initVideo_yuy2()
+{
+	frame_yuy2 = av_frame_alloc();
+	frame_yuy2->format = AV_PIX_FMT_YUYV422;
+	frame_yuy2->width = 1920;
+	frame_yuy2->height = 1080;
+	av_frame_get_buffer(frame_yuy2, 32);
+
+	FILE *fp = nullptr;
+	fopen_s(&fp, "1080p.yuy2", "rb+");
+	assert(fp);
+	if (fp) {
+		fread(frame_yuy2->data[0], frame_yuy2->width * frame_yuy2->height * 2, 1, fp);
+		fclose(fp);
+	}
 
 	return true;
 }
@@ -67,6 +81,9 @@ struct SwsContext *sws_ctx = nullptr;
 
 int open_file()
 {
+	initVideo_i420();
+	initVideo_yuy2();
+
 	int ret;
 
 	/* open the input file */
