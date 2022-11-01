@@ -22,12 +22,15 @@ CPoint posLBDown = {0, 0};
 std::vector<RECT> renderRegion;
 
 std::shared_ptr<FormatConvert_YUVToRGB> pI4202RGB = nullptr;
+AVFrame *preFrame = nullptr;
 
 bool InitGraphic(HWND hWnd);
 void UnInitGraphic();
 
 void InitRenderRect(RECT rc, int numH, int numV);
 int GetSelectRegionIndex();
+
+void RenderAVFrame(SIZE canvasSize, RECT rc);
 
 void CMFCDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
@@ -45,7 +48,6 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 	if (!InitGraphic(self->m_hWnd))
 		return 1;
 
-	AVFrame *preFrame = nullptr;
 	assert(open_file() == 0);
 
 	while (!self->m_bExit) {
@@ -145,67 +147,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 						     ST_Color(1.0f, 0.7f, 0.1f, 1.0f));
 			}
 
-			if (1) {
-				AVFrame *newFrame = decode_frame();
-				if (newFrame) {
-					if (preFrame) {
-						av_frame_free(&preFrame);
-						preFrame = nullptr;
-					}
-
-					preFrame = newFrame;
-				}
-
-				if (preFrame) {
-					if (!pI4202RGB) {
-						video_convert_params params;
-						params.graphic = pGraphic;
-						params.width = preFrame->width;
-						params.height = preFrame->height;
-						params.format = (AVPixelFormat)preFrame->format;
-						assert(params.format == destFormat);
-
-						pI4202RGB =
-							std::make_shared<FormatConvert_YUVToRGB>(
-								params);
-						pI4202RGB->InitConvertion();
-					}
-
-					if (0) {
-						FILE *fp = 0;
-						fopen_s(&fp, "yuv", "wb+");
-						if (fp) {
-							for (size_t i = 0; i < preFrame->height;
-							     i++) {
-								fwrite(preFrame->data[0] +
-									       i * preFrame->linesize
-											       [0],
-								       preFrame->width, 1, fp);
-							}
-
-							for (size_t i = 0; i < preFrame->height / 2;
-							     i++) {
-								fwrite(preFrame->data[1] +
-									       i * preFrame->linesize
-											       [1],
-								       preFrame->width / 2, 1, fp);
-							}
-
-							for (size_t i = 0; i < preFrame->height / 2;
-							     i++) {
-								fwrite(preFrame->data[2] +
-									       i * preFrame->linesize
-											       [2],
-								       preFrame->width / 2, 1, fp);
-							}
-
-							fclose(fp);
-						}
-					}
-
-					pI4202RGB->RenderVideo(preFrame, canvasSize, rc);
-				}
-			}
+			RenderAVFrame(canvasSize, rc);
 
 			pGraphic->RenderEnd();
 		}
@@ -338,4 +280,75 @@ int GetSelectRegionIndex()
 	}
 
 	return -1;
+}
+
+void RenderAVFrame(SIZE canvasSize, RECT rc)
+{
+	AVFrame *newFrame = decode_frame();
+	if (newFrame) {
+		if (preFrame) {
+			av_frame_free(&preFrame);
+			preFrame = nullptr;
+		}
+
+		preFrame = newFrame;
+	}
+
+	if (preFrame) {
+		if (!pI4202RGB) {
+			video_convert_params params;
+			params.graphic = pGraphic;
+			params.width = preFrame->width;
+			params.height = preFrame->height;
+			params.format = (AVPixelFormat)preFrame->format;
+			assert(params.format == destFormat);
+
+			pI4202RGB = std::make_shared<FormatConvert_YUVToRGB>(params);
+			pI4202RGB->InitConvertion();
+		}
+
+		int hWndCX = rc.right - rc.left;
+		int hWndCY = rc.bottom - rc.top;
+		float scale;
+		float scale1 = float(preFrame->width) / float(preFrame->height);
+		float scale2 = float(hWndCX) / float(hWndCY);
+		if (scale1 > scale2) {
+			scale = float(hWndCX) / float(preFrame->width);
+		} else {
+			scale = float(hWndCY) / float(preFrame->height);
+		}
+		long destCX = scale * float(preFrame->width);
+		long destCY = scale * float(preFrame->height);
+
+		RECT rcDest;
+		rcDest.left = (hWndCX - destCX) / 2;
+		rcDest.top = (hWndCY - destCY) / 2;
+		rcDest.right = rcDest.left + destCX;
+		rcDest.bottom = rcDest.top + destCY;
+
+		pI4202RGB->RenderVideo(preFrame, canvasSize, rcDest);
+
+		if (0) {
+			FILE *fp = 0;
+			fopen_s(&fp, "yuv", "wb+");
+			if (fp) {
+				for (size_t i = 0; i < preFrame->height; i++) {
+					fwrite(preFrame->data[0] + i * preFrame->linesize[0],
+					       preFrame->width, 1, fp);
+				}
+
+				for (size_t i = 0; i < preFrame->height / 2; i++) {
+					fwrite(preFrame->data[1] + i * preFrame->linesize[1],
+					       preFrame->width / 2, 1, fp);
+				}
+
+				for (size_t i = 0; i < preFrame->height / 2; i++) {
+					fwrite(preFrame->data[2] + i * preFrame->linesize[2],
+					       preFrame->width / 2, 1, fp);
+				}
+
+				fclose(fp);
+			}
+		}
+	}
 }
