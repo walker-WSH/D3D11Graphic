@@ -395,6 +395,8 @@ bool DX11GraphicInstanceImpl::BuildAllDX()
 		return false;
 	}
 
+	OutputDebugStringA("DX11Device is using level with :");
+
 	if (!InitBlendState())
 		return false;
 
