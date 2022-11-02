@@ -16,6 +16,7 @@ texture_handle texShared = nullptr;
 texture_handle texAlpha = nullptr;
 texture_handle texImg = nullptr;
 texture_handle texImg2 = nullptr;
+texture_handle texForD2D = nullptr;
 
 CPoint posLBDown = {0, 0};
 std::vector<RECT> renderRegion;
@@ -154,6 +155,9 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			RenderTexture(std::vector<texture_handle>{texImg2}, canvasSize,
 				      renderRegion[6]);
 
+			RenderTexture(std::vector<texture_handle>{texForD2D}, canvasSize,
+				      renderRegion[7]);
+
 			int index = GetSelectRegionIndex();
 			if (index >= 0) {
 				RenderBorderWithSize(canvasSize, renderRegion[index],
@@ -222,10 +226,10 @@ bool InitGraphic(HWND hWnd)
 	assert(tex2);
 	pGraphic->DestroyGraphicObject(tex2);
 
+	info.width = 400;
+	info.height = 300;
 	info.usage = TextureType::CanvasTarget;
-	texture_handle tex3 = pGraphic->CreateTexture(info);
-	assert(tex3);
-	pGraphic->DestroyGraphicObject(tex3);
+	texForD2D = pGraphic->CreateTexture(info);
 
 	//------------------------------------------------------------------
 	return true;

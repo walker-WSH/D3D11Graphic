@@ -69,7 +69,6 @@ void DX11Texture2D::ReleaseDX()
 	m_pTexture2D = nullptr;
 	m_pRenderTargetView = nullptr;
 	m_pTextureResView = nullptr;
-	m_pDXGIRes = nullptr;
 }
 
 bool DX11Texture2D::InitWriteTexture()
@@ -172,21 +171,81 @@ bool DX11Texture2D::InitTargetTexture()
 	if (!InitResourceView())
 		return false;
 
-	hr = m_pTexture2D->QueryInterface(__uuidof(IDXGIResource), (LPVOID *)(m_pDXGIRes.Assign()));
+	ComPtr<IDXGIResource> pDXGIRes = nullptr;
+	hr = m_pTexture2D->QueryInterface(__uuidof(IDXGIResource), (LPVOID *)(pDXGIRes.Assign()));
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		assert(false);
 		return false;
 	}
 
-	hr = m_pDXGIRes->GetSharedHandle(&m_hSharedHandle);
+	hr = pDXGIRes->GetSharedHandle(&m_hSharedHandle);
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		assert(false);
 		return false;
 	}
+
+	if (m_textureInfo.format == D2D_TEXTURE_FORMAT)
+		testD2D();
 
 	return true;
+}
+
+void DX11Texture2D::testD2D()
+{
+	ComPtr<IDXGISurface1> sfc;
+	auto hr = m_graphic.DXDevice()->OpenSharedResource(m_hSharedHandle, __uuidof(IDXGISurface1),
+							   (LPVOID *)(sfc.Assign()));
+	if (FAILED(hr)) {
+		CheckDXError(hr);
+		assert(false);
+		return;
+	}
+
+	hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &m_pD2D1Factory);
+	if (FAILED(hr)) {
+		CheckDXError(hr);
+		assert(false);
+		return;
+	}
+
+	auto prp = D2D1::RenderTargetProperties(D2D1_RENDER_TARGET_TYPE_DEFAULT,
+						D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN,
+								  D2D1_ALPHA_MODE_PREMULTIPLIED));
+	hr = m_pD2D1Factory->CreateDxgiSurfaceRenderTarget(sfc.Get(), &prp, &m_pD2D1RenderTarget);
+	if (FAILED(hr)) {
+		CheckDXError(hr);
+		assert(false);
+		return;
+	}
+
+	m_pD2D1RenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+	m_pD2D1RenderTarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
+
+	hr = m_pD2D1RenderTarget->CreateSolidColorBrush(D2D1::ColorF(0, 0, 1.0f),
+							m_pD2D1SolidBrush.Assign());
+	if (FAILED(hr)) {
+		CheckDXError(hr);
+		assert(false);
+		return;
+	}
+
+	D2D1_ELLIPSE ellipse = D2D1::Ellipse(
+		D2D1::Point2F((float)m_textureInfo.width / 2, (float)m_textureInfo.height / 2),
+		(float)m_textureInfo.width / 3, (float)m_textureInfo.height / 3);
+
+	m_pD2D1RenderTarget->BeginDraw();
+	m_pD2D1RenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::YellowGreen));
+	m_pD2D1RenderTarget->FillEllipse(ellipse, m_pD2D1SolidBrush);
+	hr = m_pD2D1RenderTarget->EndDraw();
+	if (D2DERR_RECREATE_TARGET == hr) {
+		// device error and reinitialize
+	} else if (FAILED(hr)) {
+		CheckDXError(hr);
+		assert(false);
+		return;
+	}
 }
 
 bool DX11Texture2D::InitSharedTexture()
