@@ -60,7 +60,7 @@ HRESULT DX11SwapChain::TestResizeSwapChain()
 		m_pSwapBackTexture2D = nullptr;
 
 		HRESULT hr =
-			m_pSwapChain->ResizeBuffers(1, m_dwWidth, m_dwHeight, SWAPCHAIN_FORMAT, 0);
+			m_pSwapChain->ResizeBuffers(1, m_dwWidth, m_dwHeight, SWAPCHAIN_TEXTURE_FORMAT, 0);
 		if (FAILED(hr)) {
 			CheckDXError(hr);
 			return hr;
@@ -82,7 +82,7 @@ HRESULT DX11SwapChain::InitSwapChain()
 	ZeroMemory(&sd, sizeof(sd));
 	sd.BufferDesc.Width = m_dwWidth;
 	sd.BufferDesc.Height = m_dwHeight;
-	sd.BufferDesc.Format = SWAPCHAIN_FORMAT;
+	sd.BufferDesc.Format = SWAPCHAIN_TEXTURE_FORMAT;
 	sd.SampleDesc.Count = 1;
 	sd.BufferCount = 1;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;

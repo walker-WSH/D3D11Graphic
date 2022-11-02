@@ -5,8 +5,6 @@
 #include <d2d1_1.h>
 #pragma comment(lib, "D2d1.lib")
 
-#define D2D_TEXTURE_FORMAT DXGI_FORMAT_B8G8R8A8_UNORM
-
 class DX11GraphicInstanceImpl;
 class DX11Texture2D : public DX11GraphicBase {
 	friend class DX11GraphicInstanceImpl;

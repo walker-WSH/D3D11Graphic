@@ -223,7 +223,7 @@ void DX11Texture2D::testD2D()
 	m_pD2D1RenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 	m_pD2D1RenderTarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
 
-	hr = m_pD2D1RenderTarget->CreateSolidColorBrush(D2D1::ColorF(0, 0, 1.0f),
+	hr = m_pD2D1RenderTarget->CreateSolidColorBrush(D2D1::ColorF(0, 0, 1.f, 1.f),
 							m_pD2D1SolidBrush.Assign());
 	if (FAILED(hr)) {
 		CheckDXError(hr);
@@ -236,9 +236,10 @@ void DX11Texture2D::testD2D()
 		(float)m_textureInfo.width / 3, (float)m_textureInfo.height / 3);
 
 	m_pD2D1RenderTarget->BeginDraw();
-	m_pD2D1RenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::YellowGreen));
+	m_pD2D1RenderTarget->Clear(D2D1::ColorF(1.f, 0, 0, 0.5f));
 	m_pD2D1RenderTarget->FillEllipse(ellipse, m_pD2D1SolidBrush);
 	hr = m_pD2D1RenderTarget->EndDraw();
+
 	if (D2DERR_RECREATE_TARGET == hr) {
 		// device error and reinitialize
 	} else if (FAILED(hr)) {

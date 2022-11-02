@@ -10,6 +10,9 @@
 #include <optional>
 #include <DX11GraphicDefine.h>
 
+#define SWAPCHAIN_TEXTURE_FORMAT DXGI_FORMAT_B8G8R8A8_UNORM
+#define D2D_TEXTURE_FORMAT DXGI_FORMAT_B8G8R8A8_UNORM
+
 static void CheckDXError(HRESULT hr,
 			 std::source_location location = std::source_location::current())
 {

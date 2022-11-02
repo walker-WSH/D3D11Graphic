@@ -1,8 +1,6 @@
 #pragma once
 #include <DX11GraphicBase.h>
 
-#define SWAPCHAIN_FORMAT DXGI_FORMAT_B8G8R8A8_UNORM
-
 class DX11GraphicInstanceImpl;
 struct DX11SwapChain : public DX11GraphicBase {
 	friend class DX11GraphicInstanceImpl;
