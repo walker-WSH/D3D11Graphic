@@ -162,7 +162,6 @@ texture_handle DX11GraphicInstanceImpl::CreateTexture(const ST_TextureInfo &info
 ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
-
 	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
 
 	auto obj = dynamic_cast<DX11Texture2D *>(hdl);
@@ -172,6 +171,19 @@ ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle hdl)
 
 	return ST_TextureInfo(obj->m_descTexture.Width, obj->m_descTexture.Height,
 			      obj->m_descTexture.Format, obj->m_textureInfo.usage);
+}
+
+HANDLE DX11GraphicInstanceImpl::GetSharedHandle(texture_handle hdl)
+{
+	CHECK_GRAPHIC_CONTEXT;
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+
+	auto obj = dynamic_cast<DX11Texture2D *>(hdl);
+	assert(obj);
+	if (!obj || !obj->IsBuilt())
+		return 0;
+
+	return obj->m_hSharedHandle;
 }
 
 bool DX11GraphicInstanceImpl::CopyTexture(texture_handle dest, texture_handle src)

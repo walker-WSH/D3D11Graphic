@@ -30,6 +30,7 @@ public:
 	virtual texture_handle OpenImageTexture(const WCHAR *fullPath) = 0;
 	virtual texture_handle CreateTexture(const ST_TextureInfo &info) = 0;
 	virtual ST_TextureInfo GetTextureInfo(texture_handle tex) = 0;
+	virtual HANDLE GetSharedHandle(texture_handle tex) = 0;
 	virtual bool CopyTexture(texture_handle dest, texture_handle src) = 0;
 	virtual bool MapTexture(texture_handle tex, MapTextureType type,
 				D3D11_MAPPED_SUBRESOURCE *) = 0;
