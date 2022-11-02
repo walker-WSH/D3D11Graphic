@@ -148,8 +148,10 @@ bool DX11Texture2D::InitTargetTexture()
 	desc.SampleDesc.Count = 1;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+
+	desc.MiscFlags |= D3D11_RESOURCE_MISC_SHARED;
 	if (DXGI_FORMAT_B8G8R8A8_UNORM == m_textureInfo.format)
-		desc.MiscFlags = D3D11_RESOURCE_MISC_GDI_COMPATIBLE | D3D11_RESOURCE_MISC_SHARED;
+		desc.MiscFlags |= D3D11_RESOURCE_MISC_GDI_COMPATIBLE;
 
 	HRESULT hr = m_graphic.DXDevice()->CreateTexture2D(&desc, nullptr, m_pTexture2D.Assign());
 	if (FAILED(hr)) {
