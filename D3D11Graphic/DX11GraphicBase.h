@@ -7,10 +7,13 @@
 #include <dxgi.h>
 #include <d2d1.h>
 #include <d2d1_1.h>
-#include <ComPtr.hpp>
+#include <d2d1helper.h>
+#include <dwrite.h>
 #include <source_location>
 #include <optional>
-#include <DX11GraphicDefine.h>
+
+#include "ComPtr.hpp"
+#include "DX11GraphicDefine.h"
 
 #define SWAPCHAIN_TEXTURE_FORMAT DXGI_FORMAT_B8G8R8A8_UNORM
 #define D2D_TEXTURE_FORMAT DXGI_FORMAT_B8G8R8A8_UNORM
