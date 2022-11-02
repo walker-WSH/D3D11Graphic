@@ -1,10 +1,6 @@
 #pragma once
 #include <DX11GraphicBase.h>
 
-#include <d2d1.h>
-#include <d2d1_1.h>
-#pragma comment(lib, "D2d1.lib")
-
 class DX11GraphicInstanceImpl;
 class DX11Texture2D : public DX11GraphicBase {
 	friend class DX11GraphicInstanceImpl;

@@ -5,6 +5,8 @@
 #include <assert.h>
 #include <d3d11.h>
 #include <dxgi.h>
+#include <d2d1.h>
+#include <d2d1_1.h>
 #include <ComPtr.hpp>
 #include <source_location>
 #include <optional>
