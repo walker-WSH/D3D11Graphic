@@ -171,6 +171,21 @@ bool DX11Texture2D::InitTargetTexture()
 	if (!InitResourceView())
 		return false;
 
+	ComPtr<IDXGIResource> dxgiRes = nullptr;
+	hr = m_pTexture2D->QueryInterface(__uuidof(IDXGIResource), (LPVOID *)(dxgiRes.Assign()));
+	if (FAILED(hr)) {
+		CheckDXError(hr);
+		assert(false);
+		return false;
+	}
+
+	hr = dxgiRes->GetSharedHandle(&m_hSharedHandle);
+	if (FAILED(hr)) {
+		CheckDXError(hr);
+		assert(false);
+		return false;
+	}
+
 	return true;
 }
 
