@@ -28,6 +28,7 @@ protected:
 	ComPtr<ID3D11Texture2D> m_pTexture2D = nullptr;
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;
 	ComPtr<ID3D11ShaderResourceView> m_pTextureResView = nullptr;
+	ComPtr<IDXGIResource> m_pDXGIRes = nullptr;
 
 	HANDLE m_hSharedHandle = 0;
 	std::wstring m_strImagePath = L"";

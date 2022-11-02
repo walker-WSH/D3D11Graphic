@@ -69,6 +69,7 @@ void DX11Texture2D::ReleaseDX()
 	m_pTexture2D = nullptr;
 	m_pRenderTargetView = nullptr;
 	m_pTextureResView = nullptr;
+	m_pDXGIRes = nullptr;
 }
 
 bool DX11Texture2D::InitWriteTexture()
@@ -171,15 +172,14 @@ bool DX11Texture2D::InitTargetTexture()
 	if (!InitResourceView())
 		return false;
 
-	ComPtr<IDXGIResource> dxgiRes = nullptr;
-	hr = m_pTexture2D->QueryInterface(__uuidof(IDXGIResource), (LPVOID *)(dxgiRes.Assign()));
+	hr = m_pTexture2D->QueryInterface(__uuidof(IDXGIResource), (LPVOID *)(m_pDXGIRes.Assign()));
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		assert(false);
 		return false;
 	}
 
-	hr = dxgiRes->GetSharedHandle(&m_hSharedHandle);
+	hr = m_pDXGIRes->GetSharedHandle(&m_hSharedHandle);
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		assert(false);
