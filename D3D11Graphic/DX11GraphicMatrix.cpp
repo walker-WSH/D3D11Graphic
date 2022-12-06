@@ -56,17 +56,13 @@ D3DXMATRIX GetOrthoMatrix(SIZE canvas)
 	return orthoMatrix;
 }
 
-GRAPHIC_API void TransposeMatrixWVP(SIZE canvas, SIZE texture, RECT destPos,
+GRAPHIC_API void TransposeMatrixWVP(SIZE canvas, SIZE texture, RECT destPos, bool keepRadio,
 				    float outputMatrix[4][4])
 {
-	float destCX = float(destPos.right - destPos.left);
-	float destCY = float(destPos.bottom - destPos.top);
-
-	float srcCX = float(texture.cx);
-	float srcCY = float(texture.cy);
-
-	float scaleX = destCX / srcCX;
-	float scaleY = destCY / srcCY;
+	float scaleX = float(destPos.right - destPos.left) / float(texture.cx);
+	float scaleY = scaleX;
+	if (!keepRadio)
+		scaleY = float(destPos.bottom - destPos.top) / float(texture.cy);
 
 	D3DXMATRIX worldMatrix =
 		GetWorldMatrix(scaleX, scaleY, (float)destPos.left, (float)destPos.top);

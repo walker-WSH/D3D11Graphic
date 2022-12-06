@@ -102,24 +102,31 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 	ST_TextureInfo texInfo = pGraphic->GetTextureInfo(texs.at(0));
 	SIZE texSize(texInfo.width, texInfo.height);
 
-	auto cx = drawDest.right - drawDest.left;
-	auto cy = drawDest.bottom - drawDest.top;
-	float wndRadio = float(cx) / float(cy);
-	float frameRadio = float(texInfo.width) / float(texInfo.height);
-	float radio;
-	if (wndRadio > frameRadio) {
-		radio = float(cy) / float(texInfo.height);
-	} else {
-		radio = float(cx) / float(texInfo.width);
-	}
-	auto destCx = radio * texInfo.width;
-	auto destCy = radio * texInfo.height;
 	RECT realDrawDest = drawDest;
-	realDrawDest.right = realDrawDest.left + destCx;
-	realDrawDest.bottom = realDrawDest.top + destCy;
+	{ // 根据图片等比例缩放 确认实际的渲染区域
+		auto cx = drawDest.right - drawDest.left;
+		auto cy = drawDest.bottom - drawDest.top;
+		float wndRadio = float(cx) / float(cy);
+		float frameRadio = float(texInfo.width) / float(texInfo.height);
+		float radio;
+		if (wndRadio > frameRadio) {
+			radio = float(cy) / float(texInfo.height);
+		} else {
+			radio = float(cx) / float(texInfo.width);
+		}
+		auto destCx = radio * texInfo.width;
+		auto destCy = radio * texInfo.height;
+		if (wndRadio > frameRadio) {
+			realDrawDest.left += ((drawDest.right - drawDest.left) - (LONG)destCx) / 2;
+			realDrawDest.right = realDrawDest.left + (LONG)destCx;
+		} else {
+			realDrawDest.top += ((drawDest.bottom - drawDest.top) - (LONG)destCy) / 2;
+			realDrawDest.bottom = realDrawDest.top + (LONG)destCy;
+		}
+	}
 
 	float matrixWVP[4][4];
-	TransposeMatrixWVP(canvas, texSize, realDrawDest, matrixWVP);
+	TransposeMatrixWVP(canvas, texSize, realDrawDest, true, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
 	VertexList_RectTriangle(texSize, false, false, outputVertex);
@@ -137,7 +144,7 @@ void FillRectangle(SIZE canvas, RECT drawDest, ST_Color clr)
 	ShaderType type = ShaderType::shaderFillRect;
 	SIZE texSize(drawDest.right - drawDest.left, drawDest.bottom - drawDest.top);
 	float matrixWVP[4][4];
-	TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
+	TransposeMatrixWVP(canvas, texSize, drawDest, true, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
 	VertexList_RectTriangle(texSize, false, false, outputVertex);

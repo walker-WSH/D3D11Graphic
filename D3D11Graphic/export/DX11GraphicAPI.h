@@ -24,7 +24,7 @@ GRAPHIC_API std::shared_ptr<std::vector<ST_GraphicCardInfo>> EnumGraphicCard();
 GRAPHIC_API IDX11GraphicInstance *CreateGraphicInstance();
 GRAPHIC_API void DestroyGraphicInstance(IDX11GraphicInstance *&graphic);
 
-GRAPHIC_API void TransposeMatrixWVP(SIZE canvas, SIZE texture, RECT destPos,
+GRAPHIC_API void TransposeMatrixWVP(SIZE canvas, SIZE texture, RECT destPos, bool keepRadio,
 				    float outputMatrix[4][4]);
 GRAPHIC_API void VertexList_RectTriangle(SIZE texture, bool flipH, bool flipV,
 					 ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT]);
