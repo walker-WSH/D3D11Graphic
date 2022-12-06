@@ -62,7 +62,8 @@ public:
 	virtual void SetVSConstBuffer(shader_handle hdl, const void *vsBuffer, size_t vsSize);
 	virtual void SetPSConstBuffer(shader_handle hdl, const void *psBuffer, size_t psSize);
 	virtual void DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TOPOLOGY type);
-	virtual void DrawTexture(shader_handle hdl, const std::vector<texture_handle> &textures);
+	virtual void DrawTexture(shader_handle hdl, FilterType flt,
+				 const std::vector<texture_handle> &textures);
 	virtual void RenderEnd();
 
 	//------------------------------------------------------------------------------------------------------
@@ -104,7 +105,9 @@ private:
 	ComPtr<ID3D11Device> m_pDX11Device = nullptr;
 	ComPtr<ID3D11DeviceContext> m_pDeviceContext = nullptr;
 	ComPtr<ID3D11BlendState> m_pBlendState = nullptr;
-	ComPtr<ID3D11SamplerState> m_pSampleState = nullptr;
+	ComPtr<ID3D11SamplerState> m_pSampleStateAnisotropic = nullptr;
+	ComPtr<ID3D11SamplerState> m_pSampleStateLinear = nullptr;
+	ComPtr<ID3D11SamplerState> m_pSampleStatePoint = nullptr;
 	std::vector<DX11GraphicBase *> m_listObject; // Here we do not hold its lifetime.
 	std::vector<std::weak_ptr<DX11GraphicCallback>> m_pGraphicCallbacks;
 

@@ -21,6 +21,12 @@ enum class TextureType {
 	StaticImageFile,
 };
 
+enum class FilterType {
+	FilterPoint = 0,
+	FilterLinear,
+	FilterAnisotropic,
+};
+
 enum class MapTextureType {
 	MapRead = 0,
 	MapWrite,

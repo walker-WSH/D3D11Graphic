@@ -350,7 +350,7 @@ void DX11GraphicInstanceImpl::ReleaseAllDX()
 	m_pDX11Device = nullptr;
 	m_pDeviceContext = nullptr;
 	m_pBlendState = nullptr;
-	m_pSampleState = nullptr;
+	m_pSampleStateAnisotropic = m_pSampleStatePoint = m_pSampleStateLinear = nullptr;
 }
 
 bool DX11GraphicInstanceImpl::BuildAllDX()
@@ -458,19 +458,35 @@ bool DX11GraphicInstanceImpl::InitSamplerState()
 	CHECK_GRAPHIC_CONTEXT;
 
 	D3D11_SAMPLER_DESC samplerDesc = {};
-#if 1
-	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	samplerDesc.MaxAnisotropy = 16;
-#else
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-#endif
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	samplerDesc.MaxLOD = FLT_MAX;
 
-	HRESULT hr = m_pDX11Device->CreateSamplerState(&samplerDesc, m_pSampleState.Assign());
+	//------------------------------------------------------------------------------------------
+	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samplerDesc.MaxAnisotropy = 16;
+	HRESULT hr =
+		m_pDX11Device->CreateSamplerState(&samplerDesc, m_pSampleStateAnisotropic.Assign());
+	if (FAILED(hr)) {
+		CheckDXError(hr);
+		assert(false);
+		return false;
+	}
+
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.MaxAnisotropy = 0;
+	hr = m_pDX11Device->CreateSamplerState(&samplerDesc, m_pSampleStateLinear.Assign());
+	if (FAILED(hr)) {
+		CheckDXError(hr);
+		assert(false);
+		return false;
+	}
+
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.MaxAnisotropy = 0;
+	hr = m_pDX11Device->CreateSamplerState(&samplerDesc, m_pSampleStatePoint.Assign());
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		assert(false);
@@ -694,7 +710,7 @@ void DX11GraphicInstanceImpl::DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TO
 	m_pDeviceContext->Draw(shader->m_shaderInfo.vertexCount, 0);
 }
 
-void DX11GraphicInstanceImpl::DrawTexture(shader_handle hdl,
+void DX11GraphicInstanceImpl::DrawTexture(shader_handle hdl, FilterType flt,
 					  const std::vector<texture_handle> &textures)
 {
 	CHECK_GRAPHIC_CONTEXT;
@@ -712,8 +728,25 @@ void DX11GraphicInstanceImpl::DrawTexture(shader_handle hdl,
 
 	ApplyShader(shader);
 
-	ID3D11SamplerState *sampleState = m_pSampleState.Get();
-	m_pDeviceContext->PSSetSamplers(0, 1, &sampleState);
+	ID3D11SamplerState *sampleState = nullptr;
+	switch (flt) {
+	case FilterType::FilterPoint:
+		sampleState = m_pSampleStatePoint.Get();
+		break;
+
+	case FilterType::FilterAnisotropic:
+		sampleState = m_pSampleStateAnisotropic.Get();
+		break;
+
+	case FilterType::FilterLinear:
+	default:
+		sampleState = m_pSampleStateLinear.Get();
+		break;
+	}
+
+	if (sampleState)
+		m_pDeviceContext->PSSetSamplers(0, 1, &sampleState);
+
 	m_pDeviceContext->PSSetShaderResources(0, (uint32_t)resources.size(), resources.data());
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	m_pDeviceContext->Draw(shader->m_shaderInfo.vertexCount, 0);

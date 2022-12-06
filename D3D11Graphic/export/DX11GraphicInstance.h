@@ -43,6 +43,7 @@ public:
 	virtual void SetVSConstBuffer(shader_handle hdl, const void *vsBuffer, size_t vsSize) = 0;
 	virtual void SetPSConstBuffer(shader_handle hdl, const void *psBuffer, size_t psSize) = 0;
 	virtual void DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TOPOLOGY type) = 0;
-	virtual void DrawTexture(shader_handle hdl, const std::vector<texture_handle> &) = 0;
+	virtual void DrawTexture(shader_handle hdl, FilterType flt,
+				 const std::vector<texture_handle> &) = 0;
 	virtual void RenderEnd() = 0;
 };
