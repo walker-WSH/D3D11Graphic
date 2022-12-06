@@ -80,7 +80,7 @@ bool FormatConvert_RGBToYUV::ConvertVideo(texture_handle tex)
 		original_video_info.graphic->SetPSConstBuffer(item.shader, &item.ps_const_buffer,
 							      sizeof(toyuv_const_buffer));
 
-		original_video_info.graphic->DrawTexture(item.shader, FilterType::FilterPoint,
+		original_video_info.graphic->DrawTexture(item.shader, FilterType::FilterAnisotropic,
 							 textures);
 		original_video_info.graphic->RenderEnd();
 
