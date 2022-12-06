@@ -103,23 +103,23 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 	SIZE texSize(texInfo.width, texInfo.height);
 
 	RECT realDrawDest = drawDest;
-	{ // 根据图片等比例缩放 确认实际的渲染区域
+	{
+		// 根据图片等比例缩放 确认实际的渲染区域
 		auto cx = drawDest.right - drawDest.left;
 		auto cy = drawDest.bottom - drawDest.top;
 		float wndRadio = float(cx) / float(cy);
 		float frameRadio = float(texInfo.width) / float(texInfo.height);
-		float radio;
+
+		// 确认是按照宽度缩放 还是按照高度缩放
 		if (wndRadio > frameRadio) {
-			radio = float(cy) / float(texInfo.height);
-		} else {
-			radio = float(cx) / float(texInfo.width);
-		}
-		auto destCx = radio * texInfo.width;
-		auto destCy = radio * texInfo.height;
-		if (wndRadio > frameRadio) {
+			float radio = float(cy) / float(texInfo.height);
+			auto destCx = radio * texInfo.width;
+
 			realDrawDest.left += ((drawDest.right - drawDest.left) - (LONG)destCx) / 2;
 			realDrawDest.right = realDrawDest.left + (LONG)destCx;
 		} else {
+			float radio = float(cx) / float(texInfo.width);
+			auto destCy = radio * texInfo.height;
 			realDrawDest.top += ((drawDest.bottom - drawDest.top) - (LONG)destCy) / 2;
 			realDrawDest.bottom = realDrawDest.top + (LONG)destCy;
 		}
