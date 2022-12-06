@@ -97,7 +97,8 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 					   info.height),
 				      ST_Color(0, 0, 1, 1.0));
 
-			RenderCustomFormat(canvasSize, rc);
+			RenderCustomFormat(SIZE(info.width, info.height),
+					   RECT(0, 0, info.width, info.height));
 
 			pGraphic->RenderEnd();
 
@@ -208,7 +209,7 @@ bool InitGraphic(HWND hWnd)
 
 	//------------------------------- test texutres --------------------
 	ST_TextureInfo info;
-	info.width = 1920;
+	info.width = 1440;
 	info.height = 1080;
 	info.format = DXGI_FORMAT_B8G8R8A8_UNORM;
 

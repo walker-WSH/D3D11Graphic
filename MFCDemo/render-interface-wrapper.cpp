@@ -101,6 +101,9 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 	shader_handle shader = shaders[ShaderType::shaderTexture];
 	ST_TextureInfo texInfo = pGraphic->GetTextureInfo(texs.at(0));
 	SIZE texSize(texInfo.width, texInfo.height);
+
+	// TODO
+
 	float matrixWVP[4][4];
 	TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
 
