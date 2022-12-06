@@ -102,10 +102,24 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 	ST_TextureInfo texInfo = pGraphic->GetTextureInfo(texs.at(0));
 	SIZE texSize(texInfo.width, texInfo.height);
 
-	// TODO
+	auto cx = drawDest.right - drawDest.left;
+	auto cy = drawDest.bottom - drawDest.top;
+	float wndRadio = float(cx) / float(cy);
+	float frameRadio = float(texInfo.width) / float(texInfo.height);
+	float radio;
+	if (wndRadio > frameRadio) {
+		radio = float(cy) / float(texInfo.height);
+	} else {
+		radio = float(cx) / float(texInfo.width);
+	}
+	auto destCx = radio * texInfo.width;
+	auto destCy = radio * texInfo.height;
+	RECT realDrawDest = drawDest;
+	realDrawDest.right = realDrawDest.left + destCx;
+	realDrawDest.bottom = realDrawDest.top + destCy;
 
 	float matrixWVP[4][4];
-	TransposeMatrixWVP(canvas, texSize, drawDest, matrixWVP);
+	TransposeMatrixWVP(canvas, texSize, realDrawDest, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
 	VertexList_RectTriangle(texSize, false, false, outputVertex);
