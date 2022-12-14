@@ -40,6 +40,11 @@ enum class VertexInputType {
 	TextureCoord,
 };
 
+enum class TextureRenderMode {
+	FitToRect = 0,
+	FullCoverRect,
+};
+
 struct ST_TextureInfo {
 	uint32_t width = 0;
 	uint32_t height = 0;

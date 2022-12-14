@@ -4,6 +4,7 @@
 IDX11GraphicInstance *pGraphic = nullptr;
 std::map<ShaderType, shader_handle> shaders;
 
+std::wstring GetShaderDirectory();
 void InitShader()
 {
 	float matrixWVP[4][4];
@@ -18,9 +19,11 @@ void InitShader()
 	desc.size = 8;
 	shaderInfo.vertexDesc.push_back(desc);
 
+	std::wstring dir = GetShaderDirectory();
+
 	{
-		shaderInfo.vsFile = L"default-vs.cso";
-		shaderInfo.psFile = L"default-ps.cso";
+		shaderInfo.vsFile = dir + L"default-vs.cso";
+		shaderInfo.psFile = dir + L"default-ps.cso";
 		shaderInfo.vsBufferSize = sizeof(matrixWVP);
 		shaderInfo.psBufferSize = 0;
 		shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
@@ -31,8 +34,8 @@ void InitShader()
 	}
 
 	{
-		shaderInfo.vsFile = L"fill-rect-vs.cso";
-		shaderInfo.psFile = L"fill-rect-ps.cso";
+		shaderInfo.vsFile = dir + L"fill-rect-vs.cso";
+		shaderInfo.psFile = dir + L"fill-rect-ps.cso";
 		shaderInfo.vsBufferSize = sizeof(matrixWVP);
 		shaderInfo.psBufferSize = sizeof(ST_Color);
 		shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
@@ -43,8 +46,8 @@ void InitShader()
 	}
 
 	{
-		shaderInfo.vsFile = L"default-vs.cso";
-		shaderInfo.psFile = L"rgb-to-y-ps.cso";
+		shaderInfo.vsFile = dir + L"default-vs.cso";
+		shaderInfo.psFile = dir + L"rgb-to-y-ps.cso";
 		shaderInfo.vsBufferSize = sizeof(matrixWVP);
 		shaderInfo.psBufferSize = sizeof(toyuv_const_buffer);
 		shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
@@ -55,8 +58,8 @@ void InitShader()
 	}
 
 	{
-		shaderInfo.vsFile = L"default-vs.cso";
-		shaderInfo.psFile = L"rgb-to-uv-ps.cso";
+		shaderInfo.vsFile = dir + L"default-vs.cso";
+		shaderInfo.psFile = dir + L"rgb-to-uv-ps.cso";
 		shaderInfo.vsBufferSize = sizeof(matrixWVP);
 		shaderInfo.psBufferSize = sizeof(toyuv_const_buffer);
 		shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
@@ -67,8 +70,8 @@ void InitShader()
 	}
 
 	{
-		shaderInfo.vsFile = L"default-vs.cso";
-		shaderInfo.psFile = L"i420-to-rgb-ps.cso";
+		shaderInfo.vsFile = dir + L"default-vs.cso";
+		shaderInfo.psFile = dir + L"i420-to-rgb-ps.cso";
 		shaderInfo.vsBufferSize = sizeof(matrixWVP);
 		shaderInfo.psBufferSize = sizeof(torgb_const_buffer);
 		shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
@@ -79,8 +82,8 @@ void InitShader()
 	}
 
 	{
-		shaderInfo.vsFile = L"default-vs.cso";
-		shaderInfo.psFile = L"nv12-to-rgb-ps.cso";
+		shaderInfo.vsFile = dir + L"default-vs.cso";
+		shaderInfo.psFile = dir + L"nv12-to-rgb-ps.cso";
 		shaderInfo.vsBufferSize = sizeof(matrixWVP);
 		shaderInfo.psBufferSize = sizeof(torgb_const_buffer);
 		shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
@@ -91,8 +94,8 @@ void InitShader()
 	}
 
 	{
-		shaderInfo.vsFile = L"default-vs.cso";
-		shaderInfo.psFile = L"yuy2-to-rgb-ps.cso";
+		shaderInfo.vsFile = dir + L"default-vs.cso";
+		shaderInfo.psFile = dir + L"yuy2-to-rgb-ps.cso";
 		shaderInfo.vsBufferSize = sizeof(matrixWVP);
 		shaderInfo.psBufferSize = sizeof(torgb_const_buffer);
 		shaderInfo.vertexCount = TEXTURE_VERTEX_COUNT;
@@ -135,7 +138,7 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 	}
 
 	float matrixWVP[4][4];
-	TransposeMatrixWVP(canvas, texSize, realDrawDest, true, matrixWVP);
+	TransposeMatrixWVP(canvas, texSize, realDrawDest, TextureRenderMode::FitToRect, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
 	VertexList_RectTriangle(texSize, false, false, outputVertex);
@@ -153,7 +156,7 @@ void FillRectangle(SIZE canvas, RECT drawDest, ST_Color clr)
 	ShaderType type = ShaderType::shaderFillRect;
 	SIZE texSize(drawDest.right - drawDest.left, drawDest.bottom - drawDest.top);
 	float matrixWVP[4][4];
-	TransposeMatrixWVP(canvas, texSize, drawDest, true, matrixWVP);
+	TransposeMatrixWVP(canvas, texSize, drawDest, TextureRenderMode::FullCoverRect, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
 	VertexList_RectTriangle(texSize, false, false, outputVertex);
@@ -198,4 +201,21 @@ void RenderBorderWithSize(SIZE canvas, RECT drawDest, long borderSize, ST_Color 
 	FillRectangle(canvas, rcRight, clr);
 	FillRectangle(canvas, rcTop, clr);
 	FillRectangle(canvas, rcBottom, clr);
+}
+
+std::wstring GetShaderDirectory()
+{
+	WCHAR szFilePath[MAX_PATH] = {};
+	GetModuleFileNameW(0, szFilePath, MAX_PATH);
+
+	int nLen = (int)wcslen(szFilePath);
+	for (int i = nLen - 1; i >= 0; --i) {
+		if (szFilePath[i] == '\\') {
+			szFilePath[i + 1] = 0;
+			break;
+		}
+	}
+
+	auto ret = std::wstring(szFilePath) + L"HLSL\\";
+	return ret;
 }

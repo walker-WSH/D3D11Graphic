@@ -2,28 +2,6 @@
 #include "DX11GraphicInstanceImpl.h"
 #include <d3dcompiler.h>
 
-std::wstring GetHLSLDir()
-{
-	static std::wstring s_strHLSLDir = L"";
-
-	if (s_strHLSLDir.empty()) {
-		WCHAR szFilePath[MAX_PATH] = {};
-		GetModuleFileNameW(DX11GraphicInstanceImpl::s_hDllModule, szFilePath, MAX_PATH);
-
-		int nLen = (int)wcslen(szFilePath);
-		for (int i = nLen - 1; i >= 0; --i) {
-			if (szFilePath[i] == '\\') {
-				szFilePath[i + 1] = 0;
-				break;
-			}
-		}
-
-		s_strHLSLDir = std::wstring(szFilePath) + L"HLSL\\";
-	}
-
-	return s_strHLSLDir;
-}
-
 DX11Shader::DX11Shader(DX11GraphicInstanceImpl &graphic, const ST_ShaderInfo *info)
 	: DX11GraphicBase(graphic), m_shaderInfo(*info)
 {
@@ -34,21 +12,17 @@ bool DX11Shader::BuildDX()
 {
 	CHECK_GRAPHIC_CONTEXT_EX(m_graphic);
 
-	std::wstring dir = GetHLSLDir();
-	std::wstring vs = dir + m_shaderInfo.vsFile;
-	std::wstring ps = dir + m_shaderInfo.psFile;
-
 	ComPtr<ID3D10Blob> vertexShaderBuffer;
 	ComPtr<ID3D10Blob> pixelShaderBuffer;
 
-	HRESULT hr = D3DReadFileToBlob(vs.c_str(), vertexShaderBuffer.Assign());
+	HRESULT hr = D3DReadFileToBlob(m_shaderInfo.vsFile.c_str(), vertexShaderBuffer.Assign());
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		assert(false);
 		return false;
 	}
 
-	hr = D3DReadFileToBlob(ps.c_str(), pixelShaderBuffer.Assign());
+	hr = D3DReadFileToBlob(m_shaderInfo.psFile.c_str(), pixelShaderBuffer.Assign());
 	if (FAILED(hr)) {
 		CheckDXError(hr);
 		assert(false);
