@@ -240,11 +240,15 @@ void UnInitGraphic()
 {
 	AUTO_GRAPHIC_CONTEXT(pGraphic);
 
-	pI420_To_RGB->UninitConvertion();
-	pI420_To_RGB.reset();
+	if (pI420_To_RGB) {
+		pI420_To_RGB->UninitConvertion();
+		pI420_To_RGB.reset();
+	}
 
-	pYUYV_To_RGB->UninitConvertion();
-	pYUYV_To_RGB.reset();
+	if (pYUYV_To_RGB) {
+		pYUYV_To_RGB->UninitConvertion();
+		pYUYV_To_RGB.reset();
+	}
 
 	pGraphic->DestroyAllGraphicObject();
 	pGraphic->UnInitializeGraphic();
