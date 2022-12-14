@@ -32,6 +32,14 @@ enum class MapTextureType {
 	MapWrite,
 };
 
+enum class VertexInputType {
+	Normal = 0,
+	Color,
+	Positon,
+	SVPosition,
+	TextureCoord,
+};
+
 struct ST_TextureInfo {
 	uint32_t width = 0;
 	uint32_t height = 0;
@@ -51,10 +59,16 @@ struct ST_Color {
 	float alpha = 0.0;
 };
 
+struct ST_VertexInputDesc {
+	VertexInputType type;
+	uint32_t size;
+};
+
 struct ST_ShaderInfo {
 	std::wstring vsFile;
 	std::wstring psFile;
 
+	std::vector<ST_VertexInputDesc> vertexDesc;
 	uint32_t perVertexSize = 0;
 	uint32_t vertexCount = 0;
 

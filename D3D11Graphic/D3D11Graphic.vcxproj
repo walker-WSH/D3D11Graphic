@@ -178,7 +178,6 @@
     <ClCompile Include="DX11GraphicInstanceImpl.cpp" />
     <ClCompile Include="DX11GraphicMatrix.cpp" />
     <ClCompile Include="DX11Shader.cpp" />
-    <ClCompile Include="DX11ShaderTexture.cpp" />
     <ClCompile Include="DX11SwapChain.cpp" />
     <ClCompile Include="DX11Texture2D.cpp" />
     <ClCompile Include="EnumAdapter.cpp" />
@@ -188,7 +187,6 @@
     <ClInclude Include="DX11GraphicBase.h" />
     <ClInclude Include="DX11GraphicInstanceImpl.h" />
     <ClInclude Include="DX11Shader.h" />
-    <ClInclude Include="DX11ShaderTexture.h" />
     <ClInclude Include="DX11SwapChain.h" />
     <ClInclude Include="DX11Texture2D.h" />
     <ClInclude Include="EnumAdapter.h" />

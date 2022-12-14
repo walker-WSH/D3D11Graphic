@@ -11,15 +11,14 @@ public:
 	virtual const char *GetName() { return "shader"; }
 	virtual bool BuildDX();
 	virtual void ReleaseDX();
-	virtual bool IsBuilt()
-	{
-		return m_pVertexShader && m_pPixelShader && m_pInputLayout && m_pVertexBuffer;
-	}
+	virtual bool IsBuilt();
 
 protected:
-	virtual std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() = 0;
+	std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout();
+	void GetSemanticName(VertexInputType type, D3D11_INPUT_ELEMENT_DESC &desc);
+	void GetSemanticFormat(uint32_t size, D3D11_INPUT_ELEMENT_DESC &desc);
 
-protected:
+private:
 	const ST_ShaderInfo m_shaderInfo;
 
 	// vertex shader

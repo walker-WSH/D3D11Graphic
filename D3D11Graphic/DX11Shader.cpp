@@ -27,6 +27,7 @@ std::wstring GetHLSLDir()
 DX11Shader::DX11Shader(DX11GraphicInstanceImpl &graphic, const ST_ShaderInfo *info)
 	: DX11GraphicBase(graphic), m_shaderInfo(*info)
 {
+	BuildDX();
 }
 
 bool DX11Shader::BuildDX()
@@ -138,4 +139,88 @@ void DX11Shader::ReleaseDX()
 
 	m_pInputLayout = nullptr;
 	m_pVertexBuffer = nullptr;
+}
+
+bool DX11Shader::IsBuilt()
+{
+	return m_pVertexShader && m_pPixelShader && m_pInputLayout && m_pVertexBuffer;
+}
+
+void DX11Shader::GetSemanticName(VertexInputType type, D3D11_INPUT_ELEMENT_DESC &desc)
+{
+	switch (type) {
+	case VertexInputType::Normal:
+		desc.SemanticName = "NORMAL";
+		break;
+
+	case VertexInputType::Color:
+		desc.SemanticName = "COLOR";
+		break;
+
+	case VertexInputType::Positon:
+		desc.SemanticName = "POSITION";
+		break;
+
+	case VertexInputType::SVPosition:
+		desc.SemanticName = "SV_POSITION";
+		break;
+
+	case VertexInputType::TextureCoord:
+		desc.SemanticName = "TEXCOORD";
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+}
+
+void DX11Shader::GetSemanticFormat(uint32_t size, D3D11_INPUT_ELEMENT_DESC &desc)
+{
+	switch (size) {
+	case 4:
+		desc.Format = DXGI_FORMAT_R32_FLOAT;
+		break;
+
+	case 8:
+		desc.Format = DXGI_FORMAT_R32G32_FLOAT;
+		break;
+
+	case 12:
+		desc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		break;
+
+	case 16:
+		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+}
+
+std::vector<D3D11_INPUT_ELEMENT_DESC> DX11Shader::GetInputLayout()
+{
+	std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
+
+	uint32_t offset = 0;
+	std::map<VertexInputType, uint32_t> indexs;
+
+	for (const auto &item : m_shaderInfo.vertexDesc) {
+		D3D11_INPUT_ELEMENT_DESC desc = {};
+		desc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		desc.AlignedByteOffset = offset;
+		desc.SemanticIndex = indexs[item.type];
+		GetSemanticName(item.type, desc);
+		GetSemanticFormat(item.size, desc);
+
+		inputLayoutDesc.push_back(desc);
+
+		offset += item.size;
+		indexs[item.type] = indexs[item.type] + 1;
+	}
+
+	assert(!inputLayoutDesc.empty());
+	return inputLayoutDesc;
 }

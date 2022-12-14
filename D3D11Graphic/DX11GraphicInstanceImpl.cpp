@@ -294,7 +294,8 @@ shader_handle DX11GraphicInstanceImpl::CreateShader(const ST_ShaderInfo &info)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
-	auto ret = new DX11ShaderTexture(*this, &info);
+	assert(!info.vertexDesc.empty());
+	auto ret = new DX11Shader(*this, &info);
 	if (!ret->IsBuilt()) {
 		delete ret;
 		assert(false);

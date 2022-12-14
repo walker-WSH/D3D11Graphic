@@ -8,7 +8,7 @@
 #include <DX11GraphicInstance.h>
 #include "EnumAdapter.h"
 #include "DX11GraphicBase.h"
-#include "DX11ShaderTexture.h"
+#include "DX11Shader.h"
 #include "DX11Texture2D.h"
 #include "DX11SwapChain.h"
 
