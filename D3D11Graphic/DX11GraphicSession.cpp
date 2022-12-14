@@ -616,6 +616,7 @@ bool DX11GraphicSession::RenderBegin_Canvas(texture_handle hdl, ST_Color bkClr)
 			obj->m_descTexture.Height, bkClr);
 	m_pCurrentSwapChain = nullptr;
 
+	EnterContext(std::source_location::current());
 	return true;
 }
 
@@ -650,6 +651,7 @@ bool DX11GraphicSession::RenderBegin_Display(display_handle hdl, ST_Color bkClr)
 	SetRenderTarget(obj->m_pRenderTargetView, obj->m_dwWidth, obj->m_dwHeight, bkClr);
 	m_pCurrentSwapChain = obj->m_pSwapChain;
 
+	EnterContext(std::source_location::current());
 	return true;
 }
 
@@ -768,6 +770,8 @@ void DX11GraphicSession::RenderEnd()
 	m_pCurrentSwapChain = nullptr;
 
 	HandleDXHResult(hr);
+
+	LeaveContext(std::source_location::current());
 }
 
 void DX11GraphicSession::HandleDXHResult(HRESULT hr, std::source_location location)
