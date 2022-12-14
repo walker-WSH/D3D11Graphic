@@ -11,8 +11,6 @@
 #define GRAPHIC_API __declspec(dllimport)
 #endif
 
-#define TEXTURE_VERTEX_COUNT 4
-
 #define COMBINE2(a, b) a##b
 #define COMBINE1(a, b) COMBINE2(a, b)
 #define AUTO_GRAPHIC_CONTEXT(graphic) \

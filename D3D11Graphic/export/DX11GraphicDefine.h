@@ -52,6 +52,7 @@ struct ST_TextureInfo {
 	enum TextureType usage = TextureType::Unknown;
 };
 
+#define TEXTURE_VERTEX_COUNT 4
 struct ST_TextureVertex {
 	float x, y, z, w;
 	float u, v;
