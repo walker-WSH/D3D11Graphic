@@ -56,8 +56,7 @@ bool FormatConvert_RGBToYUV::ConvertVideo(texture_handle tex)
 
 	std::vector<texture_handle> textures{tex};
 	for (const auto &item : video_plane_list) {
-		if (!original_video_info.graphic->RenderBegin_Canvas(item.canvas_tex,
-								     ST_Color(0, 0, 0, 0))) {
+		if (!original_video_info.graphic->BeginRenderCanvas(item.canvas_tex)) {
 			assert(false);
 			return false;
 		}
@@ -82,7 +81,7 @@ bool FormatConvert_RGBToYUV::ConvertVideo(texture_handle tex)
 
 		original_video_info.graphic->DrawTexture(item.shader, FilterType::FilterAnisotropic,
 							 textures);
-		original_video_info.graphic->RenderEnd();
+		original_video_info.graphic->EndRender();
 
 		// copy it to read video
 		original_video_info.graphic->CopyTexture(item.read_tex, item.canvas_tex);

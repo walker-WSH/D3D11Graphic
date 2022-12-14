@@ -498,7 +498,7 @@ bool DX11GraphicSession::InitSamplerState()
 }
 
 void DX11GraphicSession::SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width,
-					 uint32_t height, ST_Color bkClr)
+					 uint32_t height)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -514,16 +514,6 @@ void DX11GraphicSession::SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, 
 	vp.Width = (float)width;
 	vp.Height = (float)height;
 	m_pDeviceContext->RSSetViewports(1, &vp);
-
-	if (1) {
-		float blendFactor[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-		m_pDeviceContext->OMSetBlendState(m_pBlendState, blendFactor, 0xffffffff);
-	} else {
-		m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
-	}
-
-	float color[4] = {bkClr.red, bkClr.green, bkClr.blue, bkClr.alpha};
-	m_pDeviceContext->ClearRenderTargetView(target, color);
 
 	m_pCurrentRenderTarget = target;
 }
@@ -590,7 +580,7 @@ void DX11GraphicSession::ApplyShader(DX11Shader *shader)
 	}
 }
 
-bool DX11GraphicSession::RenderBegin_Canvas(texture_handle hdl, ST_Color bkClr)
+bool DX11GraphicSession::BeginRenderCanvas(texture_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -613,14 +603,14 @@ bool DX11GraphicSession::RenderBegin_Canvas(texture_handle hdl, ST_Color bkClr)
 		return false;
 
 	SetRenderTarget(obj->m_pRenderTargetView, obj->m_descTexture.Width,
-			obj->m_descTexture.Height, bkClr);
+			obj->m_descTexture.Height);
 	m_pCurrentSwapChain = nullptr;
 
 	EnterContext(std::source_location::current());
 	return true;
 }
 
-bool DX11GraphicSession::RenderBegin_Display(display_handle hdl, ST_Color bkClr)
+bool DX11GraphicSession::BeginRenderWindow(display_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -648,11 +638,48 @@ bool DX11GraphicSession::RenderBegin_Display(display_handle hdl, ST_Color bkClr)
 		return false;
 	}
 
-	SetRenderTarget(obj->m_pRenderTargetView, obj->m_dwWidth, obj->m_dwHeight, bkClr);
+	SetRenderTarget(obj->m_pRenderTargetView, obj->m_dwWidth, obj->m_dwHeight);
 	m_pCurrentSwapChain = obj->m_pSwapChain;
 
 	EnterContext(std::source_location::current());
 	return true;
+}
+
+void DX11GraphicSession::ClearBackground(const ST_Color *bkClr)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	if (!m_pDeviceContext || !m_pCurrentRenderTarget) {
+		assert(false);
+		return;
+	}
+
+	float color[4] = {bkClr->red, bkClr->green, bkClr->blue, bkClr->alpha};
+	m_pDeviceContext->ClearRenderTargetView(m_pCurrentRenderTarget, color);
+}
+
+void DX11GraphicSession::SetBlendState(BlendStateType type)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	if (!m_pDeviceContext || !m_pCurrentRenderTarget) {
+		assert(false);
+		return;
+	}
+
+	switch (type) {
+	case BlendStateType::Normal:
+		if (m_pBlendState) {
+			float blendFactor[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+			m_pDeviceContext->OMSetBlendState(m_pBlendState, blendFactor, 0xffffffff);
+		}
+		break;
+
+	case BlendStateType::Disable:
+	default:
+		m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+		break;
+	}
 }
 
 void DX11GraphicSession::SetVertexBuffer(shader_handle hdl, const void *buffer, size_t size)
@@ -757,7 +784,7 @@ void DX11GraphicSession::DrawTexture(shader_handle hdl, FilterType flt,
 	m_pDeviceContext->Draw(shader->m_shaderInfo.vertexCount, 0);
 }
 
-void DX11GraphicSession::RenderEnd()
+void DX11GraphicSession::EndRender()
 {
 	CHECK_GRAPHIC_CONTEXT;
 

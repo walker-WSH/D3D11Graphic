@@ -9,10 +9,12 @@ public:
 	virtual ~IDX11GraphicSession() = default;
 
 	// graphic : Select graphic automatically if it's null. NVIDIA > AMD > INTEL > BAISC > ANY
-	virtual bool InitializeGraphic(const ST_GraphicCardInfo *graphic = nullptr) = 0;
+	virtual bool
+	InitializeGraphic(const ST_GraphicCardInfo *graphic = nullptr) = 0;
 	virtual void UnInitializeGraphic() = 0;
 
-	virtual void RegisterCallback(std::weak_ptr<DX11GraphicCallback> cb) = 0;
+	virtual void
+	RegisterCallback(std::weak_ptr<DX11GraphicCallback> cb) = 0;
 	virtual void UnRegisterCallback(DX11GraphicCallback *cb) = 0;
 
 	virtual bool IsGraphicBuilt() = 0;
@@ -22,7 +24,8 @@ public:
 	virtual void DestroyAllGraphicObject() = 0;
 
 	virtual display_handle CreateDisplay(HWND hWnd) = 0;
-	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height) = 0;
+	virtual void SetDisplaySize(display_handle hdl, uint32_t width,
+				    uint32_t height) = 0;
 
 	virtual shader_handle CreateShader(const ST_ShaderInfo &info) = 0;
 
@@ -36,14 +39,20 @@ public:
 				D3D11_MAPPED_SUBRESOURCE *) = 0;
 	virtual void UnmapTexture(texture_handle tex) = 0;
 
-	//--------------------------------------------------------------------------------------------
-	virtual bool RenderBegin_Canvas(texture_handle hdl, ST_Color bkClr) = 0;
-	virtual bool RenderBegin_Display(display_handle hdl, ST_Color bkClr) = 0;
-	virtual void SetVertexBuffer(shader_handle hdl, const void *buffer, size_t size) = 0;
-	virtual void SetVSConstBuffer(shader_handle hdl, const void *vsBuffer, size_t vsSize) = 0;
-	virtual void SetPSConstBuffer(shader_handle hdl, const void *psBuffer, size_t psSize) = 0;
-	virtual void DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TOPOLOGY type) = 0;
+	//----------------------------------------------------------------------
+	virtual bool BeginRenderCanvas(texture_handle hdl) = 0;
+	virtual bool BeginRenderWindow(display_handle hdl) = 0;
+	virtual void ClearBackground(const ST_Color *bkClr) = 0;
+	virtual void SetBlendState(BlendStateType type) = 0;
+	virtual void SetVertexBuffer(shader_handle hdl, const void *buffer,
+				     size_t size) = 0;
+	virtual void SetVSConstBuffer(shader_handle hdl, const void *vsBuffer,
+				      size_t vsSize) = 0;
+	virtual void SetPSConstBuffer(shader_handle hdl, const void *psBuffer,
+				      size_t psSize) = 0;
+	virtual void DrawTopplogy(shader_handle hdl,
+				  D3D11_PRIMITIVE_TOPOLOGY type) = 0;
 	virtual void DrawTexture(shader_handle hdl, FilterType flt,
 				 const std::vector<texture_handle> &) = 0;
-	virtual void RenderEnd() = 0;
+	virtual void EndRender() = 0;
 };

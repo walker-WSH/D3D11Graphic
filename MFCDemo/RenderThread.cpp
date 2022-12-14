@@ -77,7 +77,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 		RenderYUYVFormat();
 
-		if (pGraphic->RenderBegin_Canvas(texCanvas, ST_Color(1.0f, 1.0f, 1.0f, 1.0f))) {
+		if (pGraphic->BeginRenderCanvas(texCanvas)) {
 			auto info = pGraphic->GetTextureInfo(texCanvas);
 
 			auto img = pGraphic->GetTextureInfo(texImg);
@@ -100,7 +100,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			RenderCustomFormat(SIZE(info.width, info.height),
 					   RECT(0, 0, info.width, info.height));
 
-			pGraphic->RenderEnd();
+			pGraphic->EndRender();
 
 			if (!saved) {
 				saved = true;
@@ -119,7 +119,11 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			}
 		}
 
-		if (pGraphic->RenderBegin_Display(display, ST_Color(0.3f, 0.6f, 0.5f, 1.0f))) {
+		if (pGraphic->BeginRenderWindow(display)) {
+			ST_Color bkColor(0, 0, 0.5, 1.0);
+			pGraphic->ClearBackground(&bkColor);
+			pGraphic->SetBlendState(BlendStateType::Normal);
+
 			if (texShared) {
 				RenderTexture(std::vector<texture_handle>{texShared}, canvasSize,
 					      RECT(20, 50, rc.right - 20,
@@ -166,7 +170,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 						     ST_Color(1.0f, 0.7f, 0.1f, 1.0f));
 			}
 
-			pGraphic->RenderEnd();
+			pGraphic->EndRender();
 		}
 	}
 
@@ -367,9 +371,9 @@ void RenderYUYVFormat()
 		yuyvCanvas = pGraphic->CreateTexture(info);
 	}
 
-	if (pGraphic->RenderBegin_Canvas(yuyvCanvas, ST_Color(0, 0, 0, 0))) {
+	if (pGraphic->BeginRenderCanvas(yuyvCanvas)) {
 		pYUYV_To_RGB->RenderVideo(frame_yuy2, SIZE(frame_yuy2->width, frame_yuy2->height),
 					  RECT(0, 0, frame_yuy2->width, frame_yuy2->height));
-		pGraphic->RenderEnd();
+		pGraphic->EndRender();
 	}
 }

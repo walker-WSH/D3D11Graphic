@@ -40,6 +40,11 @@ enum class VertexInputType {
 	TextureCoord,
 };
 
+enum class BlendStateType {
+	Disable = 0,
+	Normal,
+};
+
 enum class TextureRenderMode {
 	FitToRect = 0,
 	FullCoverRect,
@@ -112,7 +117,8 @@ public:
 
 class __declspec(dllexport) AutoGraphicContext {
 public:
-	AutoGraphicContext(IDX11GraphicSession *graphic, const std::source_location &location);
+	AutoGraphicContext(IDX11GraphicSession *graphic,
+			   const std::source_location &location);
 	virtual ~AutoGraphicContext();
 
 private:

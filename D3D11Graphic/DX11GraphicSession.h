@@ -56,15 +56,17 @@ public:
 				D3D11_MAPPED_SUBRESOURCE *mapData);
 	virtual void UnmapTexture(texture_handle tex);
 
-	virtual bool RenderBegin_Canvas(texture_handle hdl, ST_Color bkClr);
-	virtual bool RenderBegin_Display(display_handle hdl, ST_Color bkClr);
+	virtual bool BeginRenderCanvas(texture_handle hdl);
+	virtual bool BeginRenderWindow(display_handle hdl);
+	virtual void ClearBackground(const ST_Color *bkClr);
+	virtual void SetBlendState(BlendStateType type);
 	virtual void SetVertexBuffer(shader_handle hdl, const void *buffer, size_t size);
 	virtual void SetVSConstBuffer(shader_handle hdl, const void *vsBuffer, size_t vsSize);
 	virtual void SetPSConstBuffer(shader_handle hdl, const void *psBuffer, size_t psSize);
 	virtual void DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TOPOLOGY type);
 	virtual void DrawTexture(shader_handle hdl, FilterType flt,
 				 const std::vector<texture_handle> &textures);
-	virtual void RenderEnd();
+	virtual void EndRender();
 
 	//------------------------------------------------------------------------------------------------------
 	void EnterContext(const std::source_location &location);
@@ -86,8 +88,8 @@ protected:
 	void HandleDXHResult(HRESULT hr,
 			     std::source_location location = std::source_location::current());
 
-	void SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width, uint32_t height,
-			     ST_Color bkClr);
+	void SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width,
+			     uint32_t height);
 	void UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, const void *data, size_t size);
 	bool GetResource(const std::vector<texture_handle> &textures,
 			 std::vector<ID3D11ShaderResourceView *> &resources);
