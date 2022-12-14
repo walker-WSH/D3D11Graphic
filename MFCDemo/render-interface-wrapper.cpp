@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "render-interface-wrapper.h"
 
-IDX11GraphicInstance *pGraphic = nullptr;
+IDX11GraphicSession *pGraphic = nullptr;
 std::map<ShaderType, shader_handle> shaders;
 
 std::wstring GetShaderDirectory();

@@ -1,6 +1,6 @@
 #pragma once
 #include <assert.h>
-#include "DX11GraphicAPI.h"
+#include "IDX11GraphicEngine.h"
 #include "convert-video-color.h"
 
 extern "C" {
@@ -10,7 +10,7 @@ extern "C" {
 using namespace matrix;
 
 struct video_convert_params {
-	IDX11GraphicInstance *graphic = nullptr;
+	IDX11GraphicSession *graphic = nullptr;
 	uint32_t width = 0;
 	uint32_t height = 0;
 	enum AVPixelFormat format = AVPixelFormat::AV_PIX_FMT_NONE;

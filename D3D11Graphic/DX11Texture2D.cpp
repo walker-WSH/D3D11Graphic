@@ -1,22 +1,22 @@
 #include "DX11Texture2D.h"
-#include "DX11GraphicInstanceImpl.h"
+#include "DX11GraphicSession.h"
 #include <d3dcompiler.h>
 #include <dxsdk/include/D3DX11tex.h>
 
-DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, const ST_TextureInfo &info)
+DX11Texture2D::DX11Texture2D(DX11GraphicSession &graphic, const ST_TextureInfo &info)
 	: DX11GraphicBase(graphic), m_textureInfo(info)
 {
 	BuildDX();
 }
 
-DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, HANDLE handle)
+DX11Texture2D::DX11Texture2D(DX11GraphicSession &graphic, HANDLE handle)
 	: DX11GraphicBase(graphic), m_hSharedHandle(handle)
 {
 	m_textureInfo.usage = TextureType::SharedHandle;
 	BuildDX();
 }
 
-DX11Texture2D::DX11Texture2D(DX11GraphicInstanceImpl &graphic, const WCHAR *fullPath)
+DX11Texture2D::DX11Texture2D(DX11GraphicSession &graphic, const WCHAR *fullPath)
 	: DX11GraphicBase(graphic), m_strImagePath(fullPath)
 {
 	m_textureInfo.usage = TextureType::StaticImageFile;

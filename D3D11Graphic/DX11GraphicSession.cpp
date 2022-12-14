@@ -1,6 +1,6 @@
-#include "DX11GraphicInstanceImpl.h"
+#include "DX11GraphicSession.h"
 
-HMODULE DX11GraphicInstanceImpl::s_hDllModule = nullptr;
+HMODULE DX11GraphicSession::s_hDllModule = nullptr;
 
 #define CHECK_GRAPHIC_OBJECT_ALIVE(hdl)                                                 \
 	if (!IsGraphicObjectAlive(hdl)) {                                               \
@@ -8,18 +8,18 @@ HMODULE DX11GraphicInstanceImpl::s_hDllModule = nullptr;
 		assert(false);                                                          \
 	}
 
-DX11GraphicInstanceImpl::DX11GraphicInstanceImpl()
+DX11GraphicSession::DX11GraphicSession()
 {
 	InitializeCriticalSection(&m_lockOperation);
 }
 
-DX11GraphicInstanceImpl::~DX11GraphicInstanceImpl()
+DX11GraphicSession::~DX11GraphicSession()
 {
 	assert(m_listObject.empty());
 	DeleteCriticalSection(&m_lockOperation);
 }
 
-bool DX11GraphicInstanceImpl::InitializeGraphic(const ST_GraphicCardInfo *graphic)
+bool DX11GraphicSession::InitializeGraphic(const ST_GraphicCardInfo *graphic)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -33,7 +33,7 @@ bool DX11GraphicInstanceImpl::InitializeGraphic(const ST_GraphicCardInfo *graphi
 	return BuildAllDX();
 }
 
-void DX11GraphicInstanceImpl::UnInitializeGraphic()
+void DX11GraphicSession::UnInitializeGraphic()
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -47,13 +47,13 @@ void DX11GraphicInstanceImpl::UnInitializeGraphic()
 	CoUninitialize();
 }
 
-void DX11GraphicInstanceImpl::RegisterCallback(std::weak_ptr<DX11GraphicCallback> cb)
+void DX11GraphicSession::RegisterCallback(std::weak_ptr<DX11GraphicCallback> cb)
 {
 	CHECK_GRAPHIC_CONTEXT;
 	m_pGraphicCallbacks.push_back(cb);
 }
 
-void DX11GraphicInstanceImpl::UnRegisterCallback(DX11GraphicCallback *cb)
+void DX11GraphicSession::UnRegisterCallback(DX11GraphicCallback *cb)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -69,19 +69,19 @@ void DX11GraphicInstanceImpl::UnRegisterCallback(DX11GraphicCallback *cb)
 	}
 }
 
-bool DX11GraphicInstanceImpl::IsGraphicBuilt()
+bool DX11GraphicSession::IsGraphicBuilt()
 {
 	CHECK_GRAPHIC_CONTEXT;
 	return m_bBuildSuccessed;
 }
 
-bool DX11GraphicInstanceImpl::ReBuildGraphic()
+bool DX11GraphicSession::ReBuildGraphic()
 {
 	CHECK_GRAPHIC_CONTEXT;
 	return BuildAllDX();
 }
 
-void DX11GraphicInstanceImpl::DestroyGraphicObject(DX11GraphicObject *&hdl)
+void DX11GraphicSession::DestroyGraphicObject(DX11GraphicObject *&hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -100,7 +100,7 @@ void DX11GraphicInstanceImpl::DestroyGraphicObject(DX11GraphicObject *&hdl)
 	hdl = nullptr;
 }
 
-void DX11GraphicInstanceImpl::DestroyAllGraphicObject()
+void DX11GraphicSession::DestroyAllGraphicObject()
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -115,7 +115,7 @@ void DX11GraphicInstanceImpl::DestroyAllGraphicObject()
 	m_listObject.clear();
 }
 
-texture_handle DX11GraphicInstanceImpl::OpenSharedTexture(HANDLE hSharedHanle)
+texture_handle DX11GraphicSession::OpenSharedTexture(HANDLE hSharedHanle)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -128,7 +128,7 @@ texture_handle DX11GraphicInstanceImpl::OpenSharedTexture(HANDLE hSharedHanle)
 	return tex;
 }
 
-texture_handle DX11GraphicInstanceImpl::OpenImageTexture(const WCHAR *fullPath)
+texture_handle DX11GraphicSession::OpenImageTexture(const WCHAR *fullPath)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -142,7 +142,7 @@ texture_handle DX11GraphicInstanceImpl::OpenImageTexture(const WCHAR *fullPath)
 	return tex;
 }
 
-texture_handle DX11GraphicInstanceImpl::CreateTexture(const ST_TextureInfo &info)
+texture_handle DX11GraphicSession::CreateTexture(const ST_TextureInfo &info)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -159,7 +159,7 @@ texture_handle DX11GraphicInstanceImpl::CreateTexture(const ST_TextureInfo &info
 	return tex;
 }
 
-ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle hdl)
+ST_TextureInfo DX11GraphicSession::GetTextureInfo(texture_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
 	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
@@ -173,7 +173,7 @@ ST_TextureInfo DX11GraphicInstanceImpl::GetTextureInfo(texture_handle hdl)
 			      obj->m_descTexture.Format, obj->m_textureInfo.usage);
 }
 
-HANDLE DX11GraphicInstanceImpl::GetSharedHandle(texture_handle hdl)
+HANDLE DX11GraphicSession::GetSharedHandle(texture_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
 	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
@@ -186,7 +186,7 @@ HANDLE DX11GraphicInstanceImpl::GetSharedHandle(texture_handle hdl)
 	return obj->m_hSharedHandle;
 }
 
-bool DX11GraphicInstanceImpl::CopyTexture(texture_handle dest, texture_handle src)
+bool DX11GraphicSession::CopyTexture(texture_handle dest, texture_handle src)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -225,8 +225,8 @@ bool DX11GraphicInstanceImpl::CopyTexture(texture_handle dest, texture_handle sr
 	return true;
 }
 
-bool DX11GraphicInstanceImpl::MapTexture(texture_handle hdl, MapTextureType type,
-					 D3D11_MAPPED_SUBRESOURCE *mapData)
+bool DX11GraphicSession::MapTexture(texture_handle hdl, MapTextureType type,
+				    D3D11_MAPPED_SUBRESOURCE *mapData)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -252,7 +252,7 @@ bool DX11GraphicInstanceImpl::MapTexture(texture_handle hdl, MapTextureType type
 	return true;
 }
 
-void DX11GraphicInstanceImpl::UnmapTexture(texture_handle hdl)
+void DX11GraphicSession::UnmapTexture(texture_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -268,7 +268,7 @@ void DX11GraphicInstanceImpl::UnmapTexture(texture_handle hdl)
 	m_pDeviceContext->Unmap(obj->m_pTexture2D, 0);
 }
 
-display_handle DX11GraphicInstanceImpl::CreateDisplay(HWND hWnd)
+display_handle DX11GraphicSession::CreateDisplay(HWND hWnd)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -282,7 +282,7 @@ display_handle DX11GraphicInstanceImpl::CreateDisplay(HWND hWnd)
 	return ret;
 }
 
-void DX11GraphicInstanceImpl::SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height)
+void DX11GraphicSession::SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height)
 {
 	auto obj = dynamic_cast<DX11SwapChain *>(hdl);
 	assert(obj);
@@ -290,7 +290,7 @@ void DX11GraphicInstanceImpl::SetDisplaySize(display_handle hdl, uint32_t width,
 		obj->SetDisplaySize(width, height);
 }
 
-shader_handle DX11GraphicInstanceImpl::CreateShader(const ST_ShaderInfo &info)
+shader_handle DX11GraphicSession::CreateShader(const ST_ShaderInfo &info)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -305,31 +305,31 @@ shader_handle DX11GraphicInstanceImpl::CreateShader(const ST_ShaderInfo &info)
 	return ret;
 }
 
-ComPtr<IDXGIFactory1> DX11GraphicInstanceImpl::DXFactory()
+ComPtr<IDXGIFactory1> DX11GraphicSession::DXFactory()
 {
 	CHECK_GRAPHIC_CONTEXT;
 	return m_pDX11Factory;
 }
 
-ComPtr<ID3D11Device> DX11GraphicInstanceImpl::DXDevice()
+ComPtr<ID3D11Device> DX11GraphicSession::DXDevice()
 {
 	CHECK_GRAPHIC_CONTEXT;
 	return m_pDX11Device;
 }
 
-ComPtr<ID3D11DeviceContext> DX11GraphicInstanceImpl::DXContext()
+ComPtr<ID3D11DeviceContext> DX11GraphicSession::DXContext()
 {
 	CHECK_GRAPHIC_CONTEXT;
 	return m_pDeviceContext;
 }
 
-void DX11GraphicInstanceImpl::PushObject(DX11GraphicBase *obj)
+void DX11GraphicSession::PushObject(DX11GraphicBase *obj)
 {
 	CHECK_GRAPHIC_CONTEXT;
 	m_listObject.push_back(obj);
 }
 
-void DX11GraphicInstanceImpl::RemoveObject(DX11GraphicBase *obj)
+void DX11GraphicSession::RemoveObject(DX11GraphicBase *obj)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -338,7 +338,7 @@ void DX11GraphicInstanceImpl::RemoveObject(DX11GraphicBase *obj)
 		m_listObject.erase(itr);
 }
 
-void DX11GraphicInstanceImpl::ReleaseAllDX()
+void DX11GraphicSession::ReleaseAllDX()
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -354,7 +354,7 @@ void DX11GraphicInstanceImpl::ReleaseAllDX()
 	m_pSampleStateAnisotropic = m_pSampleStatePoint = m_pSampleStateLinear = nullptr;
 }
 
-bool DX11GraphicInstanceImpl::BuildAllDX()
+bool DX11GraphicSession::BuildAllDX()
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -429,7 +429,7 @@ bool DX11GraphicInstanceImpl::BuildAllDX()
 	return true;
 }
 
-bool DX11GraphicInstanceImpl::InitBlendState()
+bool DX11GraphicSession::InitBlendState()
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -454,7 +454,7 @@ bool DX11GraphicInstanceImpl::InitBlendState()
 	return true;
 }
 
-bool DX11GraphicInstanceImpl::InitSamplerState()
+bool DX11GraphicSession::InitSamplerState()
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -497,8 +497,8 @@ bool DX11GraphicInstanceImpl::InitSamplerState()
 	return true;
 }
 
-void DX11GraphicInstanceImpl::SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width,
-					      uint32_t height, ST_Color bkClr)
+void DX11GraphicSession::SetRenderTarget(ComPtr<ID3D11RenderTargetView> target, uint32_t width,
+					 uint32_t height, ST_Color bkClr)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -515,8 +515,12 @@ void DX11GraphicInstanceImpl::SetRenderTarget(ComPtr<ID3D11RenderTargetView> tar
 	vp.Height = (float)height;
 	m_pDeviceContext->RSSetViewports(1, &vp);
 
-	float blendFactor[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-	m_pDeviceContext->OMSetBlendState(m_pBlendState, blendFactor, 0xffffffff);
+	if (1) {
+		float blendFactor[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+		m_pDeviceContext->OMSetBlendState(m_pBlendState, blendFactor, 0xffffffff);
+	} else {
+		m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+	}
 
 	float color[4] = {bkClr.red, bkClr.green, bkClr.blue, bkClr.alpha};
 	m_pDeviceContext->ClearRenderTargetView(target, color);
@@ -524,8 +528,8 @@ void DX11GraphicInstanceImpl::SetRenderTarget(ComPtr<ID3D11RenderTargetView> tar
 	m_pCurrentRenderTarget = target;
 }
 
-void DX11GraphicInstanceImpl::UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, const void *data,
-						 size_t size)
+void DX11GraphicSession::UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, const void *data,
+					    size_t size)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -537,8 +541,8 @@ void DX11GraphicInstanceImpl::UpdateShaderBuffer(ComPtr<ID3D11Buffer> buffer, co
 		m_pDeviceContext->UpdateSubresource(buffer, 0, nullptr, data, 0, 0);
 }
 
-bool DX11GraphicInstanceImpl::GetResource(const std::vector<texture_handle> &textures,
-					  std::vector<ID3D11ShaderResourceView *> &resources)
+bool DX11GraphicSession::GetResource(const std::vector<texture_handle> &textures,
+				     std::vector<ID3D11ShaderResourceView *> &resources)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -561,7 +565,7 @@ bool DX11GraphicInstanceImpl::GetResource(const std::vector<texture_handle> &tex
 	return !resources.empty();
 }
 
-void DX11GraphicInstanceImpl::ApplyShader(DX11Shader *shader)
+void DX11GraphicSession::ApplyShader(DX11Shader *shader)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -586,7 +590,7 @@ void DX11GraphicInstanceImpl::ApplyShader(DX11Shader *shader)
 	}
 }
 
-bool DX11GraphicInstanceImpl::RenderBegin_Canvas(texture_handle hdl, ST_Color bkClr)
+bool DX11GraphicSession::RenderBegin_Canvas(texture_handle hdl, ST_Color bkClr)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -615,7 +619,7 @@ bool DX11GraphicInstanceImpl::RenderBegin_Canvas(texture_handle hdl, ST_Color bk
 	return true;
 }
 
-bool DX11GraphicInstanceImpl::RenderBegin_Display(display_handle hdl, ST_Color bkClr)
+bool DX11GraphicSession::RenderBegin_Display(display_handle hdl, ST_Color bkClr)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -649,7 +653,7 @@ bool DX11GraphicInstanceImpl::RenderBegin_Display(display_handle hdl, ST_Color b
 	return true;
 }
 
-void DX11GraphicInstanceImpl::SetVertexBuffer(shader_handle hdl, const void *buffer, size_t size)
+void DX11GraphicSession::SetVertexBuffer(shader_handle hdl, const void *buffer, size_t size)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -664,8 +668,7 @@ void DX11GraphicInstanceImpl::SetVertexBuffer(shader_handle hdl, const void *buf
 	}
 }
 
-void DX11GraphicInstanceImpl::SetVSConstBuffer(shader_handle hdl, const void *vsBuffer,
-					       size_t vsSize)
+void DX11GraphicSession::SetVSConstBuffer(shader_handle hdl, const void *vsBuffer, size_t vsSize)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -679,8 +682,7 @@ void DX11GraphicInstanceImpl::SetVSConstBuffer(shader_handle hdl, const void *vs
 	}
 }
 
-void DX11GraphicInstanceImpl::SetPSConstBuffer(shader_handle hdl, const void *psBuffer,
-					       size_t psSize)
+void DX11GraphicSession::SetPSConstBuffer(shader_handle hdl, const void *psBuffer, size_t psSize)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -694,7 +696,7 @@ void DX11GraphicInstanceImpl::SetPSConstBuffer(shader_handle hdl, const void *ps
 	}
 }
 
-void DX11GraphicInstanceImpl::DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TOPOLOGY type)
+void DX11GraphicSession::DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TOPOLOGY type)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -711,8 +713,8 @@ void DX11GraphicInstanceImpl::DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TO
 	m_pDeviceContext->Draw(shader->m_shaderInfo.vertexCount, 0);
 }
 
-void DX11GraphicInstanceImpl::DrawTexture(shader_handle hdl, FilterType flt,
-					  const std::vector<texture_handle> &textures)
+void DX11GraphicSession::DrawTexture(shader_handle hdl, FilterType flt,
+				     const std::vector<texture_handle> &textures)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -753,7 +755,7 @@ void DX11GraphicInstanceImpl::DrawTexture(shader_handle hdl, FilterType flt,
 	m_pDeviceContext->Draw(shader->m_shaderInfo.vertexCount, 0);
 }
 
-void DX11GraphicInstanceImpl::RenderEnd()
+void DX11GraphicSession::RenderEnd()
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -768,7 +770,7 @@ void DX11GraphicInstanceImpl::RenderEnd()
 	HandleDXHResult(hr);
 }
 
-void DX11GraphicInstanceImpl::HandleDXHResult(HRESULT hr, std::source_location location)
+void DX11GraphicSession::HandleDXHResult(HRESULT hr, std::source_location location)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
@@ -792,7 +794,7 @@ void DX11GraphicInstanceImpl::HandleDXHResult(HRESULT hr, std::source_location l
 	}
 }
 
-bool DX11GraphicInstanceImpl::IsGraphicObjectAlive(DX11GraphicObject *obj)
+bool DX11GraphicSession::IsGraphicObjectAlive(DX11GraphicObject *obj)
 {
 	CHECK_GRAPHIC_CONTEXT;
 

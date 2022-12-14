@@ -1,5 +1,5 @@
 #pragma once
-#include <DX11GraphicAPI.h>
+#include "IDX11GraphicEngine.h"
 #include <DirectXMath.h>
 #include <array>
 #include <vector>

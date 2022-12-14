@@ -1,12 +1,12 @@
 #pragma once
 #include <DX11GraphicBase.h>
 
-class DX11GraphicInstanceImpl;
+class DX11GraphicSession;
 struct DX11SwapChain : public DX11GraphicBase {
-	friend class DX11GraphicInstanceImpl;
+	friend class DX11GraphicSession;
 
 public:
-	DX11SwapChain(DX11GraphicInstanceImpl &graphic, HWND hWnd);
+	DX11SwapChain(DX11GraphicSession &graphic, HWND hWnd);
 
 	void SetDisplaySize(uint32_t width, uint32_t height);
 	HRESULT TestResizeSwapChain();

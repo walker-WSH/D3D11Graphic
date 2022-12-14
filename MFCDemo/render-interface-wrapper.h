@@ -1,7 +1,7 @@
 #pragma once
 #include <assert.h>
 #include <map>
-#include "DX11GraphicAPI.h"
+#include "IDX11GraphicEngine.h"
 #include "convert-video-yuv2rgb.h"
 #include "convert-video-rgb2yuv.h"
 
@@ -19,7 +19,7 @@ enum class ShaderType {
 	uvPlane,
 };
 
-extern IDX11GraphicInstance *pGraphic;
+extern IDX11GraphicSession *pGraphic;
 extern std::map<ShaderType, shader_handle> shaders;
 
 void InitShader();

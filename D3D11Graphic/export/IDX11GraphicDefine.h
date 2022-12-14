@@ -5,7 +5,7 @@
 #include <source_location>
 
 class DX11GraphicObject;
-class IDX11GraphicInstance;
+class IDX11GraphicSession;
 class AutoGraphicContext;
 
 using texture_handle = DX11GraphicObject *;
@@ -112,7 +112,7 @@ public:
 
 class __declspec(dllexport) AutoGraphicContext {
 public:
-	AutoGraphicContext(IDX11GraphicInstance *graphic, const std::source_location &location);
+	AutoGraphicContext(IDX11GraphicSession *graphic, const std::source_location &location);
 	virtual ~AutoGraphicContext();
 
 private:

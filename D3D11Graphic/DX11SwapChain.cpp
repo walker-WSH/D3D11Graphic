@@ -1,7 +1,7 @@
 #include "DX11SwapChain.h"
-#include "DX11GraphicInstanceImpl.h"
+#include "DX11GraphicSession.h"
 
-DX11SwapChain::DX11SwapChain(DX11GraphicInstanceImpl &graphic, HWND hWnd)
+DX11SwapChain::DX11SwapChain(DX11GraphicSession &graphic, HWND hWnd)
 	: DX11GraphicBase(graphic), m_hWnd(hWnd)
 {
 	RECT rc;

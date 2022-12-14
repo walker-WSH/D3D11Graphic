@@ -1,12 +1,12 @@
 #pragma once
 #include <DX11GraphicBase.h>
 
-class DX11GraphicInstanceImpl;
+class DX11GraphicSession;
 class DX11Shader : public DX11GraphicBase {
-	friend class DX11GraphicInstanceImpl;
+	friend class DX11GraphicSession;
 
 public:
-	DX11Shader(DX11GraphicInstanceImpl &graphic, const ST_ShaderInfo *info);
+	DX11Shader(DX11GraphicSession &graphic, const ST_ShaderInfo *info);
 
 	virtual const char *GetName() { return "shader"; }
 	virtual bool BuildDX();

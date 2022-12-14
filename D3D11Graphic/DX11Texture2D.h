@@ -1,14 +1,14 @@
 #pragma once
 #include <DX11GraphicBase.h>
 
-class DX11GraphicInstanceImpl;
+class DX11GraphicSession;
 class DX11Texture2D : public DX11GraphicBase {
-	friend class DX11GraphicInstanceImpl;
+	friend class DX11GraphicSession;
 
 public:
-	DX11Texture2D(DX11GraphicInstanceImpl &graphic, const ST_TextureInfo &info);
-	DX11Texture2D(DX11GraphicInstanceImpl &graphic, HANDLE handle);
-	DX11Texture2D(DX11GraphicInstanceImpl &graphic, const WCHAR *fullPath);
+	DX11Texture2D(DX11GraphicSession &graphic, const ST_TextureInfo &info);
+	DX11Texture2D(DX11GraphicSession &graphic, HANDLE handle);
+	DX11Texture2D(DX11GraphicSession &graphic, const WCHAR *fullPath);
 
 	virtual const char *GetName() { return "texture"; }
 	virtual bool BuildDX();

@@ -47,7 +47,7 @@ CMFCDemoDlg::CMFCDemoDlg(CWnd *pParent /*=nullptr*/) : CDialogEx(IDD_MFCDEMO_DIA
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
-	m_pGraphic = CreateGraphicInstance();
+	m_pGraphic = CreateGraphicSession();
 }
 
 CMFCDemoDlg::~CMFCDemoDlg()
@@ -55,7 +55,7 @@ CMFCDemoDlg::~CMFCDemoDlg()
 	m_bExit = true;
 	WaitForSingleObject(m_hThread, INFINITE);
 	CloseHandle(m_hThread);
-	DestroyGraphicInstance(m_pGraphic);
+	DestroyGraphicSession(m_pGraphic);
 }
 
 void CMFCDemoDlg::DoDataExchange(CDataExchange *pDX)

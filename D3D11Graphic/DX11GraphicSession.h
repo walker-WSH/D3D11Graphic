@@ -5,7 +5,7 @@
 #include <vector>
 #include <Windows.h>
 #include <DX11GraphicBase.h>
-#include <DX11GraphicInstance.h>
+#include <IDX11GraphicSession.h>
 #include "EnumAdapter.h"
 #include "DX11GraphicBase.h"
 #include "DX11Shader.h"
@@ -13,22 +13,22 @@
 #include "DX11SwapChain.h"
 
 // 保证了以下规则：
-// DX11GraphicInstanceImpl 的操作函数（RunTaskXXX） 必须在 EnterContext和LeaveContext 之间执行
-// 同一个线程中，不同的DX11GraphicInstanceImpl实例  必须保证上一个实例leave了 下一个实例才可以enter
-// 同一个DX11GraphicInstanceImpl实例，在不同线程中可以多线程访问（entercontext时有锁）
+// DX11GraphicSession 的操作函数（RunTaskXXX） 必须在 EnterContext和LeaveContext 之间执行
+// 同一个线程中，不同的DX11GraphicSession实例  必须保证上一个实例leave了 下一个实例才可以enter
+// 同一个DX11GraphicSession实例，在不同线程中可以多线程访问（entercontext时有锁）
 #define CHECK_GRAPHIC_CONTEXT CheckContext(std::source_location::current())
 #define CHECK_GRAPHIC_CONTEXT_EX(x) x.CheckContext(std::source_location::current())
 
-class DX11GraphicInstanceImpl : public IDX11GraphicInstance {
+class DX11GraphicSession : public IDX11GraphicSession {
 	friend class AutoGraphicContext;
 
 public:
 	static HMODULE s_hDllModule;
 
-	DX11GraphicInstanceImpl();
-	virtual ~DX11GraphicInstanceImpl();
+	DX11GraphicSession();
+	virtual ~DX11GraphicSession();
 
-	//--------------------------------------------------- IDX11GraphicInstance ---------------------------------------------------
+	//--------------------------------------------------- IDX11GraphicSession ---------------------------------------------------
 	virtual bool InitializeGraphic(const ST_GraphicCardInfo *graphic = nullptr);
 	virtual void UnInitializeGraphic();
 

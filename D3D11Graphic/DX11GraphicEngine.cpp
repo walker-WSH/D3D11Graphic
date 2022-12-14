@@ -1,5 +1,5 @@
-#include "DX11GraphicAPI.h"
-#include "DX11GraphicInstanceImpl.h"
+#include "IDX11GraphicEngine.h"
+#include "DX11GraphicSession.h"
 #include "EnumAdapter.h"
 #include <stack>
 #include <mutex>
@@ -34,12 +34,12 @@ GRAPHIC_API std::shared_ptr<std::vector<ST_GraphicCardInfo>> EnumGraphicCard()
 	return pReturnList;
 }
 
-GRAPHIC_API IDX11GraphicInstance *CreateGraphicInstance()
+GRAPHIC_API IDX11GraphicSession *CreateGraphicSession()
 {
-	return new DX11GraphicInstanceImpl();
+	return new DX11GraphicSession();
 }
 
-GRAPHIC_API void DestroyGraphicInstance(IDX11GraphicInstance *&graphic)
+GRAPHIC_API void DestroyGraphicSession(IDX11GraphicSession *&graphic)
 {
 	if (graphic) {
 		delete graphic;

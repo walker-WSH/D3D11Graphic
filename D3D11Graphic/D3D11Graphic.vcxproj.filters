@@ -17,15 +17,6 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="DX11GraphicInstanceImpl.cpp">
-      <Filter>DX11Instance</Filter>
-    </ClCompile>
-    <ClCompile Include="DX11GraphicAPI.cpp">
-      <Filter>DX11Instance</Filter>
-    </ClCompile>
-    <ClCompile Include="DX11GraphicInstanceContext.cpp">
-      <Filter>DX11Instance</Filter>
-    </ClCompile>
     <ClCompile Include="EnumAdapter.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -44,18 +35,21 @@
     <ClCompile Include="DX11Shader.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="DX11GraphicEngine.cpp">
+      <Filter>DX11Instance</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11GraphicSessionContext.cpp">
+      <Filter>DX11Instance</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11GraphicSession.cpp">
+      <Filter>DX11Instance</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\ComPtr.hpp">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="DX11GraphicInstanceImpl.h">
-      <Filter>DX11Instance</Filter>
-    </ClInclude>
     <ClInclude Include="export\DX11GraphicInstance.h">
-      <Filter>DX11Instance</Filter>
-    </ClInclude>
-    <ClInclude Include="export\DX11GraphicAPI.h">
       <Filter>DX11Instance</Filter>
     </ClInclude>
     <ClInclude Include="EnumAdapter.h">
@@ -73,11 +67,20 @@
     <ClInclude Include="DX11GraphicBase.h">
       <Filter>source</Filter>
     </ClInclude>
-    <ClInclude Include="export\DX11GraphicDefine.h">
-      <Filter>DX11Instance</Filter>
-    </ClInclude>
     <ClInclude Include="DX11Shader.h">
       <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="export\IDX11GraphicDefine.h">
+      <Filter>DX11Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="export\IDX11GraphicEngine.h">
+      <Filter>DX11Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="export\IDX11GraphicSession.h">
+      <Filter>DX11Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11GraphicSession.h">
+      <Filter>DX11Instance</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

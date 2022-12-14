@@ -2,11 +2,11 @@
 #include <dxgi.h>
 #include <Windows.h>
 #include <memory>
-#include <DX11GraphicDefine.h>
+#include <IDX11GraphicDefine.h>
 
-class IDX11GraphicInstance {
+class IDX11GraphicSession {
 public:
-	virtual ~IDX11GraphicInstance() = default;
+	virtual ~IDX11GraphicSession() = default;
 
 	// graphic : Select graphic automatically if it's null. NVIDIA > AMD > INTEL > BAISC > ANY
 	virtual bool InitializeGraphic(const ST_GraphicCardInfo *graphic = nullptr) = 0;

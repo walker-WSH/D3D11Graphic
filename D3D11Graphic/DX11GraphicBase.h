@@ -13,7 +13,7 @@
 #include <optional>
 
 #include "ComPtr.hpp"
-#include "DX11GraphicDefine.h"
+#include "IDX11GraphicDefine.h"
 
 #define SWAPCHAIN_TEXTURE_FORMAT DXGI_FORMAT_B8G8R8A8_UNORM
 #define D2D_TEXTURE_FORMAT DXGI_FORMAT_B8G8R8A8_UNORM
@@ -35,10 +35,10 @@ const static std::vector<D3D_FEATURE_LEVEL> featureLevels = {
 	D3D_FEATURE_LEVEL_10_0,
 };
 
-class DX11GraphicInstanceImpl;
+class DX11GraphicSession;
 class DX11GraphicBase : public DX11GraphicObject {
 public:
-	DX11GraphicBase(DX11GraphicInstanceImpl &graphic);
+	DX11GraphicBase(DX11GraphicSession &graphic);
 	virtual ~DX11GraphicBase();
 
 	virtual const char *GetName() = 0;
@@ -46,5 +46,5 @@ public:
 	virtual void ReleaseDX() = 0;
 
 protected:
-	DX11GraphicInstanceImpl &m_graphic;
+	DX11GraphicSession &m_graphic;
 };

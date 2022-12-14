@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include <DX11GraphicInstance.h>
+#include <IDX11GraphicSession.h>
 
 #ifdef GRAPHIC_API_EXPORTS
 #define GRAPHIC_API __declspec(dllexport)
@@ -18,8 +18,8 @@
 
 GRAPHIC_API std::shared_ptr<std::vector<ST_GraphicCardInfo>> EnumGraphicCard();
 
-GRAPHIC_API IDX11GraphicInstance *CreateGraphicInstance();
-GRAPHIC_API void DestroyGraphicInstance(IDX11GraphicInstance *&graphic);
+GRAPHIC_API IDX11GraphicSession *CreateGraphicSession();
+GRAPHIC_API void DestroyGraphicSession(IDX11GraphicSession *&graphic);
 
 GRAPHIC_API void TransposeMatrixWVP(SIZE canvas, SIZE texture, RECT destPos, TextureRenderMode mode,
 				    float outputMatrix[4][4]);

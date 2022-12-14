@@ -1,8 +1,8 @@
 #include "DX11Shader.h"
-#include "DX11GraphicInstanceImpl.h"
+#include "DX11GraphicSession.h"
 #include <d3dcompiler.h>
 
-DX11Shader::DX11Shader(DX11GraphicInstanceImpl &graphic, const ST_ShaderInfo *info)
+DX11Shader::DX11Shader(DX11GraphicSession &graphic, const ST_ShaderInfo *info)
 	: DX11GraphicBase(graphic), m_shaderInfo(*info)
 {
 	BuildDX();

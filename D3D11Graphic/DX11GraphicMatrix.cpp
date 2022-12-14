@@ -1,4 +1,4 @@
-#include "DX11GraphicAPI.h"
+#include "IDX11GraphicEngine.h"
 #include <dxsdk/include/d3dx10math.h>
 
 void SwapFloat(float &f1, float &f2)
