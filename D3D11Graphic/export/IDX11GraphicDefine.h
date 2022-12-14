@@ -4,6 +4,12 @@
 #include <dxgi.h>
 #include <source_location>
 
+#ifdef GRAPHIC_API_EXPORTS
+#define GRAPHIC_API __declspec(dllexport)
+#else
+#define GRAPHIC_API __declspec(dllimport)
+#endif
+
 class DX11GraphicObject;
 class IDX11GraphicSession;
 class AutoGraphicContext;
@@ -115,10 +121,9 @@ public:
 	virtual void OnBuildSuccessed(const DXGI_ADAPTER_DESC &desc) = 0;
 };
 
-class __declspec(dllexport) AutoGraphicContext {
+class GRAPHIC_API AutoGraphicContext {
 public:
-	AutoGraphicContext(IDX11GraphicSession *graphic,
-			   const std::source_location &location);
+	AutoGraphicContext(IDX11GraphicSession *graphic, const std::source_location &location);
 	virtual ~AutoGraphicContext();
 
 private:
