@@ -9,6 +9,15 @@ void InitShader()
 	float matrixWVP[4][4];
 	ST_ShaderInfo shaderInfo;
 
+	ST_VertexInputDesc desc;
+	desc.type = VertexInputType::SVPosition;
+	desc.size = 16;
+	shaderInfo.vertexDesc.push_back(desc);
+
+	desc.type = VertexInputType::TextureCoord;
+	desc.size = 8;
+	shaderInfo.vertexDesc.push_back(desc);
+
 	{
 		shaderInfo.vsFile = L"default-vs.cso";
 		shaderInfo.psFile = L"default-ps.cso";
