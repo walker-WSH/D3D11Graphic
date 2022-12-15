@@ -63,6 +63,13 @@ struct ST_TextureInfo {
 	enum TextureType usage = TextureType::Unknown;
 };
 
+struct ST_DisplayInfo {
+	HWND hWnd = 0;
+	uint32_t width = 0;
+	uint32_t height = 0;
+	enum DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
+};
+
 #define TEXTURE_VERTEX_COUNT 4
 struct ST_TextureVertex {
 	float x, y, z, w;

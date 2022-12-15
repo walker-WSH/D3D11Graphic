@@ -25,6 +25,7 @@ private:
 	uint32_t m_dwWidth = 0;
 	uint32_t m_dwHeight = 0;
 
+	D3D11_TEXTURE2D_DESC m_descTexture;
 	ComPtr<IDXGISwapChain> m_pSwapChain = nullptr;
 	ComPtr<ID3D11Texture2D> m_pSwapBackTexture2D = nullptr;
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;

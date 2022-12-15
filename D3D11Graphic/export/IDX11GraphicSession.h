@@ -29,6 +29,7 @@ public:
 	virtual display_handle CreateDisplay(HWND hWnd) = 0;
 	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height) = 0;
 	virtual bool CopyDisplay(texture_handle dest, display_handle src) = 0;
+	virtual ST_DisplayInfo GetDisplayInfo(display_handle hdl) = 0;
 
 	virtual shader_handle CreateShader(const ST_ShaderInfo &info) = 0;
 	virtual void SetVertexBuffer(shader_handle hdl, const void *buffer, size_t size) = 0;

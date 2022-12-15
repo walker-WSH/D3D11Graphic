@@ -31,6 +31,7 @@ void DX11SwapChain::ReleaseDX()
 {
 	CHECK_GRAPHIC_CONTEXT_EX(m_graphic);
 
+	ZeroMemory(&m_descTexture, sizeof(D3D11_TEXTURE2D_DESC));
 	m_pSwapChain = nullptr;
 	m_pSwapBackTexture2D = nullptr;
 	m_pRenderTargetView = nullptr;
@@ -55,18 +56,16 @@ HRESULT DX11SwapChain::TestResizeSwapChain()
 	if (!m_pSwapChain || !m_dwWidth || !m_dwHeight)
 		return S_FALSE;
 
-	D3D11_TEXTURE2D_DESC desc;
-	m_pSwapBackTexture2D->GetDesc(&desc);
-
-	if (desc.Width != m_dwWidth || desc.Height != m_dwHeight) {
+	if (m_descTexture.Width != m_dwWidth || m_descTexture.Height != m_dwHeight) {
 		ID3D11RenderTargetView *pRenderView = NULL;
 		m_graphic.DXContext()->OMSetRenderTargets(1, &pRenderView, NULL);
 
 		m_pRenderTargetView = nullptr;
 		m_pSwapBackTexture2D = nullptr;
+		ZeroMemory(&m_descTexture, sizeof(D3D11_TEXTURE2D_DESC));
 
-		HRESULT hr =
-			m_pSwapChain->ResizeBuffers(1, m_dwWidth, m_dwHeight, SWAPCHAIN_TEXTURE_FORMAT, 0);
+		HRESULT hr = m_pSwapChain->ResizeBuffers(1, m_dwWidth, m_dwHeight,
+							 SWAPCHAIN_TEXTURE_FORMAT, 0);
 		if (FAILED(hr)) {
 			CheckDXError(hr);
 			return hr;
@@ -127,5 +126,6 @@ HRESULT DX11SwapChain::CreateTargetView()
 		return hr;
 	}
 
+	m_pSwapBackTexture2D->GetDesc(&m_descTexture);
 	return S_OK;
 }

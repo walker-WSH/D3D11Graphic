@@ -206,17 +206,12 @@ bool DX11GraphicSession::CopyDisplay(texture_handle dest, display_handle src)
 	if (!srcDisplay || !srcDisplay->IsBuilt())
 		return false;
 
-	auto srcTex = srcDisplay->m_pSwapBackTexture2D;
-
-	D3D11_TEXTURE2D_DESC srcDesc;
-	srcTex->GetDesc(&srcDesc);
-
-	if (!IsTextureInfoSame(&destTex->m_descTexture, &srcDesc)) {
+	if (!IsTextureInfoSame(&destTex->m_descTexture, &srcDisplay->m_descTexture)) {
 		assert(false);
 		return false;
 	}
 
-	m_pDeviceContext->CopyResource(destTex->m_pTexture2D, srcTex);
+	m_pDeviceContext->CopyResource(destTex->m_pTexture2D, srcDisplay->m_pSwapBackTexture2D);
 	return true;
 }
 
@@ -312,6 +307,20 @@ void DX11GraphicSession::SetDisplaySize(display_handle hdl, uint32_t width, uint
 	assert(obj);
 	if (obj)
 		obj->SetDisplaySize(width, height);
+}
+
+ST_DisplayInfo DX11GraphicSession::GetDisplayInfo(display_handle hdl)
+{
+	CHECK_GRAPHIC_CONTEXT;
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+
+	auto obj = dynamic_cast<DX11SwapChain *>(hdl);
+	assert(obj);
+	if (!obj || !obj->IsBuilt())
+		return ST_DisplayInfo();
+
+	return ST_DisplayInfo(obj->m_hWnd, obj->m_descTexture.Width, obj->m_descTexture.Height,
+			      obj->m_descTexture.Format);
 }
 
 shader_handle DX11GraphicSession::CreateShader(const ST_ShaderInfo &info)
@@ -861,7 +870,7 @@ bool DX11GraphicSession::IsGraphicObjectAlive(DX11GraphicObject *obj)
 }
 
 bool DX11GraphicSession::IsTextureInfoSame(const D3D11_TEXTURE2D_DESC *desc,
-					  const D3D11_TEXTURE2D_DESC *src)
+					   const D3D11_TEXTURE2D_DESC *src)
 {
 	return ((desc->Width == src->Width) && (desc->Height == src->Height) &&
 		(desc->Format == src->Format));

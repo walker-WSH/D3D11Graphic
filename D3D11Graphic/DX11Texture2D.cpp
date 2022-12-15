@@ -66,6 +66,7 @@ void DX11Texture2D::ReleaseDX()
 {
 	CHECK_GRAPHIC_CONTEXT_EX(m_graphic);
 
+	ZeroMemory(&m_descTexture, sizeof(D3D11_TEXTURE2D_DESC));
 	m_pTexture2D = nullptr;
 	m_pRenderTargetView = nullptr;
 	m_pTextureResView = nullptr;
