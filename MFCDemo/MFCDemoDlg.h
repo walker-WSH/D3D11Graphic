@@ -11,6 +11,9 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 
+#define DRAGE_REGION_SIZE 40
+#define RESIZE_REGION_SIZE 5
+
 // CMFCDemoDlg 对话框
 class CMFCDemoDlg : public CDialogEx {
 	// 构造
@@ -40,7 +43,9 @@ protected:
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
-	DECLARE_MESSAGE_MAP()
-public:
+	afx_msg LRESULT OnNcHitTest(CPoint point);
+	afx_msg void OnNcLButtonDown(UINT nHitTest, CPoint point);
+	afx_msg BOOL OnSetCursor(CWnd *pWnd, UINT nHitTest, UINT message);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	DECLARE_MESSAGE_MAP()
 };
