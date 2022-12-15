@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <Windows.h>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -25,3 +26,6 @@ extern AVFrame *frame_yuy2;
 
 int open_file();
 AVFrame *decode_frame();
+
+bool SaveBitmapFile(const wchar_t *path, const uint8_t *data, int linesize, int width, int height,
+		    int pixelSize, bool flip);

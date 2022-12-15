@@ -43,8 +43,12 @@ public:
 
 	virtual display_handle CreateDisplay(HWND hWnd);
 	virtual void SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height);
+	virtual bool CopyDisplay(texture_handle dest, display_handle src);
 
 	virtual shader_handle CreateShader(const ST_ShaderInfo &info);
+	virtual void SetVertexBuffer(shader_handle hdl, const void *buffer, size_t size);
+	virtual void SetVSConstBuffer(shader_handle hdl, const void *vsBuffer, size_t vsSize);
+	virtual void SetPSConstBuffer(shader_handle hdl, const void *psBuffer, size_t psSize);
 
 	virtual texture_handle OpenSharedTexture(HANDLE hSharedHanle);
 	virtual texture_handle OpenImageTexture(const WCHAR *fullPath);
@@ -60,9 +64,6 @@ public:
 	virtual bool BeginRenderWindow(display_handle hdl);
 	virtual void ClearBackground(const ST_Color *bkClr);
 	virtual void SetBlendState(BlendStateType type);
-	virtual void SetVertexBuffer(shader_handle hdl, const void *buffer, size_t size);
-	virtual void SetVSConstBuffer(shader_handle hdl, const void *vsBuffer, size_t vsSize);
-	virtual void SetPSConstBuffer(shader_handle hdl, const void *psBuffer, size_t psSize);
 	virtual void DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TOPOLOGY type);
 	virtual void DrawTexture(shader_handle hdl, FilterType flt,
 				 const std::vector<texture_handle> &textures);
@@ -96,6 +97,7 @@ protected:
 	void ApplyShader(DX11Shader *shader);
 
 	bool IsGraphicObjectAlive(DX11GraphicObject *obj);
+	bool IsTextureInfoSame(const D3D11_TEXTURE2D_DESC *desc, const D3D11_TEXTURE2D_DESC *src);
 
 private:
 	ST_GraphicCardInfo m_destGraphic;

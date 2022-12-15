@@ -36,6 +36,12 @@ void DX11SwapChain::ReleaseDX()
 	m_pRenderTargetView = nullptr;
 }
 
+bool DX11SwapChain::IsBuilt()
+{
+	CHECK_GRAPHIC_CONTEXT_EX(m_graphic);
+	return m_pSwapChain && m_pSwapBackTexture2D && m_pRenderTargetView;
+}
+
 void DX11SwapChain::SetDisplaySize(uint32_t width, uint32_t height)
 {
 	m_dwWidth = width;

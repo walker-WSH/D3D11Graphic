@@ -186,6 +186,40 @@ HANDLE DX11GraphicSession::GetSharedHandle(texture_handle hdl)
 	return obj->m_hSharedHandle;
 }
 
+bool DX11GraphicSession::CopyDisplay(texture_handle dest, display_handle src)
+{
+	CHECK_GRAPHIC_CONTEXT;
+
+	CHECK_GRAPHIC_OBJECT_ALIVE(dest);
+	CHECK_GRAPHIC_OBJECT_ALIVE(src);
+
+	if (!m_bBuildSuccessed)
+		return false;
+
+	auto destTex = dynamic_cast<DX11Texture2D *>(dest);
+	assert(destTex);
+	if (!destTex || !destTex->IsBuilt())
+		return false;
+
+	auto srcDisplay = dynamic_cast<DX11SwapChain *>(src);
+	assert(srcDisplay);
+	if (!srcDisplay || !srcDisplay->IsBuilt())
+		return false;
+
+	auto srcTex = srcDisplay->m_pSwapBackTexture2D;
+
+	D3D11_TEXTURE2D_DESC srcDesc;
+	srcTex->GetDesc(&srcDesc);
+
+	if (!IsTextureInfoSame(&destTex->m_descTexture, &srcDesc)) {
+		assert(false);
+		return false;
+	}
+
+	m_pDeviceContext->CopyResource(destTex->m_pTexture2D, srcTex);
+	return true;
+}
+
 bool DX11GraphicSession::CopyTexture(texture_handle dest, texture_handle src)
 {
 	CHECK_GRAPHIC_CONTEXT;
@@ -206,17 +240,7 @@ bool DX11GraphicSession::CopyTexture(texture_handle dest, texture_handle src)
 	if (!srcTex || !srcTex->IsBuilt())
 		return false;
 
-	if (destTex->m_descTexture.Width != srcTex->m_descTexture.Width) {
-		assert(false);
-		return false;
-	}
-
-	if (destTex->m_descTexture.Height != srcTex->m_descTexture.Height) {
-		assert(false);
-		return false;
-	}
-
-	if (destTex->m_descTexture.Format != srcTex->m_descTexture.Format) {
+	if (!IsTextureInfoSame(&destTex->m_descTexture, &srcTex->m_descTexture)) {
 		assert(false);
 		return false;
 	}
@@ -834,4 +858,11 @@ bool DX11GraphicSession::IsGraphicObjectAlive(DX11GraphicObject *obj)
 		return true;
 
 	return false;
+}
+
+bool DX11GraphicSession::IsTextureInfoSame(const D3D11_TEXTURE2D_DESC *desc,
+					  const D3D11_TEXTURE2D_DESC *src)
+{
+	return ((desc->Width == src->Width) && (desc->Height == src->Height) &&
+		(desc->Format == src->Format));
 }
