@@ -146,7 +146,7 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 	pGraphic->SetVertexBuffer(shader, outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(shader, &(matrixWVP[0][0]), sizeof(matrixWVP));
 
-	pGraphic->DrawTexture(shader, FilterType::FilterAnisotropic, texs);
+	pGraphic->DrawTexture(shader, FilterType::FilterLinear, texs);
 }
 
 void FillRectangle(SIZE canvas, RECT drawDest, ST_Color clr)

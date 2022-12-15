@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="头文件">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="资源文件">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -19,25 +15,29 @@
     <Filter Include="render\convertion">
       <UniqueIdentifier>{08cbb433-3207-4173-9405-ad472d4dc1b8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MFCDemo.h">
-      <Filter>头文件</Filter>
+      <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="MFCDemoDlg.h">
-      <Filter>头文件</Filter>
+      <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="framework.h">
-      <Filter>头文件</Filter>
+      <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
-      <Filter>头文件</Filter>
+      <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>头文件</Filter>
+      <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
-      <Filter>头文件</Filter>
+      <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="render-interface-wrapper.h">
       <Filter>render</Filter>
@@ -63,13 +63,13 @@
       <Filter>render</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
-      <Filter>头文件</Filter>
+      <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="MFCDemo.cpp">
-      <Filter>头文件</Filter>
+      <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="MFCDemoDlg.cpp">
-      <Filter>头文件</Filter>
+      <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="render-interface-wrapper.cpp">
       <Filter>render</Filter>

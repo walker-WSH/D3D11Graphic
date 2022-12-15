@@ -12,7 +12,7 @@
 #define WINDOW_HEIGHT 720
 
 #define DRAGE_REGION_SIZE 40
-#define RESIZE_REGION_SIZE 5
+#define RESIZE_REGION_SIZE 10
 
 // CMFCDemoDlg 对话框
 class CMFCDemoDlg : public CDialogEx {
