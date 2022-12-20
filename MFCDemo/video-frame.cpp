@@ -232,6 +232,6 @@ bool SaveBitmapFile(const wchar_t *path, const uint8_t *data, int linesize, int 
 			WriteFile(hWrite, data + i * linesize, dwStride, &dwNumOfWrite, NULL);
 	}
 
-	CloseHandle(hWrite); 
+	CloseHandle(hWrite);
 	return true;
 }

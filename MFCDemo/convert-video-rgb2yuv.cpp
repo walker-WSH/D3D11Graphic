@@ -65,7 +65,8 @@ bool FormatConvert_RGBToYUV::ConvertVideo(texture_handle tex)
 		SIZE texSize(texInfo.width, texInfo.height);
 		RECT drawDest(0, 0, item.width, item.height);
 		float matrixWVP[4][4];
-		TransposeMatrixWVP(canvas, texSize, drawDest, TextureRenderMode::FitToRect, matrixWVP);
+		TransposeMatrixWVP(canvas, texSize, drawDest, TextureRenderMode::FitToRect,
+				   matrixWVP);
 
 		ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
 		VertexList_RectTriangle(texSize, false, false, outputVertex);

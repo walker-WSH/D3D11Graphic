@@ -60,8 +60,7 @@ void FormatConvert_YUVToRGB::RenderVideo(const AVFrame *av_frame, SIZE canvas, R
 	original_video_info.graphic->SetPSConstBuffer(convert_shader, &ps_const_buffer,
 						      sizeof(torgb_const_buffer));
 
-	original_video_info.graphic->DrawTexture(convert_shader, FilterType::FilterPoint,
-						 texs);
+	original_video_info.graphic->DrawTexture(convert_shader, FilterType::FilterPoint, texs);
 }
 
 void FormatConvert_YUVToRGB::UpdateVideo(const AVFrame *av_frame)
