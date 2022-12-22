@@ -79,24 +79,6 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 		if (pGraphic->BeginRenderCanvas(texCanvas)) {
 			auto info = pGraphic->GetTextureInfo(texCanvas);
-
-			auto img = pGraphic->GetTextureInfo(texImg);
-			RenderTexture(std::vector<texture_handle>{texImg},
-				      SIZE(info.width, info.height),
-				      RECT(0, 0, img.width, img.height));
-
-			FillRectangle(SIZE(info.width, info.height),
-				      RECT(0, info.height / 10 * 9, info.width / 3, info.height),
-				      ST_Color(1.0, 0, 0, 1.0));
-			FillRectangle(SIZE(info.width, info.height),
-				      RECT(info.width / 3, info.height / 10 * 9, info.width / 3 * 2,
-					   info.height),
-				      ST_Color(0, 1.0, 0, 1.0));
-			FillRectangle(SIZE(info.width, info.height),
-				      RECT(info.width / 3 * 2, info.height / 10 * 9, info.width,
-					   info.height),
-				      ST_Color(0, 0, 1, 1.0));
-
 			RenderCustomFormat(SIZE(info.width, info.height),
 					   RECT(0, 0, info.width, info.height));
 
@@ -302,51 +284,47 @@ int GetSelectRegionIndex()
 void RenderCustomFormat(SIZE canvasSize, RECT rc)
 {
 	AVFrame *newFrame = decode_frame();
-	if (newFrame) {
-		if (preFrame) {
-			av_frame_free(&preFrame);
-			preFrame = nullptr;
-		}
+	if (!newFrame)
+		return;
 
-		preFrame = newFrame;
+	if (preFrame)
+		av_frame_free(&preFrame);
+
+	preFrame = newFrame;
+	if (!pI420_To_RGB) {
+		video_convert_params params;
+		params.graphic = pGraphic;
+		params.width = preFrame->width;
+		params.height = preFrame->height;
+		params.format = (AVPixelFormat)preFrame->format;
+		assert(params.format == destFormat);
+
+		pI420_To_RGB = std::make_shared<FormatConvert_YUVToRGB>(params);
+		pI420_To_RGB->InitConvertion();
 	}
 
-	if (preFrame) {
-		if (!pI420_To_RGB) {
-			video_convert_params params;
-			params.graphic = pGraphic;
-			params.width = preFrame->width;
-			params.height = preFrame->height;
-			params.format = (AVPixelFormat)preFrame->format;
-			assert(params.format == destFormat);
+	pI420_To_RGB->RenderVideo(preFrame, canvasSize, rc);
 
-			pI420_To_RGB = std::make_shared<FormatConvert_YUVToRGB>(params);
-			pI420_To_RGB->InitConvertion();
-		}
-
-		pI420_To_RGB->RenderVideo(preFrame, canvasSize, rc);
-
-		if (0) {
-			FILE *fp = 0;
-			fopen_s(&fp, "yuv", "wb+");
-			if (fp) {
-				for (size_t i = 0; i < preFrame->height; i++) {
-					fwrite(preFrame->data[0] + i * preFrame->linesize[0],
-					       preFrame->width, 1, fp);
-				}
-
-				for (size_t i = 0; i < preFrame->height / 2; i++) {
-					fwrite(preFrame->data[1] + i * preFrame->linesize[1],
-					       preFrame->width / 2, 1, fp);
-				}
-
-				for (size_t i = 0; i < preFrame->height / 2; i++) {
-					fwrite(preFrame->data[2] + i * preFrame->linesize[2],
-					       preFrame->width / 2, 1, fp);
-				}
-
-				fclose(fp);
+	if (0) {
+		FILE *fp = 0;
+		fopen_s(&fp, "yuv", "wb+");
+		if (fp) {
+			for (size_t i = 0; i < preFrame->height; i++) {
+				fwrite(preFrame->data[0] + i * preFrame->linesize[0],
+				       preFrame->width, 1, fp);
 			}
+
+			for (size_t i = 0; i < preFrame->height / 2; i++) {
+				fwrite(preFrame->data[1] + i * preFrame->linesize[1],
+				       preFrame->width / 2, 1, fp);
+			}
+
+			for (size_t i = 0; i < preFrame->height / 2; i++) {
+				fwrite(preFrame->data[2] + i * preFrame->linesize[2],
+				       preFrame->width / 2, 1, fp);
+			}
+
+			fclose(fp);
 		}
 	}
 }
