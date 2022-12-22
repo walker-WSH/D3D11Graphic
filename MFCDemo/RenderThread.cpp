@@ -54,6 +54,11 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 	assert(open_file() == 0);
 
+	{
+		AUTO_GRAPHIC_CONTEXT(pGraphic);
+		RenderYUYVFormat();
+	}
+
 	while (!self->m_bExit) {
 		Sleep(20);
 
@@ -74,8 +79,6 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 			if (!pGraphic->ReBuildGraphic())
 				continue;
 		}
-
-		RenderYUYVFormat();
 
 		if (pGraphic->BeginRenderCanvas(texCanvas)) {
 			auto info = pGraphic->GetTextureInfo(texCanvas);
