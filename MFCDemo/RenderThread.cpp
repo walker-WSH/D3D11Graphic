@@ -60,7 +60,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 	}
 
 	while (!self->m_bExit) {
-		Sleep(20);
+		Sleep(33);
 
 		RECT rc;
 		::GetClientRect(self->m_hWnd, &rc);
