@@ -15,7 +15,7 @@ uint8_t *i420U = new uint8_t[lenU];
 uint8_t *i420V = new uint8_t[lenV];
 
 AVFrame *frame_i420 = nullptr;
-AVFrame *frame_yuy2 = nullptr;
+AVFrame *frame_yuyv = nullptr;
 
 bool readVideo()
 {
@@ -54,17 +54,17 @@ bool initVideo_i420()
 
 bool initVideo_yuy2()
 {
-	frame_yuy2 = av_frame_alloc();
-	frame_yuy2->format = AV_PIX_FMT_YUYV422;
-	frame_yuy2->width = 1920;
-	frame_yuy2->height = 1080;
-	av_frame_get_buffer(frame_yuy2, 32);
+	frame_yuyv = av_frame_alloc();
+	frame_yuyv->format = AV_PIX_FMT_YUYV422;
+	frame_yuyv->width = 1920;
+	frame_yuyv->height = 1080;
+	av_frame_get_buffer(frame_yuyv, 32);
 
 	FILE *fp = nullptr;
 	fopen_s(&fp, "1080p.yuy2", "rb+");
 	assert(fp);
 	if (fp) {
-		fread(frame_yuy2->data[0], frame_yuy2->width * frame_yuy2->height * 2, 1, fp);
+		fread(frame_yuyv->data[0], frame_yuyv->width * frame_yuyv->height * 2, 1, fp);
 		fclose(fp);
 	}
 

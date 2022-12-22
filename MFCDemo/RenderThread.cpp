@@ -136,7 +136,7 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 				// 直接将yuv转换并直接缩放渲染到目标区域
 				// 这个方法 清晰度明显低一些
 				// SamplerState无法对存储yuv的纹理进行采样算法处理？
-				pYUYV_To_RGB->RenderVideo(frame_yuy2, canvasSize, renderRegion[5]);
+				pYUYV_To_RGB->RenderVideo(frame_yuyv, canvasSize, renderRegion[5]);
 			}
 
 			RenderTexture(std::vector<texture_handle>{texImg2}, canvasSize,
@@ -334,24 +334,24 @@ void RenderYUYVFormat()
 	if (!pYUYV_To_RGB) {
 		video_convert_params params;
 		params.graphic = pGraphic;
-		params.width = frame_yuy2->width;
-		params.height = frame_yuy2->height;
-		params.format = (AVPixelFormat)frame_yuy2->format;
+		params.width = frame_yuyv->width;
+		params.height = frame_yuyv->height;
+		params.format = (AVPixelFormat)frame_yuyv->format;
 
 		pYUYV_To_RGB = std::make_shared<FormatConvert_YUVToRGB>(params);
 		pYUYV_To_RGB->InitConvertion();
 
 		ST_TextureInfo info;
-		info.width = frame_yuy2->width;
-		info.height = frame_yuy2->height;
+		info.width = frame_yuyv->width;
+		info.height = frame_yuyv->height;
 		info.format = DXGI_FORMAT_B8G8R8A8_UNORM;
 		info.usage = TextureType::CanvasTarget;
 		yuyvCanvas = pGraphic->CreateTexture(info);
 	}
 
 	if (pGraphic->BeginRenderCanvas(yuyvCanvas)) {
-		pYUYV_To_RGB->RenderVideo(frame_yuy2, SIZE(frame_yuy2->width, frame_yuy2->height),
-					  RECT(0, 0, frame_yuy2->width, frame_yuy2->height));
+		pYUYV_To_RGB->RenderVideo(frame_yuyv, SIZE(frame_yuyv->width, frame_yuyv->height),
+					  RECT(0, 0, frame_yuyv->width, frame_yuyv->height));
 		pGraphic->EndRender();
 	}
 }
