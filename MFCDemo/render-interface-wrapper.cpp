@@ -110,25 +110,16 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 {
 	AUTO_GRAPHIC_CONTEXT(pGraphic);
 
-	// x * 0.8 = drawrect
-	float srcCx = float(drawDest.right - drawDest.left);
-	float srcCy = float(drawDest.bottom - drawDest.top);
-	float destCx = srcCx / 0.8f;
-	float destCy = srcCy / 0.8f;
-
-	if (0) {
-		drawDest.left = drawDest.left - LONG(destCx - srcCx) / 2;
-		drawDest.right = drawDest.right + LONG(destCx - srcCx) / 2;
-
-		drawDest.top = drawDest.top - LONG(destCy - srcCy) / 2;
-		drawDest.bottom = drawDest.bottom + LONG(destCy - srcCy) / 2;
-	}
-
-	shader_handle shader = shaders[ShaderType::shaderTexture];
 	ST_TextureInfo texInfo = pGraphic->GetTextureInfo(texs.at(0));
+	shader_handle shader = shaders[ShaderType::shaderTexture];
 	SIZE texSize(texInfo.width, texInfo.height);
 
 	RECT realDrawDest = drawDest;
+	float cropL = 0;
+	float cropT = 0;
+	float cropR = 0;
+	float cropB = 0;
+	if (1) // fit to screen
 	{
 		// 根据图片等比例缩放 确认实际的渲染区域
 		auto cx = drawDest.right - drawDest.left;
@@ -146,8 +137,37 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 		} else {
 			float radio = float(cx) / float(texInfo.width);
 			auto destCy = radio * texInfo.height;
+
 			realDrawDest.top += ((drawDest.bottom - drawDest.top) - (LONG)destCy) / 2;
 			realDrawDest.bottom = realDrawDest.top + (LONG)destCy;
+		}
+	} else { // crop to ensure fullscreen
+
+		// 根据图片等比例缩放 确认实际的渲染区域
+		auto cx = drawDest.right - drawDest.left;
+		auto cy = drawDest.bottom - drawDest.top;
+		float wndRadio = float(cx) / float(cy);
+		float frameRadio = float(texInfo.width) / float(texInfo.height);
+
+		// 确认是按照宽度缩放 还是按照高度缩放
+		if (wndRadio < frameRadio) {
+			float radio = float(cy) / float(texInfo.height);
+			auto destCx = radio * texInfo.width;
+
+			realDrawDest.left += ((drawDest.right - drawDest.left) - (LONG)destCx) / 2;
+			realDrawDest.right = realDrawDest.left + (LONG)destCx;
+
+			cropL = cropR = float(abs(realDrawDest.left - drawDest.left)) /
+					float(realDrawDest.right - realDrawDest.left);
+		} else {
+			float radio = float(cx) / float(texInfo.width);
+			auto destCy = radio * texInfo.height;
+
+			realDrawDest.top += ((drawDest.bottom - drawDest.top) - (LONG)destCy) / 2;
+			realDrawDest.bottom = realDrawDest.top + (LONG)destCy;
+
+			cropT = cropB = float(abs(realDrawDest.top - drawDest.top)) /
+					float(realDrawDest.bottom - realDrawDest.top);
 		}
 	}
 
@@ -155,7 +175,7 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 	TransposeMatrixWVP(canvas, texSize, realDrawDest, TextureRenderMode::FitToRect, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
-	VertexList_RectTriangle(texSize, false, false, 0, 0, 0, 0, outputVertex);
+	VertexList_RectTriangle(texSize, false, false, cropL, cropT, cropR, cropB, outputVertex);
 
 	pGraphic->SetVertexBuffer(shader, outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(shader, &(matrixWVP[0][0]), sizeof(matrixWVP));
