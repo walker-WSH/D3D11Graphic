@@ -69,7 +69,7 @@ bool FormatConvert_RGBToYUV::ConvertVideo(texture_handle tex)
 				   matrixWVP);
 
 		ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
-		VertexList_RectTriangle(texSize, false, false, outputVertex);
+		VertexList_RectTriangle(texSize, false, false, 0, 0, 0, 0, outputVertex);
 
 		original_video_info.graphic->SetVertexBuffer(item.shader, outputVertex,
 							     sizeof(outputVertex));

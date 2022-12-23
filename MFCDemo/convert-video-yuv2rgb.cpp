@@ -51,7 +51,7 @@ void FormatConvert_YUVToRGB::RenderVideo(const AVFrame *av_frame, SIZE canvas, R
 	TransposeMatrixWVP(canvas, resolution, dest, TextureRenderMode::FitToRect, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
-	VertexList_RectTriangle(resolution, false, false, outputVertex);
+	VertexList_RectTriangle(resolution, false, false, 0, 0, 0, 0, outputVertex);
 
 	original_video_info.graphic->SetVertexBuffer(convert_shader, outputVertex,
 						     sizeof(outputVertex));

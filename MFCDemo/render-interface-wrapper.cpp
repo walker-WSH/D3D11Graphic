@@ -110,6 +110,20 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 {
 	AUTO_GRAPHIC_CONTEXT(pGraphic);
 
+	// x * 0.8 = drawrect
+	float srcCx = float(drawDest.right - drawDest.left);
+	float srcCy = float(drawDest.bottom - drawDest.top);
+	float destCx = srcCx / 0.8f;
+	float destCy = srcCy / 0.8f;
+
+	if (0) {
+		drawDest.left = drawDest.left - LONG(destCx - srcCx) / 2;
+		drawDest.right = drawDest.right + LONG(destCx - srcCx) / 2;
+
+		drawDest.top = drawDest.top - LONG(destCy - srcCy) / 2;
+		drawDest.bottom = drawDest.bottom + LONG(destCy - srcCy) / 2;
+	}
+
 	shader_handle shader = shaders[ShaderType::shaderTexture];
 	ST_TextureInfo texInfo = pGraphic->GetTextureInfo(texs.at(0));
 	SIZE texSize(texInfo.width, texInfo.height);
@@ -141,7 +155,7 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 	TransposeMatrixWVP(canvas, texSize, realDrawDest, TextureRenderMode::FitToRect, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
-	VertexList_RectTriangle(texSize, false, false, outputVertex);
+	VertexList_RectTriangle(texSize, false, false, 0, 0, 0, 0, outputVertex);
 
 	pGraphic->SetVertexBuffer(shader, outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(shader, &(matrixWVP[0][0]), sizeof(matrixWVP));
@@ -159,7 +173,7 @@ void FillRectangle(SIZE canvas, RECT drawDest, ST_Color clr)
 	TransposeMatrixWVP(canvas, texSize, drawDest, TextureRenderMode::FullCoverRect, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
-	VertexList_RectTriangle(texSize, false, false, outputVertex);
+	VertexList_RectTriangle(texSize, false, false, 0, 0, 0, 0, outputVertex);
 
 	pGraphic->SetVertexBuffer(shaders[type], outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(shaders[type], &(matrixWVP[0][0]), sizeof(matrixWVP));

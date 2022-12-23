@@ -84,18 +84,21 @@ GRAPHIC_API void TransposeMatrixWVP(SIZE canvas, SIZE texture, RECT destPos, Tex
 	memmove(&(outputMatrix[0][0]), src, sizeof(float) * 16);
 }
 
-GRAPHIC_API void VertexList_RectTriangle(SIZE texture, bool flipH, bool flipV,
+GRAPHIC_API void VertexList_RectTriangle(SIZE texture, bool flipH, bool flipV, float cropLeft,
+					 float cropTop, float cropRight, float cropBtm,
 					 ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT])
 {
-	float left = 0;
-	float right = left + (float)texture.cx;
-	float top = 0;
-	float bottom = top + (float)texture.cy;
+	// 渲染的目标区域也是被裁剪后的区域 裁剪了的区域则什么都没画
+	float left = 0 + cropLeft * texture.cx;
+	float top = 0 + cropTop * texture.cy;
+	float right = (float)texture.cx - cropRight * texture.cx;
+	float bottom = (float)texture.cy - cropBtm * texture.cy;
 
-	float leftUV = 0.f;
-	float rightUV = 1.f;
-	float topUV = 0.f;
-	float bottomUV = 1.f;
+	// 纹理采样的区域
+	float leftUV = 0.f + cropLeft;
+	float topUV = 0.f + cropTop;
+	float rightUV = 1.f - cropRight;
+	float bottomUV = 1.f - cropBtm;
 
 	if (flipH)
 		SwapFloat(leftUV, rightUV);
