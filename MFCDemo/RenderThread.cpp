@@ -42,6 +42,13 @@ void RenderYUYVFormat();
 void CMFCDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	for (auto &item : texRegions) {
+		if (item.second.fullscreen) {
+			item.second.fullscreen = false;
+			break;
+		}
+	}
+
+	for (auto &item : texRegions) {
 		auto rc = item.second.region;
 		if (point.x > rc.left && point.x < rc.right && point.y > rc.top &&
 		    point.y < rc.bottom) {
@@ -283,11 +290,7 @@ void InitRenderRect(RECT rc, int numH, int numV)
 	assert(texRegions.size() <= renderRegion.size());
 	auto itr = texRegions.begin();
 	for (size_t i = 0; i < texRegions.size() && i < renderRegion.size(); i++) {
-		if (itr->second.fullscreen)
-			itr->second.region = rc;
-		else
-			itr->second.region = renderRegion[i];
-
+		itr->second.region = renderRegion[i];
 		++itr;
 	}
 }
