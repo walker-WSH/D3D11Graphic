@@ -18,8 +18,12 @@ texture_handle texImg = nullptr;
 texture_handle texImg2 = nullptr;
 texture_handle texForD2D = nullptr;
 
-CPoint posLBDown = {0, 0};
-std::vector<RECT> renderRegion;
+struct texRegionInfo {
+	RECT region = {0, 0, 0, 0};
+	bool selected = false;
+	bool fullscreen = false;
+};
+std::map<texture_handle, struct texRegionInfo> texRegions;
 
 std::shared_ptr<FormatConvert_YUVToRGB> pI420_To_RGB = nullptr;
 std::shared_ptr<FormatConvert_YUVToRGB> pYUYV_To_RGB = nullptr;
@@ -29,7 +33,6 @@ bool InitGraphic(HWND hWnd);
 void UnInitGraphic();
 
 void InitRenderRect(RECT rc, int numH, int numV);
-int GetSelectRegionIndex();
 
 void RenderCustomFormat(SIZE canvasSize, RECT rc);
 
@@ -38,8 +41,29 @@ void RenderYUYVFormat();
 
 void CMFCDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	posLBDown = point;
+	for (auto &item : texRegions) {
+		auto rc = item.second.region;
+		if (point.x > rc.left && point.x < rc.right && point.y > rc.top &&
+		    point.y < rc.bottom) {
+			item.second.selected = true;
+		} else {
+			item.second.selected = false;
+		}
+	}
+
 	CDialogEx::OnLButtonDown(nFlags, point);
+}
+
+void CMFCDemoDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
+{
+	for (auto &item : texRegions) {
+		if (item.second.selected) {
+			item.second.fullscreen = !item.second.fullscreen;
+			break;
+		}
+	}
+
+	CDialogEx::OnLButtonDblClk(nFlags, point);
 }
 
 unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
@@ -58,6 +82,14 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		AUTO_GRAPHIC_CONTEXT(pGraphic);
 		RenderYUYVFormat();
 	}
+
+	texRegions[texAlpha] = texRegionInfo();
+	texRegions[texGirl] = texRegionInfo();
+	texRegions[texImg] = texRegionInfo();
+	texRegions[texCanvas] = texRegionInfo();
+	texRegions[yuyvCanvas] = texRegionInfo();
+	texRegions[texImg2] = texRegionInfo();
+	texRegions[texForD2D] = texRegionInfo();
 
 	while (!self->m_bExit) {
 		Sleep(33);
@@ -115,44 +147,23 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 						   rc.bottom - 20)); // 渲染共享纹理
 			}
 
-			RenderTexture(std::vector<texture_handle>{texAlpha}, canvasSize,
-				      renderRegion[0]);
+			texture_handle fullTex = 0;
+			for (auto &item : texRegions) {
+				RenderTexture(std::vector<texture_handle>{item.first}, canvasSize,
+					      item.second.region);
 
-			RenderTexture(std::vector<texture_handle>{texGirl}, canvasSize,
-				      renderRegion[1]);
+				if (item.second.selected) {
+					RenderBorderWithSize(canvasSize, item.second.region,
+							     BORDER_THICKNESS,
+							     ST_Color(1.0f, 0.7f, 0.1f, 1.0f));
+				}
 
-			RenderTexture(std::vector<texture_handle>{texImg}, canvasSize,
-				      renderRegion[2]);
-
-			FillRectangle(canvasSize, renderRegion[3],
-				      ST_Color(0, 0, 1.0, 1.0)); // 填充纯色矩形区域
-
-			RenderTexture(std::vector<texture_handle>{texCanvas}, canvasSize,
-				      renderRegion[4]); // 画布也可以直接当作resource进行渲染
-
-			if (1) {
-				// 先把yuv转为RGB纹理 再将rgb纹理缩放渲染到目标区域
-				// 这个方法 清晰度明显好一些
-				RenderTexture(std::vector<texture_handle>{yuyvCanvas}, canvasSize,
-					      renderRegion[5]);
-			} else {
-				// 直接将yuv转换并直接缩放渲染到目标区域
-				// 这个方法 清晰度明显低一些
-				// SamplerState无法对存储yuv的纹理进行采样算法处理？
-				pYUYV_To_RGB->RenderVideo(frame_yuyv, canvasSize, renderRegion[5]);
+				if (item.second.fullscreen)
+					fullTex = item.first;
 			}
 
-			RenderTexture(std::vector<texture_handle>{texImg2}, canvasSize,
-				      renderRegion[6]);
-
-			RenderTexture(std::vector<texture_handle>{texForD2D}, canvasSize,
-				      renderRegion[7]);
-
-			int index = GetSelectRegionIndex();
-			if (index >= 0) {
-				RenderBorderWithSize(canvasSize, renderRegion[index],
-						     BORDER_THICKNESS,
-						     ST_Color(1.0f, 0.7f, 0.1f, 1.0f));
+			if (fullTex) {
+				RenderTexture(std::vector<texture_handle>{fullTex}, canvasSize, rc);
 			}
 
 			pGraphic->EndRender();
@@ -245,14 +256,13 @@ void UnInitGraphic()
 
 void InitRenderRect(RECT rc, int numH, int numV)
 {
-	renderRegion.clear();
-
 	int width = rc.right - rc.left;
 	int height = rc.bottom - rc.top;
 
 	int cx = width / numH;
 	int cy = height / numV;
 
+	std::vector<RECT> renderRegion;
 	for (int j = 0; j < numV; j++) {
 		for (int i = 0; i < numH; i++) {
 			RECT temp;
@@ -269,19 +279,17 @@ void InitRenderRect(RECT rc, int numH, int numV)
 			renderRegion.push_back(temp);
 		}
 	}
-}
 
-int GetSelectRegionIndex()
-{
-	for (size_t i = 0; i < renderRegion.size(); i++) {
-		const auto &rc = renderRegion[i];
-		if (posLBDown.x > rc.left && posLBDown.x < rc.right && posLBDown.y > rc.top &&
-		    posLBDown.y < rc.bottom) {
-			return (int)i;
-		}
+	assert(texRegions.size() <= renderRegion.size());
+	auto itr = texRegions.begin();
+	for (size_t i = 0; i < texRegions.size() && i < renderRegion.size(); i++) {
+		if (itr->second.fullscreen)
+			itr->second.region = rc;
+		else
+			itr->second.region = renderRegion[i];
+
+		++itr;
 	}
-
-	return -1;
 }
 
 void RenderCustomFormat(SIZE canvasSize, RECT rc)
