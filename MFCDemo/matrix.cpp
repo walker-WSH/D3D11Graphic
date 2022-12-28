@@ -3,7 +3,6 @@
 #include <dxsdk/include/d3dx10math.h>
 
 // dxsdk
-#pragma comment(lib, "D3DX11.lib")
 #pragma comment(lib, "D3DX10.lib")
 
 D3DXMATRIX GetWorldMatrix(float scaleX, float scaleY, float left, float top)
