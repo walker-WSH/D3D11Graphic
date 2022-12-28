@@ -234,8 +234,8 @@ bool InitGraphic(HWND hWnd)
 	assert(tex2);
 	pGraphic->DestroyGraphicObject(tex2);
 
-	info.width = 400;
-	info.height = 300;
+	info.width = 1920;
+	info.height = 1080;
 	info.usage = TextureType::CanvasTarget;
 	texForD2D = pGraphic->CreateTexture(info);
 
