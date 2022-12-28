@@ -1,4 +1,6 @@
 #include "pch.h"
+#include "vertex.h"
+#include "matrix.h"
 #include "render-interface-wrapper.h"
 
 IDX11GraphicSession *pGraphic = nullptr;
@@ -176,7 +178,7 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 	TransposeMatrixWVP(canvas, texSize, realDrawDest, TextureRenderMode::FitToRect, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
-	VertexList_RectTriangle(texSize, false, false, cropL, cropT, cropR, cropB, outputVertex);
+	FillTextureVertex(texSize, false, false, cropL, cropT, cropR, cropB, outputVertex);
 
 	pGraphic->SetVertexBuffer(shader, outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(shader, &(matrixWVP[0][0]), sizeof(matrixWVP));
@@ -194,7 +196,7 @@ void FillRectangle(SIZE canvas, RECT drawDest, ST_Color clr)
 	TransposeMatrixWVP(canvas, texSize, drawDest, TextureRenderMode::FullCoverRect, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
-	VertexList_RectTriangle(texSize, false, false, 0, 0, 0, 0, outputVertex);
+	FillTextureVertex(texSize, false, false, 0, 0, 0, 0, outputVertex);
 
 	pGraphic->SetVertexBuffer(shaders[type], outputVertex, sizeof(outputVertex));
 	pGraphic->SetVSConstBuffer(shaders[type], &(matrixWVP[0][0]), sizeof(matrixWVP));

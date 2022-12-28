@@ -97,13 +97,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\D3D11Graphic\export\;$(ProjectDir)..\3rd\include\ffmpeg</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\D3D11Graphic\export\;$(ProjectDir)..\3rd\include\ffmpeg;$(SolutionDir);</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>D3D11Graphic.lib;avcodec.lib;avdevice.lib;avfilter.lib;avformat.lib;avutil.lib;swresample.lib;swscale.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)3rd\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)3rd\lib\$(Platform);$(SolutionDir)dxsdk\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -129,13 +129,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\D3D11Graphic\export\;$(ProjectDir)..\3rd\include\ffmpeg</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\D3D11Graphic\export\;$(ProjectDir)..\3rd\include\ffmpeg;$(SolutionDir);</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>D3D11Graphic.lib;avcodec.lib;avdevice.lib;avfilter.lib;avformat.lib;avutil.lib;swresample.lib;swscale.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)3rd\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)3rd\lib\$(Platform);$(SolutionDir)dxsdk\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -163,7 +163,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\D3D11Graphic\export\;$(ProjectDir)..\3rd\include\ffmpeg</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\D3D11Graphic\export\;$(ProjectDir)..\3rd\include\ffmpeg;$(SolutionDir);</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -171,7 +171,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>D3D11Graphic.lib;avcodec.lib;avdevice.lib;avfilter.lib;avformat.lib;avutil.lib;swresample.lib;swscale.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)3rd\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)3rd\lib\$(Platform);$(SolutionDir)dxsdk\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -199,7 +199,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\D3D11Graphic\export\;$(ProjectDir)..\3rd\include\ffmpeg</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\D3D11Graphic\export\;$(ProjectDir)..\3rd\include\ffmpeg;$(SolutionDir);</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -207,7 +207,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>D3D11Graphic.lib;avcodec.lib;avdevice.lib;avfilter.lib;avformat.lib;avutil.lib;swresample.lib;swscale.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)3rd\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)3rd\lib\$(Platform);$(SolutionDir)dxsdk\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -232,18 +232,21 @@
     <ClInclude Include="convert-video-rgb2yuv.h" />
     <ClInclude Include="convert-video-yuv2rgb.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="matrix.h" />
     <ClInclude Include="MFCDemo.h" />
     <ClInclude Include="MFCDemoDlg.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="render-interface-wrapper.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="vertex.h" />
     <ClInclude Include="video-frame.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="convert-video-color.cpp" />
     <ClCompile Include="convert-video-rgb2yuv.cpp" />
     <ClCompile Include="convert-video-yuv2rgb.cpp" />
+    <ClCompile Include="matrix.cpp" />
     <ClCompile Include="MFCDemo.cpp" />
     <ClCompile Include="MFCDemoDlg.cpp" />
     <ClCompile Include="pch.cpp">
@@ -254,6 +257,7 @@
     </ClCompile>
     <ClCompile Include="render-interface-wrapper.cpp" />
     <ClCompile Include="RenderThread.cpp" />
+    <ClCompile Include="vertex.cpp" />
     <ClCompile Include="video-frame.cpp" />
   </ItemGroup>
   <ItemGroup>

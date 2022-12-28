@@ -57,6 +57,12 @@
     <ClInclude Include="convert-video-define.h">
       <Filter>render\convertion</Filter>
     </ClInclude>
+    <ClInclude Include="vertex.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="matrix.h">
+      <Filter>render</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RenderThread.cpp">
@@ -85,6 +91,12 @@
     </ClCompile>
     <ClCompile Include="convert-video-yuv2rgb.cpp">
       <Filter>render\convertion</Filter>
+    </ClCompile>
+    <ClCompile Include="vertex.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="matrix.cpp">
+      <Filter>render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

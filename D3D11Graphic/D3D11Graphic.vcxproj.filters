@@ -29,9 +29,6 @@
     <ClCompile Include="DX11GraphicBase.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="DX11GraphicMatrix.cpp">
-      <Filter>DX11Instance</Filter>
-    </ClCompile>
     <ClCompile Include="DX11Shader.cpp">
       <Filter>source</Filter>
     </ClCompile>

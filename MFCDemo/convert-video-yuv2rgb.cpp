@@ -1,4 +1,6 @@
 #include "pch.h"
+#include "vertex.h"
+#include "matrix.h"
 #include "convert-video-yuv2rgb.h"
 #include "render-interface-wrapper.h"
 
@@ -51,7 +53,7 @@ void FormatConvert_YUVToRGB::RenderVideo(const AVFrame *av_frame, SIZE canvas, R
 	TransposeMatrixWVP(canvas, resolution, dest, TextureRenderMode::FitToRect, matrixWVP);
 
 	ST_TextureVertex outputVertex[TEXTURE_VERTEX_COUNT];
-	VertexList_RectTriangle(resolution, false, false, 0, 0, 0, 0, outputVertex);
+	FillTextureVertex(resolution, false, false, 0, 0, 0, 0, outputVertex);
 
 	original_video_info.graphic->SetVertexBuffer(convert_shader, outputVertex,
 						     sizeof(outputVertex));

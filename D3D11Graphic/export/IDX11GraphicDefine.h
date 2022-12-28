@@ -51,11 +51,6 @@ enum class BlendStateType {
 	Normal,
 };
 
-enum class TextureRenderMode {
-	FitToRect = 0,
-	FullCoverRect,
-};
-
 struct ST_TextureInfo {
 	uint32_t width = 0;
 	uint32_t height = 0;
@@ -68,12 +63,6 @@ struct ST_DisplayInfo {
 	uint32_t width = 0;
 	uint32_t height = 0;
 	enum DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
-};
-
-#define TEXTURE_VERTEX_COUNT 4
-struct ST_TextureVertex {
-	float x, y, z, w;
-	float u, v;
 };
 
 struct ST_Color {
