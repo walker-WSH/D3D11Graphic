@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <vector>
 #include <memory>
-#include <map>
+#include <unordered_map>
 
 #define BORDER_THICKNESS 3
 
@@ -23,7 +23,7 @@ struct texRegionInfo {
 	bool selected = false;
 	bool fullscreen = false;
 };
-std::map<texture_handle, struct texRegionInfo> texRegions;
+std::unordered_map<texture_handle, struct texRegionInfo> texRegions;
 
 std::shared_ptr<FormatConvert_YUVToRGB> pI420_To_RGB = nullptr;
 std::shared_ptr<FormatConvert_YUVToRGB> pYUYV_To_RGB = nullptr;
@@ -71,6 +71,13 @@ void CMFCDemoDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 	}
 
 	CDialogEx::OnLButtonDblClk(nFlags, point);
+}
+
+bool bFullscreenCrop = false;
+void CMFCDemoDlg::OnMButtonDown(UINT nFlags, CPoint point)
+{
+	bFullscreenCrop = !bFullscreenCrop;
+	CDialogEx::OnMButtonDown(nFlags, point);
 }
 
 unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)

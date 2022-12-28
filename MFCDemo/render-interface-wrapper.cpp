@@ -106,6 +106,7 @@ void InitShader()
 	}
 }
 
+extern bool bFullscreenCrop;
 void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 {
 	AUTO_GRAPHIC_CONTEXT(pGraphic);
@@ -119,7 +120,7 @@ void RenderTexture(std::vector<texture_handle> texs, SIZE canvas, RECT drawDest)
 	float cropT = 0;
 	float cropR = 0;
 	float cropB = 0;
-	if (1) // fit to screen
+	if (!bFullscreenCrop) // fit to screen
 	{
 		// 根据图片等比例缩放 确认实际的渲染区域
 		auto cx = drawDest.right - drawDest.left;
