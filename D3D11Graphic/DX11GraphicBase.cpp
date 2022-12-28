@@ -1,11 +1,15 @@
 #include "DX11GraphicBase.h"
 #include <DX11GraphicSession.h>
 
+// system
 #pragma comment(lib, "DXGI.lib")
 #pragma comment(lib, "D3D11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "dwrite.lib")
+
+// dxsdk
+#pragma comment(lib, "D3DX11.lib")
 
 DX11GraphicBase::DX11GraphicBase(DX11GraphicSession &graphic) : m_graphic(graphic)
 {
