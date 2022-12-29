@@ -21,10 +21,11 @@ static enum AVPixelFormat destFormat = AVPixelFormat::AV_PIX_FMT_YUV420P;
 //static enum AVPixelFormat destFormat = AVPixelFormat::AV_PIX_FMT_NV12;
 //static enum AVPixelFormat destFormat = AVPixelFormat::AV_PIX_FMT_YUYV422;
 
-extern AVFrame *frame_i420;
 extern AVFrame *frame_yuyv;
 
 int open_file();
+void close_file();
+
 AVFrame *decode_frame();
 
 bool SaveBitmapFile(const wchar_t *path, const uint8_t *data, int linesize, int width, int height,

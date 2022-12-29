@@ -14,7 +14,6 @@ uint8_t *i420Y = new uint8_t[lenY];
 uint8_t *i420U = new uint8_t[lenU];
 uint8_t *i420V = new uint8_t[lenV];
 
-AVFrame *frame_i420 = nullptr;
 AVFrame *frame_yuyv = nullptr;
 
 bool readVideo()
@@ -31,24 +30,6 @@ bool readVideo()
 	fread(i420V, lenV, 1, fp);
 
 	fclose(fp);
-	return true;
-}
-
-bool initVideo_i420()
-{
-	if (!readVideo())
-		return false;
-
-	frame_i420 = av_frame_alloc();
-	frame_i420->format = AV_PIX_FMT_YUV420P;
-	frame_i420->width = width;
-	frame_i420->height = height;
-
-	av_frame_get_buffer(frame_i420, 32);
-	memmove(frame_i420->data[0], i420Y, lenY);
-	memmove(frame_i420->data[1], i420U, lenU);
-	memmove(frame_i420->data[2], i420V, lenV);
-
 	return true;
 }
 
@@ -81,7 +62,6 @@ struct SwsContext *sws_ctx = nullptr;
 
 int open_file()
 {
-	initVideo_i420();
 	initVideo_yuy2();
 
 	int ret;
@@ -120,6 +100,28 @@ int open_file()
 	}
 
 	return 0;
+}
+
+void close_file()
+{
+	if (frame_yuyv) {
+		av_frame_free(&frame_yuyv);
+	}
+
+	if (sws_ctx) {
+		sws_freeContext(sws_ctx);
+		sws_ctx = 0;
+	}
+
+	if (decoder_ctx) {
+		avcodec_free_context(&decoder_ctx);
+		decoder_ctx = 0;
+	}
+
+	if (input_ctx) {
+		avformat_close_input(&input_ctx);
+		input_ctx = 0;
+	}
 }
 
 AVFrame *decode_frame()

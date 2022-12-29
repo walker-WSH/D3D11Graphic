@@ -264,6 +264,10 @@ void UnInitGraphic()
 		pYUYV_To_RGB.reset();
 	}
 
+	close_file(); 
+	if (preFrame)
+		av_frame_free(&preFrame);
+
 	pGraphic->DestroyAllGraphicObject();
 	pGraphic->UnInitializeGraphic();
 }
