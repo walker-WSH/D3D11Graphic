@@ -1,5 +1,6 @@
 #include "pch.h"
 #include <assert.h>
+#include <memory>
 #include "video-frame.h"
 
 #if 1
@@ -10,9 +11,9 @@ int lenY = width * height;
 int lenU = (width / 2) * (height / 2);
 int lenV = (width / 2) * (height / 2);
 
-uint8_t *i420Y = new uint8_t[lenY];
-uint8_t *i420U = new uint8_t[lenU];
-uint8_t *i420V = new uint8_t[lenV];
+std::shared_ptr<uint8_t> i420Y(new uint8_t[lenY]);
+std::shared_ptr<uint8_t> i420U(new uint8_t[lenU]);
+std::shared_ptr<uint8_t> i420V(new uint8_t[lenV]);
 
 AVFrame *frame_yuyv = nullptr;
 
@@ -25,9 +26,9 @@ bool readVideo()
 		return false;
 	}
 
-	fread(i420Y, lenY, 1, fp);
-	fread(i420U, lenU, 1, fp);
-	fread(i420V, lenV, 1, fp);
+	fread(i420Y.get(), lenY, 1, fp);
+	fread(i420U.get(), lenU, 1, fp);
+	fread(i420V.get(), lenV, 1, fp);
 
 	fclose(fp);
 	return true;

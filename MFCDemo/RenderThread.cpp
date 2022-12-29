@@ -163,6 +163,9 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 
 			texture_handle fullTex = 0;
 			for (auto &item : texRegions) {
+				if (!item.first)
+					continue;
+
 				RenderTexture(std::vector<texture_handle>{item.first}, canvasSize,
 					      item.second.region);
 
@@ -264,7 +267,7 @@ void UnInitGraphic()
 		pYUYV_To_RGB.reset();
 	}
 
-	close_file(); 
+	close_file();
 	if (preFrame)
 		av_frame_free(&preFrame);
 

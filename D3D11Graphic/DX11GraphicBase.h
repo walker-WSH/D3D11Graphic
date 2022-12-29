@@ -23,7 +23,7 @@ static void CheckDXError(HRESULT hr,
 {
 #ifdef _DEBUG
 	char str[MAX_PATH];
-	snprintf(str, MAX_PATH, "COM ERROR ================== 0X%x fun:%s line:%u file:%s \n", hr,
+	snprintf(str, MAX_PATH, "==================COM ERROR 0X%x fun:%s line:%u file:%s \n", hr,
 		 location.function_name(), location.line(), location.file_name());
 	OutputDebugStringA(str);
 #endif
