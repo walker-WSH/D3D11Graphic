@@ -301,6 +301,9 @@ display_handle DX11GraphicSession::CreateDisplay(HWND hWnd)
 
 void DX11GraphicSession::SetDisplaySize(display_handle hdl, uint32_t width, uint32_t height)
 {
+	CHECK_GRAPHIC_CONTEXT;
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl, return );
+
 	auto obj = dynamic_cast<DX11SwapChain *>(hdl);
 	assert(obj);
 	if (obj)
@@ -570,6 +573,8 @@ bool DX11GraphicSession::GetResource(const std::vector<texture_handle> &textures
 	resources.clear();
 
 	for (auto &item : textures) {
+		CHECK_GRAPHIC_OBJECT_ALIVE(item, continue);
+
 		auto tex = dynamic_cast<DX11Texture2D *>(item);
 		assert(tex);
 		if (!tex) {
@@ -589,6 +594,7 @@ bool DX11GraphicSession::GetResource(const std::vector<texture_handle> &textures
 void DX11GraphicSession::ApplyShader(DX11Shader *shader)
 {
 	CHECK_GRAPHIC_CONTEXT;
+	CHECK_GRAPHIC_OBJECT_ALIVE(shader, return );
 
 	uint32_t stride = shader->m_shaderInfo.perVertexSize;
 	uint32_t offset = 0;

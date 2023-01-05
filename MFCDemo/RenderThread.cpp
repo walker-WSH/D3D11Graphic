@@ -114,12 +114,12 @@ unsigned __stdcall CMFCDemoDlg::ThreadFunc(void *pParam)
 		rc.right = (rc.right / 2) * 2;
 		rc.bottom = (rc.bottom / 2) * 2;
 
-		SIZE canvasSize(rc.right - rc.left, rc.bottom - rc.top);
-		pGraphic->SetDisplaySize(display, canvasSize.cx, canvasSize.cy);
-
 		InitRenderRect(rc, 3, 3);
 
 		AUTO_GRAPHIC_CONTEXT(pGraphic);
+
+		SIZE canvasSize(rc.right - rc.left, rc.bottom - rc.top);
+		pGraphic->SetDisplaySize(display, canvasSize.cx, canvasSize.cy);
 
 		if (!pGraphic->IsGraphicBuilt()) {
 			if (!pGraphic->ReBuildGraphic())
