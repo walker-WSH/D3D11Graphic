@@ -2,10 +2,11 @@
 
 HMODULE DX11GraphicSession::s_hDllModule = nullptr;
 
-#define CHECK_GRAPHIC_OBJECT_ALIVE(hdl)                                                 \
+#define CHECK_GRAPHIC_OBJECT_ALIVE(hdl, action)                                         \
 	if (!IsGraphicObjectAlive(hdl)) {                                               \
 		OutputDebugStringA("Using deleted object, cash must happen later! \n"); \
 		assert(false);                                                          \
+		action;                                                                 \
 	}
 
 DX11GraphicSession::DX11GraphicSession()
@@ -23,7 +24,8 @@ bool DX11GraphicSession::InitializeGraphic(const ST_GraphicCardInfo *graphic)
 {
 	CHECK_GRAPHIC_CONTEXT;
 
-	CoInitializeEx(0, COINIT_MULTITHREADED);
+	HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
+	assert(S_OK == hr);
 
 	if (graphic)
 		m_destGraphic = *graphic;
@@ -162,7 +164,7 @@ texture_handle DX11GraphicSession::CreateTexture(const ST_TextureInfo &info)
 ST_TextureInfo DX11GraphicSession::GetTextureInfo(texture_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
-	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl, return ST_TextureInfo());
 
 	auto obj = dynamic_cast<DX11Texture2D *>(hdl);
 	assert(obj);
@@ -176,7 +178,7 @@ ST_TextureInfo DX11GraphicSession::GetTextureInfo(texture_handle hdl)
 HANDLE DX11GraphicSession::GetSharedHandle(texture_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
-	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl, return 0);
 
 	auto obj = dynamic_cast<DX11Texture2D *>(hdl);
 	assert(obj);
@@ -189,9 +191,8 @@ HANDLE DX11GraphicSession::GetSharedHandle(texture_handle hdl)
 bool DX11GraphicSession::CopyDisplay(texture_handle dest, display_handle src)
 {
 	CHECK_GRAPHIC_CONTEXT;
-
-	CHECK_GRAPHIC_OBJECT_ALIVE(dest);
-	CHECK_GRAPHIC_OBJECT_ALIVE(src);
+	CHECK_GRAPHIC_OBJECT_ALIVE(dest, return false);
+	CHECK_GRAPHIC_OBJECT_ALIVE(src, return false);
 
 	if (!m_bBuildSuccessed)
 		return false;
@@ -218,9 +219,8 @@ bool DX11GraphicSession::CopyDisplay(texture_handle dest, display_handle src)
 bool DX11GraphicSession::CopyTexture(texture_handle dest, texture_handle src)
 {
 	CHECK_GRAPHIC_CONTEXT;
-
-	CHECK_GRAPHIC_OBJECT_ALIVE(dest);
-	CHECK_GRAPHIC_OBJECT_ALIVE(src);
+	CHECK_GRAPHIC_OBJECT_ALIVE(dest, return false);
+	CHECK_GRAPHIC_OBJECT_ALIVE(src, return false);
 
 	if (!m_bBuildSuccessed)
 		return false;
@@ -248,8 +248,7 @@ bool DX11GraphicSession::MapTexture(texture_handle hdl, MapTextureType type,
 				    D3D11_MAPPED_SUBRESOURCE *mapData)
 {
 	CHECK_GRAPHIC_CONTEXT;
-
-	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl, return false);
 
 	if (!m_bBuildSuccessed)
 		return false;
@@ -274,8 +273,7 @@ bool DX11GraphicSession::MapTexture(texture_handle hdl, MapTextureType type,
 void DX11GraphicSession::UnmapTexture(texture_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
-
-	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl, return );
 
 	auto obj = dynamic_cast<DX11Texture2D *>(hdl);
 	assert(obj);
@@ -312,7 +310,7 @@ void DX11GraphicSession::SetDisplaySize(display_handle hdl, uint32_t width, uint
 ST_DisplayInfo DX11GraphicSession::GetDisplayInfo(display_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
-	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl, return ST_DisplayInfo());
 
 	auto obj = dynamic_cast<DX11SwapChain *>(hdl);
 	assert(obj);
@@ -616,8 +614,7 @@ void DX11GraphicSession::ApplyShader(DX11Shader *shader)
 bool DX11GraphicSession::BeginRenderCanvas(texture_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
-
-	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl, return false);
 	assert(!m_pCurrentRenderTarget && !m_pCurrentSwapChain);
 
 	if (!m_bBuildSuccessed) {
@@ -646,9 +643,7 @@ bool DX11GraphicSession::BeginRenderCanvas(texture_handle hdl)
 bool DX11GraphicSession::BeginRenderWindow(display_handle hdl)
 {
 	CHECK_GRAPHIC_CONTEXT;
-
-	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
-
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl, return false);
 	assert(!m_pCurrentRenderTarget && !m_pCurrentSwapChain);
 
 	if (!m_bBuildSuccessed) {
@@ -718,8 +713,7 @@ void DX11GraphicSession::SetBlendState(BlendStateType type)
 void DX11GraphicSession::SetVertexBuffer(shader_handle hdl, const void *buffer, size_t size)
 {
 	CHECK_GRAPHIC_CONTEXT;
-
-	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl, return );
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
 	assert(shader);
@@ -733,8 +727,7 @@ void DX11GraphicSession::SetVertexBuffer(shader_handle hdl, const void *buffer, 
 void DX11GraphicSession::SetVSConstBuffer(shader_handle hdl, const void *vsBuffer, size_t vsSize)
 {
 	CHECK_GRAPHIC_CONTEXT;
-
-	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl, return );
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
 	assert(shader);
@@ -747,8 +740,7 @@ void DX11GraphicSession::SetVSConstBuffer(shader_handle hdl, const void *vsBuffe
 void DX11GraphicSession::SetPSConstBuffer(shader_handle hdl, const void *psBuffer, size_t psSize)
 {
 	CHECK_GRAPHIC_CONTEXT;
-
-	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl, return );
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
 	assert(shader);
@@ -761,8 +753,7 @@ void DX11GraphicSession::SetPSConstBuffer(shader_handle hdl, const void *psBuffe
 void DX11GraphicSession::DrawTopplogy(shader_handle hdl, D3D11_PRIMITIVE_TOPOLOGY type)
 {
 	CHECK_GRAPHIC_CONTEXT;
-
-	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl, return );
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
 	assert(shader);
@@ -779,8 +770,7 @@ void DX11GraphicSession::DrawTexture(shader_handle hdl, FilterType flt,
 				     const std::vector<texture_handle> &textures)
 {
 	CHECK_GRAPHIC_CONTEXT;
-
-	CHECK_GRAPHIC_OBJECT_ALIVE(hdl);
+	CHECK_GRAPHIC_OBJECT_ALIVE(hdl, return );
 
 	auto shader = dynamic_cast<DX11Shader *>(hdl);
 	assert(shader);
