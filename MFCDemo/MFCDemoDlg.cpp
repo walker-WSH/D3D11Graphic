@@ -73,6 +73,7 @@ ON_WM_NCLBUTTONDOWN()
 ON_WM_SETCURSOR()
 ON_WM_LBUTTONDBLCLK()
 ON_WM_MBUTTONDOWN()
+ON_WM_RBUTTONDOWN()
 END_MESSAGE_MAP()
 
 // CMFCDemoDlg 消息处理程序
@@ -107,6 +108,7 @@ BOOL CMFCDemoDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	MoveWindow(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 	CenterWindow();
+
 	m_bExit = false;
 	m_hThread = (HANDLE)_beginthreadex(0, 0, ThreadFunc, this, 0, 0);
 

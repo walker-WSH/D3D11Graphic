@@ -73,6 +73,17 @@ void CMFCDemoDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 	CDialogEx::OnLButtonDblClk(nFlags, point);
 }
 
+void CMFCDemoDlg::OnRButtonDown(UINT nFlags, CPoint point)
+{
+	DWORD styles = (DWORD)GetWindowLongPtr(m_hWnd, GWL_STYLE);
+	if (styles & WS_MAXIMIZE)
+		ShowWindow(SW_RESTORE);
+	else
+		ShowWindow(SW_MAXIMIZE);
+
+	CDialogEx::OnRButtonDown(nFlags, point);
+}
+
 bool bFullscreenCrop = false;
 void CMFCDemoDlg::OnMButtonDown(UINT nFlags, CPoint point)
 {
